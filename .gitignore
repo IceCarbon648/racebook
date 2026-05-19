@@ -62,3 +62,5 @@ nunit-*.xml
 /backend/racebookApi/.vs
 /backend/racebookApi/bin
 /backend/racebookApi/obj
+/frontend/racebookClient/.vs
+/frontend/racebookClient/.vscode
