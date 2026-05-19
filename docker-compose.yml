@@ -32,9 +32,24 @@ services:
     depends_on:
       db-init:
         condition: service_completed_successfully
-    entrypoint: ["flyway", "-url=jdbc:sqlserver://host.docker.internal:1433;databaseName=racebook;trustServerCertificate=true", "-user=sa", "-password=${SQL_PASSWORD}", "migrate"] 
+    entrypoint: ["flyway", "-url=jdbc:sqlserver://host.docker.internal:1433;databaseName=racebook;trustServerCertificate=true", "-user=sa", "-password=${SQL_PASSWORD}", "migrate"]
     volumes:
       - ./sql/migrations:/flyway/sql
+
+  api:
+    build:
+        context: ./backend/racebookApi
+        dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=racebook;User Id=sa;Password=${SQL_PASSWORD};TrustServerCertificate=true;
+      - discordClientId=${discordClientId}
+      - discordClientSecret=${discordClientSecret}
+    depends_on:
+      flyway:
+        condition: service_completed_successfully
 
 volumes:
   sqlserver_data:
