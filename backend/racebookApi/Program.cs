@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using racebookApi.Services.Interfaces;
 using racebookApi.Services;
 using DotNetEnv;
+using racebookApi.Data;
+using racebookApi.Repositories.Interfaces;
+using racebookApi.Repositories;
 
 Env.Load();
 
@@ -20,7 +23,9 @@ builder.Services.AddHttpClient("amax-api", client =>
     client.BaseAddress = new Uri("https://amax-emu.com/api/");
 });
 
+builder.Services.AddSingleton<IDapperContext, DapperContext>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddAuthentication(options =>
 {

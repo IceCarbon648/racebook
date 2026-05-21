@@ -1,6 +1,6 @@
 ﻿namespace racebookApi.Models
 {
-    public class Mods
+    public class Mod
     {
         public Guid ModId { get; set; }
         public required List<User> Users { get; set; }

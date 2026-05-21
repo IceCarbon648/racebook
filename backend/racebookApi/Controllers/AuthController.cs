@@ -34,14 +34,13 @@ namespace racebookApi.Controllers
 
             if (!_authService.HasAmaxAccount(userAmaxData))
             {
-                return Ok();
+                return Ok("No amax account associated with the discord account");
             }
 
             string amaxUsername = _authService.GetAmaxUsername(userAmaxData);
+            _authService.setAmaxUsername(amaxUsername);
             
-            return Ok(amaxUsername);
+            return Ok("set amax name");
         }
-
-
     }
 }
