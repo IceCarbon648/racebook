@@ -47,6 +47,10 @@ services:
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=racebook;User Id=sa;Password=${SQL_PASSWORD};TrustServerCertificate=true;
       - discordClientId=${discordClientId}
       - discordClientSecret=${discordClientSecret}
+      - cloudinaryName=${cloudinaryName}
+      - cloudinaryKey=${cloudinaryKey}
+      - cloudinarySecret=${cloudinarySecret}
+      - cloudinaryUrl=${cloudinaryUrl}
     depends_on:
       flyway:
         condition: service_completed_successfully

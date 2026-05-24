@@ -26,9 +26,9 @@ namespace racebookApi.Controllers
             return Challenge(properties, DiscordAuthenticationDefaults.AuthenticationScheme);
         }
 
-        [HttpGet("GetAmaxUsername")]
+        [HttpPost("AmaxUsername")]
         [Authorize]
-        public async Task<IActionResult> GetAmaxUsername()
+        public async Task<IActionResult> SetAmaxUsername()
         {
             JsonDocument userAmaxData = await _authService.GetUserAmaxData(HttpContext);
 
@@ -38,7 +38,7 @@ namespace racebookApi.Controllers
             }
 
             string amaxUsername = _authService.GetAmaxUsername(userAmaxData);
-            _authService.setAmaxUsername(amaxUsername);
+            await _authService.setAmaxUsername(amaxUsername);
             
             return Ok("set amax name");
         }

@@ -1,9 +1,11 @@
 INSERT INTO [User] (
+	Uid,
 	Email,
 	Username,
 	PasswordHash
 )
 VALUES (
+	'9D51DE57-A958-4B74-B975-52A5F81C7F93',
 	'lol@mail.com',
 	'BobBuilder',
 	'$2a$12$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
