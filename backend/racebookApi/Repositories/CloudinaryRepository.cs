@@ -24,7 +24,7 @@ namespace racebookApi.Repositories
         {
             using Stream stream = file.OpenReadStream();
 
-            RawUploadParams uploadParams = new RawUploadParams//ASK DAMIAN (SPLIT INTO IMAGE AND RAW LATER, LEAVE AS RAW ONLY FOR NOW)
+            RawUploadParams uploadParams = new RawUploadParams
             {
                 File = new FileDescription(file.FileName, stream),
                 Folder = _folders[fileType]

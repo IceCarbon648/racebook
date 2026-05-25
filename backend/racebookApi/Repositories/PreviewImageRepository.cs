@@ -1,5 +1,4 @@
-﻿using racebookApi.Data;
-using racebookApi.Repositories.Interfaces;
+﻿using racebookApi.Repositories.Interfaces;
 using System.Data;
 using Dapper;
 
@@ -9,8 +8,10 @@ namespace racebookApi.Repositories
     {
         private readonly IDbConnection _dbConnection;
 
-        public PreviewImageRepository(IDapperContext dapperContext)
-            => _dbConnection = dapperContext.CreateConnection();
+        public PreviewImageRepository(IDbConnection dbConnection)
+        {
+            _dbConnection = dbConnection;
+        }
 
         public async Task CreatePreviewImage(Guid modId, string imageUrl)
         {

@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using racebookApi.Data;
 using racebookApi.Repositories.Interfaces;
 using System.Data;
 
@@ -9,8 +8,10 @@ namespace racebookApi.Repositories
     {
         private readonly IDbConnection _dbConnection;
 
-        public UserRepository(IDapperContext dapperContext)
-            => _dbConnection = dapperContext.CreateConnection();
+        public UserRepository(IDbConnection dbConnection)
+        {
+            _dbConnection = dbConnection;
+        }
 
         public async Task UpdateAmaxUsername(string playerName)
         {

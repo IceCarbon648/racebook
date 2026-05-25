@@ -2,12 +2,14 @@ using AspNet.Security.OAuth.Discord;
 using CloudinaryDotNet;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Data.SqlClient;
 using racebookApi.Data;
 using racebookApi.Repositories;
 using racebookApi.Repositories.Interfaces;
 using racebookApi.Services;
 using racebookApi.Services.Interfaces;
 using Scalar.AspNetCore;
+using System.Data;
 
 Env.Load();
 
@@ -27,6 +29,9 @@ builder.Services.AddHttpClient("amax-api", client =>
     client.BaseAddress = new Uri("https://amax-emu.com/api/");
 });
 
+builder.Services.AddScoped<IDbConnection>(sp =>
+    new SqlConnection(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection"))
+);
 builder.Services.AddScoped<IDapperContext, DapperContext>();
 builder.Services.AddSingleton(provider => new Cloudinary(new Account { ApiKey = cloudinaryKey, ApiSecret = cloudinarySecret, Cloud = cloudinaryName }));
 builder.Services.AddScoped<IAuthService, AuthService>();

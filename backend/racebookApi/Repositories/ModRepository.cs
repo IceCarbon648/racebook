@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using racebookApi.Data;
 using racebookApi.Repositories.Interfaces;
 using System.Data;
 
@@ -9,8 +8,10 @@ namespace racebookApi.Repositories
     {
         private readonly IDbConnection _dbConnection;
 
-        public ModRepository(IDapperContext dapperContext)
-            => _dbConnection = dapperContext.CreateConnection();
+        public ModRepository(IDbConnection dbConnection)
+        {
+            _dbConnection = dbConnection;
+        }
 
         public async Task<Guid> CreateMod(string uid, string title, string type, string description, string uploadDate, string editDate, string modFileUrl)
         {
