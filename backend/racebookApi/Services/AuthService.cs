@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using racebookApi.Repositories.Interfaces;
 using racebookApi.Services.Interfaces;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -8,10 +9,12 @@ namespace racebookApi.Services
     public class AuthService : IAuthService
     {
         private readonly HttpClient _httpClient;
+        private readonly IUserRepository _userRepository;
 
-        public AuthService(IHttpClientFactory httpClientFactory)
+        public AuthService(IHttpClientFactory httpClientFactory, IUserRepository userRepository)
         {
             _httpClient = httpClientFactory.CreateClient("amax-api");
+            _userRepository = userRepository;
         }
 
         private async Task<string> GetDiscordBearerToken(HttpContext httpContext)
@@ -44,6 +47,11 @@ namespace racebookApi.Services
                 .GetProperty("stats")
                 .GetProperty("playerName")
                 .GetString();
+        }
+
+        public async Task setAmaxUsername(string playerName)
+        {
+            await _userRepository.UpdateAmaxUsername(playerName);
         }
     }
 }

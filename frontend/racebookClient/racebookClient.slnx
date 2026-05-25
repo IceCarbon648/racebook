@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="racebookclient.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+</Solution>
