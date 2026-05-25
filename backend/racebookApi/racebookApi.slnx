@@ -1,4 +1,3 @@
 <Solution>
-  <Project Path="../racebookApiTests/racebookApiTests.csproj" Id="98e6ba0e-ba3d-4c8d-ac3e-f14e41d4b6a2" />
   <Project Path="racebookApi.csproj" />
 </Solution>

@@ -7,6 +7,5 @@ namespace racebookApi.Services.Interfaces
         Task<JsonDocument> GetUserAmaxData(HttpContext httpContext);
         bool HasAmaxAccount(JsonDocument userAmaxData);
         string GetAmaxUsername(JsonDocument userAmaxData);
-        Task setAmaxUsername(string playerName);
     }
 }

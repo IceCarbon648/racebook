@@ -1,25 +1,6 @@
-﻿using Dapper;
-using racebookApi.Repositories.Interfaces;
-using System.Data;
-
-namespace racebookApi.Repositories
+﻿namespace racebookApi.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository
     {
-        private readonly IDbConnection _dbConnection;
-
-        public UserRepository(IDbConnection dbConnection)
-        {
-            _dbConnection = dbConnection;
-        }
-
-        public async Task UpdateAmaxUsername(string playerName)
-        {
-            string sql = @"UPDATE [User]
-                           SET AmaxUsername = @amaxUsername
-                           WHERE Username = @username";
-
-            await _dbConnection.ExecuteAsync(sql, new { amaxUsername = playerName, username = "BobBuilder" });
-        }
     }
 }

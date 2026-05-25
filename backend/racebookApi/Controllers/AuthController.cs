@@ -26,21 +26,22 @@ namespace racebookApi.Controllers
             return Challenge(properties, DiscordAuthenticationDefaults.AuthenticationScheme);
         }
 
-        [HttpPost("AmaxUsername")]
+        [HttpGet("GetAmaxUsername")]
         [Authorize]
-        public async Task<IActionResult> SetAmaxUsername()
+        public async Task<IActionResult> GetAmaxUsername()
         {
             JsonDocument userAmaxData = await _authService.GetUserAmaxData(HttpContext);
 
             if (!_authService.HasAmaxAccount(userAmaxData))
             {
-                return Ok("No amax account associated with the discord account");
+                return Ok();
             }
 
             string amaxUsername = _authService.GetAmaxUsername(userAmaxData);
-            await _authService.setAmaxUsername(amaxUsername);
             
-            return Ok("set amax name");
+            return Ok(amaxUsername);
         }
+
+
     }
 }
