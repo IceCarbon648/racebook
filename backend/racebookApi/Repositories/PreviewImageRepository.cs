@@ -15,7 +15,14 @@ namespace racebookApi.Repositories
 
         public async Task CreatePreviewImage(Guid modId, string imageUrl)
         {
-            string sql = "INSERT INTO PreviewImage (ModId, FilePath) VALUES (@modId, @imageUrl)";
+            string sql = @"INSERT INTO PreviewImage (
+                               ModId,
+                               FilePath
+                           )
+                           VALUES (
+                               @modId,
+                               @imageUrl
+                           )";
 
             await _dbConnection.ExecuteAsync(sql, new { modId, imageUrl });
         }
