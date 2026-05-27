@@ -2,6 +2,7 @@
 using racebookApi.Repositories.Interfaces;
 using racebookApi.Services.Interfaces;
 using CloudinaryDotNet.Actions;
+using racebookApi.Models.DTOs.FromClient;
 
 namespace racebookApi.Services
 {
@@ -18,12 +19,21 @@ namespace racebookApi.Services
             _previewImageRepository = previewImageRepository;
         }
 
-        public async Task<string> UploadModFile(IFormFile modFile)
+        public async Task UploadMod(ModDto dto)
+        {
+            string modFileUrl = await UploadModFile(dto.ModFile);
+            List<string> previewImageUrls = await UploadPreviewImages(dto.PreviewImages);
+
+            Guid modId = await SaveModFile("9D51DE57-A958-4B74-B975-52A5F81C7F93", dto.Title, dto.Type, dto.Description, modFileUrl);
+            await SavePreviewImages(modId, previewImageUrls);
+        }
+
+        private async Task<string> UploadModFile(IFormFile modFile)
         {
             return await _cloudinaryRepository.UploadAsync(modFile, FileType.Raw);
         }
 
-        public async Task<List<string>> UploadPreviewImages(List<IFormFile> previewImages)
+        private async Task<List<string>> UploadPreviewImages(List<IFormFile> previewImages)
         {
             List<string> previewImageUrls = new List<string>();
 
@@ -35,12 +45,12 @@ namespace racebookApi.Services
             return previewImageUrls;
         }
 
-        public async Task<Guid> SaveModFile(string uid, string title, string type, string description, string modFileUrl)
+        private async Task<Guid> SaveModFile(string uid, string title, string type, string description, string modFileUrl)
         {
             return await _modRepository.CreateMod(uid, title, type, description, DateOnly.FromDateTime(DateTime.Now).ToString(), DateOnly.FromDateTime(DateTime.Now).ToString(), modFileUrl);
         }
 
-        public async Task SavePreviewImages(Guid modId, List<string> previewImageUrls)
+        private async Task SavePreviewImages(Guid modId, List<string> previewImageUrls)
         {
             foreach (string previewImageUrl in previewImageUrls)
             {
@@ -85,6 +95,11 @@ namespace racebookApi.Services
             {
                 ResourceType = ResourceType.Raw
             });
+        }
+
+        public async Task EditMod(ModEditDto dto)
+        {
+
         }
     }
 }

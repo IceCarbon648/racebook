@@ -18,11 +18,7 @@ namespace racebookApi.Controllers
         [HttpPost("Mod")]
         public async Task<IActionResult> UploadMod([FromForm] ModDto dto)
         {
-            string modFileUrl = await _modService.UploadModFile(dto.ModFile);
-            List<string> previewImageUrls = await _modService.UploadPreviewImages(dto.PreviewImages);
-
-            Guid modId = await _modService.SaveModFile("9D51DE57-A958-4B74-B975-52A5F81C7F93", dto.Title, dto.Type, dto.Description, modFileUrl);
-            await _modService.SavePreviewImages(modId, previewImageUrls);
+            await _modService.UploadMod(dto);
 
             return Ok();
         }
