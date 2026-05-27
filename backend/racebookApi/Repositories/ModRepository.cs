@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using racebookApi.Models;
 using racebookApi.Repositories.Interfaces;
 using System.Data;
 
@@ -54,6 +55,34 @@ namespace racebookApi.Repositories
                            WHERE ModId = @modId";
 
             return await _dbConnection.ExecuteScalarAsync<string>(sql, new { modId });
+        }
+
+        public async Task<Mod> GetModById(string modId)
+        {
+            string sql = @"SELECT *
+                           FROM Mod
+                           WHERE ModId = @modId";
+
+            return await _dbConnection.ExecuteScalarAsync<Mod>(sql, new { modId });
+        }
+
+        public async Task EditMod(Mod mod)
+        {
+            string sql = @"UPDATE Mod
+                           SET Title = @title,
+                               Type = @type,
+                               Description = @description,
+                               EditDate = @editDate,
+                               FilePath = @filePath
+                           WHERE ModId = @modId";
+
+            await _dbConnection.ExecuteAsync(sql, new {
+                title = mod.Title,
+                type = mod.Type,
+                description = mod.Description,
+                editDate = mod.EditDate,
+                filePath = mod.FilePath
+            });
         }
     }
 }

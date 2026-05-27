@@ -3,6 +3,7 @@ using racebookApi.Repositories.Interfaces;
 using racebookApi.Services.Interfaces;
 using CloudinaryDotNet.Actions;
 using racebookApi.Models.DTOs.FromClient;
+using racebookApi.Models;
 
 namespace racebookApi.Services
 {
@@ -11,6 +12,9 @@ namespace racebookApi.Services
         private readonly ICloudinaryRepository _cloudinaryRepository;
         private readonly IModRepository _modRepository;
         private readonly IPreviewImageRepository _previewImageRepository;
+
+        const string PreviewImagesPublicIdStart = "PreviewImages";
+        const string ModPublicIdStart = "Mods";
 
         public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository, IPreviewImageRepository previewImageRepository)
         {
@@ -60,25 +64,13 @@ namespace racebookApi.Services
 
         public async Task DeleteMod(string modId)
         {
-            const string PreviewImagesPublicIdStart = "PreviewImages";
-            const string ModPublicIdStart = "Mods";
-
-            string modMediaPublicId = "";
-
             List<string> previewImageUrls = await _previewImageRepository.GetPreviewImageUrl(modId);
             string modFileUrl = await _modRepository.GetModFileUrl(modId);
 
-            foreach (string previewImageUrl in previewImageUrls)
-            {
-                modMediaPublicId = GetPublicIdFromUrl(previewImageUrl, PreviewImagesPublicIdStart);
-                await DeleteFromCloudinaryByPublicId(modMediaPublicId);
-            }
+            await DeletePreviewImages(previewImageUrls, PreviewImagesPublicIdStart);
+            await _previewImageRepository.DeletePreviewImageByModId(modId);
 
-            await _previewImageRepository.DeletePreviewImage(modId);
-
-            modMediaPublicId = GetPublicIdFromUrl(modFileUrl, ModPublicIdStart);
-            await DeleteFromCloudinaryByPublicId(modMediaPublicId);
-
+            await DeleteModFile(modFileUrl, ModPublicIdStart);
             await _modRepository.DeleteMod(modId);
         }
 
@@ -97,9 +89,70 @@ namespace racebookApi.Services
             });
         }
 
+        private async Task DeletePreviewImages(List<string> previewImageUrls, string publicIdStart)
+        {
+            string imagePublicId = "";
+
+            foreach (string previewImageUrl in previewImageUrls)
+            {
+                imagePublicId = GetPublicIdFromUrl(previewImageUrl, publicIdStart);
+                await DeleteFromCloudinaryByPublicId(imagePublicId);
+            }
+        }
+
+        private async Task DeleteModFile(string modFileUrl, string publicIdStart)
+        {
+            string modFilePublicId = GetPublicIdFromUrl(modFileUrl, ModPublicIdStart);
+            await DeleteFromCloudinaryByPublicId(modFilePublicId);
+        }
+
         public async Task EditMod(ModEditDto dto)
         {
+            Mod modDetails = await _modRepository.GetModById(dto.ModId.ToString());
 
+            if (dto.PreviewImagesToBeDeleted != null)
+            {
+                await DeletePreviewImages(dto.PreviewImagesToBeDeleted, PreviewImagesPublicIdStart);
+
+                foreach (string previewImageUrl in dto.PreviewImagesToBeDeleted)
+                {
+                    await _previewImageRepository.DeletePreviewImageByUrl(previewImageUrl);
+                }
+            }
+
+            if (dto.NewPreviewImages != null)
+            {
+                List<string> previewImageUrls = await UploadPreviewImages(dto.NewPreviewImages);
+                await SavePreviewImages(dto.ModId, previewImageUrls);
+            }
+
+            if (dto.ModFile != null)
+            {
+                string oldModFileUrl = await _modRepository.GetModFileUrl(dto.ModId.ToString());
+                await DeleteModFile(oldModFileUrl, ModPublicIdStart);
+
+                string newModFileUrl = await UploadModFile(dto.ModFile);
+                modDetails.FilePath = newModFileUrl;
+            }
+
+            if (dto.Description != null)
+            {
+                modDetails.Description = dto.Description;
+            }
+
+            if (dto.Type != null)
+            {
+                modDetails.Type = dto.Type;
+            }
+
+            if (dto.Title != null)
+            {
+                modDetails.Title = dto.Title;
+            }
+
+            modDetails.EditDate = DateOnly.FromDateTime(DateTime.Now);
+
+            await _modRepository.EditMod(modDetails);
         }
     }
 }

@@ -30,5 +30,13 @@ namespace racebookApi.Controllers
 
             return Ok();
         }
+
+        [HttpPatch("Mod/ammend")]
+        public async Task<IActionResult> EditMod([FromForm] ModEditDto dto)
+        {
+            await _modService.EditMod(dto);
+
+            return Ok();
+        }
     }
 }
