@@ -1,6 +1,7 @@
 ﻿using racebookApi.Constants;
 using racebookApi.Repositories.Interfaces;
 using racebookApi.Services.Interfaces;
+using CloudinaryDotNet.Actions;
 
 namespace racebookApi.Services
 {
@@ -45,6 +46,45 @@ namespace racebookApi.Services
             {
                 await _previewImageRepository.CreatePreviewImage(modId, previewImageUrl);
             }
+        }
+
+        public async Task DeleteMod(string modId)
+        {
+            const string PreviewImagesPublicIdStart = "PreviewImages";
+            const string ModPublicIdStart = "Mods";
+
+            string modMediaPublicId = "";
+
+            List<string> previewImageUrls = await _previewImageRepository.GetPreviewImageUrl(modId);
+            string modFileUrl = await _modRepository.GetModFileUrl(modId);
+
+            foreach (string previewImageUrl in previewImageUrls)
+            {
+                modMediaPublicId = GetPublicIdFromUrl(previewImageUrl, PreviewImagesPublicIdStart);
+                await DeleteFromCloudinaryByPublicId(modMediaPublicId);
+            }
+
+            await _previewImageRepository.DeletePreviewImage(modId);
+
+            modMediaPublicId = GetPublicIdFromUrl(modFileUrl, ModPublicIdStart);
+            await DeleteFromCloudinaryByPublicId(modMediaPublicId);
+
+            await _modRepository.DeleteMod(modId);
+        }
+
+        private string GetPublicIdFromUrl(string cloudniaryUrl, string publicIdStart)
+        {
+            int publicIdStartIndex = cloudniaryUrl.IndexOf(publicIdStart);
+
+            return cloudniaryUrl.Substring(publicIdStartIndex);
+        }
+
+        private async Task DeleteFromCloudinaryByPublicId(string publicId)
+        {
+            await _cloudinaryRepository.DeleteAsync(new DeletionParams(publicId)
+            {
+                ResourceType = ResourceType.Raw
+            });
         }
     }
 }

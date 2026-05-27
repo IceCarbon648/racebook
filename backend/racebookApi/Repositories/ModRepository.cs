@@ -40,10 +40,20 @@ namespace racebookApi.Repositories
 
         public async Task DeleteMod(string modId)
         {
-            string sql = @"DELETE FROM Mod
+            string sql = @"DELETE 
+                           FROM Mod
                            WHERE ModId = @modId";
 
             await _dbConnection.ExecuteAsync(sql, new { modId });
+        }
+
+        public async Task<string> GetModFileUrl(string modId)
+        {
+            string sql = @"SELECT FilePath
+                           FROM Mod
+                           WHERE ModId = @modId";
+
+            return await _dbConnection.ExecuteScalarAsync<string>(sql, new { modId });
         }
     }
 }

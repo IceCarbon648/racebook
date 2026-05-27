@@ -8,5 +8,6 @@ namespace racebookApi.Services.Interfaces
         Task<List<string>> UploadPreviewImages(List<IFormFile> previewImages);
         Task<Guid> SaveModFile(string uid, string title, string type, string description, string modFileUrl);
         Task SavePreviewImages(Guid modId, List<string> previewImageUrls);
+        Task DeleteMod(string modId);
     }
 }

@@ -29,10 +29,22 @@ namespace racebookApi.Repositories
 
         public async Task DeletePreviewImage(string modId)
         {
-            string sql = @"DELETE FROM PreviewImage
+            string sql = @"DELETE
+                           FROM PreviewImage
                            WHERE ModId = @modId";
 
             await _dbConnection.ExecuteAsync(sql, new { modId });
+        }
+
+        public async Task<List<string>> GetPreviewImageUrl(string modId)
+        {
+            string sql = @"SELECT FilePath
+                           FROM PreviewImage
+                           WHERE ModId = @modId";
+
+            IEnumerable<string> queryResult = await _dbConnection.QueryAsync<string>(sql, new { modId });
+
+            return queryResult.ToList();
         }
     }
 }

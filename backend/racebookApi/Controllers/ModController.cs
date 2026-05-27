@@ -26,5 +26,13 @@ namespace racebookApi.Controllers
 
             return Ok();
         }
+
+        [HttpDelete("Mod/{modId}")]
+        public async Task<IActionResult> DeleteMod([FromRoute] string modId)
+        {
+            await _modService.DeleteMod(modId);
+
+            return Ok();
+        }
     }
 }
