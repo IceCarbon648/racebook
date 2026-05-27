@@ -150,7 +150,7 @@ namespace racebookApi.Services
                 modDetails.Title = dto.Title;
             }
 
-            modDetails.EditDate = DateOnly.FromDateTime(DateTime.Now);
+            modDetails.EditDate = DateTime.Now;
 
             await _modRepository.EditMod(modDetails);
         }

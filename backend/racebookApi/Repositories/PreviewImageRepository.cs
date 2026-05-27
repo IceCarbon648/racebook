@@ -47,9 +47,13 @@ namespace racebookApi.Repositories
             return queryResult.ToList();
         }
 
-        public async Task DeletePreviewImageByUrl(string Url)
+        public async Task DeletePreviewImageByUrl(string url)
         {
+            string sql = @"DELETE
+                           FROM PreviewImage
+                           WHERE FilePath = @url";
 
+            await _dbConnection.ExecuteAsync(sql, new { url });
         }
     }
 }

@@ -63,7 +63,7 @@ namespace racebookApi.Repositories
                            FROM Mod
                            WHERE ModId = @modId";
 
-            return await _dbConnection.ExecuteScalarAsync<Mod>(sql, new { modId });
+            return await _dbConnection.QueryFirstAsync<Mod>(sql, new { modId });
         }
 
         public async Task EditMod(Mod mod)
@@ -77,6 +77,7 @@ namespace racebookApi.Repositories
                            WHERE ModId = @modId";
 
             await _dbConnection.ExecuteAsync(sql, new {
+                modId = mod.ModId,
                 title = mod.Title,
                 type = mod.Type,
                 description = mod.Description,
