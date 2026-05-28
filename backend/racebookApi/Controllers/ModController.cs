@@ -38,5 +38,11 @@ namespace racebookApi.Controllers
 
             return Ok();
         }
+
+        [HttpGet("download")]
+        public async Task<IActionResult> Download([FromBody] string modFileUrl)
+        {
+            return File(await _modService.DownloadModFile(modFileUrl), "application/octet-stream");
+        }
     }
 }

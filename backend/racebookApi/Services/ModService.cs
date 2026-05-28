@@ -154,5 +154,15 @@ namespace racebookApi.Services
 
             await _modRepository.EditMod(modDetails);
         }
+
+        public async Task<byte[]?> DownloadModFile(string modFileUrl)
+        {
+            using HttpClient httpClient = new HttpClient();
+            HttpResponseMessage response = await httpClient.GetAsync(modFileUrl);
+
+            if (!response.IsSuccessStatusCode) return null;//ASK DAMIAN. . .prolly needs adapter
+
+            return await response.Content.ReadAsByteArrayAsync();
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace racebookApi.Services.Interfaces
         Task UploadMod(ModDto dto);
         Task DeleteMod(string modId);
         Task EditMod(ModEditDto dto);
+        Task<byte[]?> DownloadModFile(string modFileUrl);
     }
 }
