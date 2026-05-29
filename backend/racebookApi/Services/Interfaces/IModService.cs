@@ -10,5 +10,6 @@ namespace racebookApi.Services.Interfaces
         Task EditMod(ModEditDto dto);
         Task<byte[]?> DownloadModFile(string modFileUrl);
         Task<GetModDto> GetMod(string modID);
+        Task<GetModDto> GetAllMods();
     }
 }

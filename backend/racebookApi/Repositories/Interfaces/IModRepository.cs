@@ -10,5 +10,6 @@ namespace racebookApi.Repositories.Interfaces
         Task<string> GetModFileUrl(string modId);
         Task<Mod> GetModById(string modId);
         Task EditMod(Mod mod);
+        Task<List<string>> GetAllModIds();
     }
 }

@@ -85,5 +85,15 @@ namespace racebookApi.Repositories
                 filePath = mod.FilePath
             });
         }
+
+        async Task<List<string>> GetAllModIds()
+        {
+            string sql = @"SELECT ModId
+                           FROM Mod";
+
+            IEnumerable<string> queryResult = await _dbConnection.QueryAsync<string>(sql);
+
+            return queryResult.ToList();
+        }
     }
 }

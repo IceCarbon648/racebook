@@ -187,5 +187,18 @@ namespace racebookApi.Services
                 PreviewImageUrls = previewImageUrls,
             };
         }
+
+        public async Task<List<GetModDto>> GetAllMods()
+        {
+            List<GetModDto> allMods = new List<GetModDto>();
+            List<string> modIds = await _modRepository.GetAllModIds();
+
+            foreach (string modId in modIds)
+            {
+                allMods.Add(await GetMod(modId));
+            }
+
+            return allMods;
+        }
     }
 }
