@@ -2,6 +2,7 @@
 {
     public interface IUserRepository
     {
-        public Task UpdateAmaxUsername(string playerName);
+        Task<string> GetUsernameByUserId(string userId);
+        Task UpdateAmaxUsername(string playerName);
     }
 }

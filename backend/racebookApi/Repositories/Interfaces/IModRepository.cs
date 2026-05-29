@@ -1,4 +1,5 @@
 ﻿using racebookApi.Models;
+using racebookApi.Models.DTOs.ToClient;
 
 namespace racebookApi.Repositories.Interfaces
 {

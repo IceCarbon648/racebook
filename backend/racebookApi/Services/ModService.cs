@@ -4,6 +4,7 @@ using racebookApi.Services.Interfaces;
 using CloudinaryDotNet.Actions;
 using racebookApi.Models.DTOs.FromClient;
 using racebookApi.Models;
+using racebookApi.Models.DTOs.ToClient;
 
 namespace racebookApi.Services
 {
@@ -12,15 +13,17 @@ namespace racebookApi.Services
         private readonly ICloudinaryRepository _cloudinaryRepository;
         private readonly IModRepository _modRepository;
         private readonly IPreviewImageRepository _previewImageRepository;
+        private readonly IUserRepository _userRepository;
 
         const string PreviewImagesPublicIdStart = "PreviewImages";
         const string ModPublicIdStart = "Mods";
 
-        public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository, IPreviewImageRepository previewImageRepository)
+        public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository, IPreviewImageRepository previewImageRepository, IUserRepository userRepository)
         {
             _cloudinaryRepository = cloudinaryRepository;
             _modRepository = modRepository;
             _previewImageRepository = previewImageRepository;
+            _userRepository = userRepository;
         }
 
         public async Task UploadMod(ModDto dto)
@@ -163,6 +166,26 @@ namespace racebookApi.Services
             if (!response.IsSuccessStatusCode) return null;//ASK DAMIAN. . .prolly needs adapter
 
             return await response.Content.ReadAsByteArrayAsync();
+        }
+
+        public async Task<GetModDto> GetMod(string modID)
+        {
+            Mod modInfo = await _modRepository.GetModById(modID);
+            string username = await _userRepository.GetUsernameByUserId(modInfo.Uid.ToString());
+            List<string> previewImageUrls = await _previewImageRepository.GetPreviewImageUrl(modID);
+
+            return new GetModDto
+            {
+                Id = modID,
+                Creator = username,
+                Title = modInfo.Title,
+                Type = modInfo.Type,
+                Description = modInfo.Description,
+                UploadDate = modInfo.UploadDate,
+                EditDate = modInfo.EditDate,
+                ModFileUrl = modInfo.FilePath,
+                PreviewImageUrls = previewImageUrls,
+            };
         }
     }
 }

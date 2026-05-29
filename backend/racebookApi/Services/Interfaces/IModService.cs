@@ -1,5 +1,5 @@
-﻿using racebookApi.Constants;
-using racebookApi.Models.DTOs.FromClient;
+﻿using racebookApi.Models.DTOs.FromClient;
+using racebookApi.Models.DTOs.ToClient;
 
 namespace racebookApi.Services.Interfaces
 {
@@ -9,5 +9,6 @@ namespace racebookApi.Services.Interfaces
         Task DeleteMod(string modId);
         Task EditMod(ModEditDto dto);
         Task<byte[]?> DownloadModFile(string modFileUrl);
+        Task<GetModDto> GetMod(string modID);
     }
 }

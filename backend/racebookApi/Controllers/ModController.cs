@@ -44,5 +44,11 @@ namespace racebookApi.Controllers
         {
             return File(await _modService.DownloadModFile(modFileUrl), "application/octet-stream");
         }
+
+        [HttpGet("{modId}")]
+        public async Task<IActionResult> GetAllMods([FromRoute] string modId)
+        {
+            return Ok(await _modService.GetMod(modId));
+        }
     }
 }
