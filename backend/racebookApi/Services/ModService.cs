@@ -5,6 +5,7 @@ using CloudinaryDotNet.Actions;
 using racebookApi.Models.DTOs.FromClient;
 using racebookApi.Models;
 using racebookApi.Models.DTOs.ToClient;
+using Microsoft.AspNetCore.Mvc;
 
 namespace racebookApi.Services
 {
@@ -191,14 +192,27 @@ namespace racebookApi.Services
         public async Task<List<GetModDto>> GetAllMods()
         {
             List<GetModDto> allMods = new List<GetModDto>();
-            List<string> modIds = await _modRepository.GetAllModIds();
+            List<Guid> modIds = await _modRepository.GetAllModIds();
 
-            foreach (string modId in modIds)
+            foreach (Guid modId in modIds)
             {
-                allMods.Add(await GetMod(modId));
+                allMods.Add(await GetMod(modId.ToString()));
             }
 
             return allMods;
+        }
+
+        public async Task<List<GetModDto>> GetMyMods(string uid)
+        {
+            List<GetModDto> myMods = new List<GetModDto>();
+            List<Guid> myModIds = await _modRepository.GetMyModIds(uid);
+
+            foreach (Guid modId in myModIds)
+            {
+                myMods.Add(await GetMod(modId.ToString()));
+            }
+
+            return myMods;
         }
     }
 }

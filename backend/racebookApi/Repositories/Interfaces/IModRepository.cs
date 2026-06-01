@@ -1,5 +1,4 @@
 ﻿using racebookApi.Models;
-using racebookApi.Models.DTOs.ToClient;
 
 namespace racebookApi.Repositories.Interfaces
 {
@@ -10,6 +9,7 @@ namespace racebookApi.Repositories.Interfaces
         Task<string> GetModFileUrl(string modId);
         Task<Mod> GetModById(string modId);
         Task EditMod(Mod mod);
-        Task<List<string>> GetAllModIds();
+        Task<List<Guid>> GetAllModIds();
+        Task<List<Guid>> GetMyModIds(string uid);
     }
 }

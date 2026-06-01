@@ -86,12 +86,23 @@ namespace racebookApi.Repositories
             });
         }
 
-        async Task<List<string>> GetAllModIds()
+        public async Task<List<Guid>> GetAllModIds()
         {
             string sql = @"SELECT ModId
                            FROM Mod";
 
-            IEnumerable<string> queryResult = await _dbConnection.QueryAsync<string>(sql);
+            IEnumerable<Guid> queryResult = await _dbConnection.QueryAsync<Guid>(sql);
+
+            return queryResult.ToList();
+        }
+
+        public async Task<List<Guid>> GetMyModIds(string uid)
+        {
+            string sql = @"SELECT ModId
+                           FROM Mod
+                           WHERE Uid = @uid";
+
+            IEnumerable<Guid> queryResult = await _dbConnection.QueryAsync<Guid>(sql, new { uid });
 
             return queryResult.ToList();
         }
