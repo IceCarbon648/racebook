@@ -1,12 +1,16 @@
-﻿using racebookApi.Constants;
+﻿using racebookApi.Models.DTOs.FromClient;
+using racebookApi.Models.DTOs.ToClient;
 
 namespace racebookApi.Services.Interfaces
 {
     public interface IModService
     {
-        Task<string> UploadModFile(IFormFile modFile);
-        Task<List<string>> UploadPreviewImages(List<IFormFile> previewImages);
-        Task<Guid> SaveModFile(string uid, string title, string type, string description, string modFileUrl);
-        Task SavePreviewImages(Guid modId, List<string> previewImageUrls);
+        Task UploadMod(ModDto dto);
+        Task DeleteMod(string modId);
+        Task EditMod(ModEditDto dto);
+        Task<byte[]?> DownloadModFile(string modFileUrl);
+        Task<GetModDto> GetMod(string modID);
+        Task<List<GetModDto>> GetAllMods();
+        Task<List<GetModDto>> GetMyMods(string uid);
     }
 }

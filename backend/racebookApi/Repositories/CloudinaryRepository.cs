@@ -36,5 +36,10 @@ namespace racebookApi.Repositories
 
             return result.SecureUrl.ToString();
         }
+
+        public async Task DeleteAsync(DeletionParams deletionParams)
+        {
+            await _cloudinary.DestroyAsync(deletionParams);
+        }
     }
 }
