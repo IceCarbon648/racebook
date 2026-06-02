@@ -1,11 +1,12 @@
-﻿using racebookApi.Constants;
+﻿using CloudinaryDotNet.Actions;
+using racebookApi.Constants;
+using racebookApi.Models;
+using racebookApi.Models.DTOs.FromClient;
+using racebookApi.Models.DTOs.ToClient;
 using racebookApi.Repositories.Interfaces;
 using racebookApi.Services.Interfaces;
-using CloudinaryDotNet.Actions;
-using racebookApi.Models.DTOs.FromClient;
-using racebookApi.Models;
-using racebookApi.Models.DTOs.ToClient;
-using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
+using System.Security.Cryptography;
 
 namespace racebookApi.Services
 {
@@ -29,16 +30,19 @@ namespace racebookApi.Services
 
         public async Task UploadMod(ModDto dto)
         {
-            string modFileUrl = await UploadModFile(dto.ModFile);
+            string modFileUrl = await _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw);
             List<string> previewImageUrls = await UploadPreviewImages(dto.PreviewImages);
 
-            Guid modId = await SaveModFile("9D51DE57-A958-4B74-B975-52A5F81C7F93", dto.Title, dto.Type, dto.Description, modFileUrl);
-            await SavePreviewImages(modId, previewImageUrls);
-        }
+            Guid modId = await _modRepository.CreateMod(
+                "9D51DE57-A958-4B74-B975-52A5F81C7F93",
+                dto.Title,
+                dto.Type,
+                dto.Description,
+                DateOnly.FromDateTime(DateTime.Now).ToString(),
+                DateOnly.FromDateTime(DateTime.Now).ToString(),
+                modFileUrl);
 
-        private async Task<string> UploadModFile(IFormFile modFile)
-        {
-            return await _cloudinaryRepository.UploadAsync(modFile, FileType.Raw);
+            await SavePreviewImages(modId, previewImageUrls);
         }
 
         private async Task<List<string>> UploadPreviewImages(List<IFormFile> previewImages)
@@ -51,11 +55,6 @@ namespace racebookApi.Services
             }
 
             return previewImageUrls;
-        }
-
-        private async Task<Guid> SaveModFile(string uid, string title, string type, string description, string modFileUrl)
-        {
-            return await _modRepository.CreateMod(uid, title, type, description, DateOnly.FromDateTime(DateTime.Now).ToString(), DateOnly.FromDateTime(DateTime.Now).ToString(), modFileUrl);
         }
 
         private async Task SavePreviewImages(Guid modId, List<string> previewImageUrls)
@@ -135,7 +134,7 @@ namespace racebookApi.Services
                 string oldModFileUrl = await _modRepository.GetModFileUrl(dto.ModId.ToString());
                 await DeleteModFile(oldModFileUrl, ModPublicIdStart);
 
-                string newModFileUrl = await UploadModFile(dto.ModFile);
+                string newModFileUrl = await _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw);
                 modDetails.FilePath = newModFileUrl;
             }
 
@@ -169,15 +168,15 @@ namespace racebookApi.Services
             return await response.Content.ReadAsByteArrayAsync();
         }
 
-        public async Task<GetModDto> GetMod(string modID)
+        public async Task<GetModDto> GetMod(string modId)
         {
-            Mod modInfo = await _modRepository.GetModById(modID);
+            Mod modInfo = await _modRepository.GetModById(modId);
             string username = await _userRepository.GetUsernameByUserId(modInfo.Uid.ToString());
-            List<string> previewImageUrls = await _previewImageRepository.GetPreviewImageUrl(modID);
+            List<string> previewImageUrls = await _previewImageRepository.GetPreviewImageUrl(modId);
 
             return new GetModDto
             {
-                Id = modID,
+                Id = modId,
                 Creator = username,
                 Title = modInfo.Title,
                 Type = modInfo.Type,
