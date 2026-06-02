@@ -2,6 +2,7 @@
 {
     public class ModEditDto
     {
+        public required Guid ModId { get; set; }
         public string? Title { get; set; } = null;
         public string? Type { get; set; } = null;
         public string? Description { get; set; } = null;

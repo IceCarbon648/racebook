@@ -13,6 +13,15 @@ namespace racebookApi.Repositories
             _dbConnection = dbConnection;
         }
 
+        public async Task<string> GetUsernameByUserId(string userId)
+        {
+            string sql = @"SELECT Username
+                           FROM [User]
+                           WHERE Uid = @userId";
+
+            return await _dbConnection.ExecuteScalarAsync<string>(sql, new { userId });
+        }
+
         public async Task UpdateAmaxUsername(string playerName)
         {
             string sql = @"UPDATE [User]
