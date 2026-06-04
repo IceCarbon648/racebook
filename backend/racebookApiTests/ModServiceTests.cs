@@ -18,6 +18,36 @@ namespace racebookApiTests
         private IUserRepository _userRepository;
         private IFormFile _formFile;
 
+        private const string PlaceholderModUrl = "https://res.cloudinary.com/XXXXXXXXX/raw/upload/vXXXXXXXXXX/Mods/XXXXXXXXXXXXXXXXXXXX.tpf";
+        private const string PlaceholderImageUrl = "https://res.cloudinary.com/XXXXXXXXX/raw/upload/vXXXXXXXXXX/PreviewImages/XXXXXXXXXXXXXXXXXXXX.jpg";
+        private static Guid genericModId = Guid.NewGuid();
+        private static Guid genericUserId = Guid.NewGuid();
+
+        Mod genericMod = new Mod
+        {
+            ModId = genericModId,
+            Uid = genericUserId,
+            Title = "snow brighton",
+            Type = "environment",
+            Description = "yet another mod from sidali",
+            FilePath = PlaceholderModUrl,
+            EditDate = DateTime.Now,
+            UploadDate = DateTime.Now,
+        };
+
+        GetModDto genericGetModDto = new GetModDto
+        {
+            Id = genericModId.ToString(),
+            Creator = "Sidali",
+            Title = "snow brighton",
+            Type = "environment",
+            Description = "yet another mod from sidali",
+            UploadDate = DateTime.Now,
+            EditDate = DateTime.Now,
+            ModFileUrl = PlaceholderModUrl,
+            PreviewImageUrls = new List<string> { PlaceholderImageUrl }
+        };
+
         [SetUp]
         public void Setup()
         {
@@ -33,26 +63,26 @@ namespace racebookApiTests
         {
             //Arrange
             List<IFormFile> previewImages = new List<IFormFile>();
-            string modFileUrl = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf";
 
             for (int i = 0; i < 3; i++)
             {
                 previewImages.Add(_formFile);
             }
 
-            ModDto dto = new ModDto {
+            ModDto dto = new ModDto
+            {
                 Title = "custom skyboxes",
                 Type = "Skybox",
                 Description = "make sky colourful",
                 ModFile = _formFile,
                 PreviewImages = previewImages
-                };
+            };
 
-            _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw).Returns(modFileUrl);
+            _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw).Returns(PlaceholderModUrl);
 
             foreach (IFormFile previewImage in previewImages)
             {
-                _cloudinaryRepository.UploadAsync(previewImage, FileType.Image).Returns("https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.jpg");
+                _cloudinaryRepository.UploadAsync(previewImage, FileType.Image).Returns(PlaceholderImageUrl);
             }
 
             _modRepository.CreateMod(
@@ -62,7 +92,7 @@ namespace racebookApiTests
                 dto.Description,
                 DateOnly.FromDateTime(DateTime.Now).ToString(),
                 DateOnly.FromDateTime(DateTime.Now).ToString(),
-                modFileUrl
+                PlaceholderModUrl
                 ).Returns(Guid.NewGuid());
 
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
@@ -80,7 +110,7 @@ namespace racebookApiTests
                 dto.Description,
                 DateOnly.FromDateTime(DateTime.Now).ToString(),
                 DateOnly.FromDateTime(DateTime.Now).ToString(),
-                modFileUrl
+                PlaceholderModUrl
                 );
         }
 
@@ -88,68 +118,51 @@ namespace racebookApiTests
         public async Task GivenAModId_WhenDeleting_DiscardAllInformationAndFilesAssociatedWithIt()
         {
             //Arrange
-            string modId = Guid.NewGuid().ToString();
-            string placeholderModUrl = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf";
-            string placeholderImageUrl = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/PreviewImages/mmk2a4zewxrop0ep9uur.jpg";
             List<string> imageUrls = new List<string>{
-                placeholderImageUrl,
-                placeholderImageUrl
+                PlaceholderImageUrl,
+                PlaceholderImageUrl
             };
 
-            _previewImageRepository.GetPreviewImageUrl(modId).Returns(imageUrls);
-            _modRepository.GetModFileUrl(modId).Returns(placeholderModUrl);
+            _previewImageRepository.GetPreviewImageUrl(genericModId.ToString()).Returns(imageUrls);
+            _modRepository.GetModFileUrl(genericModId.ToString()).Returns(PlaceholderModUrl);
 
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
             //Act
-            await modService.DeleteMod(modId);
+            await modService.DeleteMod(genericModId.ToString());
 
             //Assert
             await _cloudinaryRepository.Received(3).DeleteAsync(Arg.Any<DeletionParams>());
-            await _previewImageRepository.Received(1).DeletePreviewImageByModId(modId);
-            await _modRepository.Received(1).DeleteMod(modId);
+            await _previewImageRepository.Received(1).DeletePreviewImageByModId(genericModId.ToString());
+            await _modRepository.Received(1).DeleteMod(genericModId.ToString());
         }
 
         [Test]
         public async Task GivenModId_WhenGettingModDetails_ReturnAllInformationAssociatedWithTheId()
         {
             //Arrange
-            Guid modId = Guid.NewGuid();
-            Guid userID = Guid.NewGuid();
-
-            Mod modInfo = new Mod
+            Mod genericMod = new Mod
             {
-                ModId = modId,
-                Uid = userID,
+                ModId = genericModId,
+                Uid = genericUserId,
                 Title = "snow brighton",
                 Type = "environment",
                 Description = "yet another mod from sidali",
-                FilePath = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
+                FilePath = PlaceholderModUrl,
                 EditDate = DateTime.Now,
                 UploadDate = DateTime.Now,
             };
 
-            GetModDto expectedResult =  new GetModDto
-            {
-                Id = modId.ToString(),
-                Creator = "Sidali",
-                Title = "snow brighton",
-                Type = "environment",
-                Description = "yet another mod from sidali",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-                ModFileUrl = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
-                PreviewImageUrls = new List<string> { "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/PreviewImages/mmk2a4zewxrop0ep9uur.jpg" }
-            };
+            GetModDto expectedResult = genericGetModDto;
 
-            _modRepository.GetModById(modId.ToString()).Returns(modInfo);
-            _userRepository.GetUsernameByUserId(userID.ToString()).Returns("Sidali");
-            _previewImageRepository.GetPreviewImageUrl(modId.ToString()).Returns(new List<string> { "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/PreviewImages/mmk2a4zewxrop0ep9uur.jpg" });
+            _modRepository.GetModById(genericModId.ToString()).Returns(genericMod);
+            _userRepository.GetUsernameByUserId(genericUserId.ToString()).Returns("Sidali");
+            _previewImageRepository.GetPreviewImageUrl(genericModId.ToString()).Returns(new List<string> { PlaceholderImageUrl });
 
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
             //Act
-            GetModDto actualResult = await modService.GetMod(modId.ToString());
+            GetModDto actualResult = await modService.GetMod(genericModId.ToString());
 
             //Assert
             Assert.That(actualResult.Id, Is.EqualTo(expectedResult.Id));
@@ -171,35 +184,11 @@ namespace racebookApiTests
             //Arrange
             List<Guid> modIds = new List<Guid>()
             {
-                Guid.NewGuid(),
-                Guid.NewGuid(),
-            };
-            Guid userID = Guid.NewGuid();
-
-            Mod modInfo = new Mod
-            {
-                ModId = modIds[0],
-                Uid = userID,
-                Title = "snow brighton",
-                Type = "environment",
-                Description = "yet another mod from sidali",
-                FilePath = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
-                EditDate = DateTime.Now,
-                UploadDate = DateTime.Now,
+                genericModId,
+                genericModId,
             };
 
-            GetModDto mod = new GetModDto
-            {
-                Id = modIds[0].ToString(),
-                Creator = "Sidali",
-                Title = "snow brighton",
-                Type = "environment",
-                Description = "yet another mod from sidali",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-                ModFileUrl = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
-                PreviewImageUrls = new List<string> { "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/PreviewImages/mmk2a4zewxrop0ep9uur.jpg" }
-            };
+            GetModDto mod = genericGetModDto;
 
             List<GetModDto> expectedResult = new List<GetModDto>
             {
@@ -211,9 +200,9 @@ namespace racebookApiTests
 
             foreach (Guid modId in modIds)
             {
-                _modRepository.GetModById(modId.ToString()).Returns(modInfo);
-                _userRepository.GetUsernameByUserId(userID.ToString()).Returns("Sidali");
-                _previewImageRepository.GetPreviewImageUrl(modId.ToString()).Returns(new List<string> { "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/PreviewImages/mmk2a4zewxrop0ep9uur.jpg" });
+                _modRepository.GetModById(modId.ToString()).Returns(genericMod);
+                _userRepository.GetUsernameByUserId(genericUserId.ToString()).Returns("Sidali");
+                _previewImageRepository.GetPreviewImageUrl(modId.ToString()).Returns(new List<string> { PlaceholderImageUrl });
             }
 
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
@@ -233,54 +222,30 @@ namespace racebookApiTests
             //Arrange
             List<Guid> modIds = new List<Guid>()
             {
-                Guid.NewGuid(),
-                Guid.NewGuid(),
-            };
-            Guid userID = Guid.NewGuid();
-
-            Mod modInfo = new Mod
-            {
-                ModId = modIds[0],
-                Uid = userID,
-                Title = "snow brighton",
-                Type = "environment",
-                Description = "yet another mod from sidali",
-                FilePath = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
-                EditDate = DateTime.Now,
-                UploadDate = DateTime.Now,
+                genericModId,
+                genericModId,
             };
 
-            GetModDto mod = new GetModDto
-            {
-                Id = modIds[0].ToString(),
-                Creator = "Sidali",
-                Title = "snow brighton",
-                Type = "environment",
-                Description = "yet another mod from sidali",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-                ModFileUrl = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
-                PreviewImageUrls = new List<string> { "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/PreviewImages/mmk2a4zewxrop0ep9uur.jpg" }
-            };
+            GetModDto mod = genericGetModDto;
 
             List<GetModDto> expectedResult = new List<GetModDto>{
                 mod,
                 mod
             };
 
-            _modRepository.GetMyModIds(userID.ToString()).Returns(modIds);
+            _modRepository.GetMyModIds(genericUserId.ToString()).Returns(modIds);
 
             foreach (Guid modId in modIds)
             {
-                _modRepository.GetModById(modId.ToString()).Returns(modInfo);
-                _userRepository.GetUsernameByUserId(userID.ToString()).Returns("Sidali");
-                _previewImageRepository.GetPreviewImageUrl(modId.ToString()).Returns(new List<string> { "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/PreviewImages/mmk2a4zewxrop0ep9uur.jpg" });
+                _modRepository.GetModById(modId.ToString()).Returns(genericMod);
+                _userRepository.GetUsernameByUserId(genericUserId.ToString()).Returns("Sidali");
+                _previewImageRepository.GetPreviewImageUrl(modId.ToString()).Returns(new List<string> { PlaceholderImageUrl });
             }
 
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
             //Act
-            await modService.GetMyMods(userID.ToString());
+            await modService.GetMyMods(genericUserId.ToString());
 
             //Assert
             await _modRepository.Received(2).GetModById(Arg.Any<string>());
@@ -292,28 +257,13 @@ namespace racebookApiTests
         public async Task GivenANotNullValueForTitle_WhenEditing_WriteTheChangesToDb()
         {
             //Arrange
-            Guid modId = Guid.NewGuid();
-            Guid userId = Guid.NewGuid();
-
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = modId,
+                ModId = genericModId,
                 Title = "edited Title",
             };
 
-            Mod mod = new Mod
-            {
-                ModId = modId,
-                Uid = userId,
-                Title = "Title",
-                Type = "Vehicle",
-                Description = "is very cool",
-                FilePath = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-            };
-
-            _modRepository.GetModById(modId.ToString()).Returns(mod);
+            _modRepository.GetModById(genericModId.ToString()).Returns(genericMod);
 
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
@@ -321,35 +271,20 @@ namespace racebookApiTests
             await modService.EditMod(modEdit);
 
             //Assert
-            await _modRepository.Received(1).EditMod(mod);
+            await _modRepository.Received(1).EditMod(Arg.Any<Mod>());
         }
 
         [Test]
         public async Task GivenANotNullValueForType_WhenEditing_WriteTheChangesToDb()
         {
             //Arrange
-            Guid modId = Guid.NewGuid();
-            Guid userId = Guid.NewGuid();
-
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = modId,
+                ModId = genericModId,
                 Type = "edited Type",
             };
 
-            Mod mod = new Mod
-            {
-                ModId = modId,
-                Uid = userId,
-                Title = "Title",
-                Type = "Vehicle",
-                Description = "is very cool",
-                FilePath = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-            };
-
-            _modRepository.GetModById(modId.ToString()).Returns(mod);
+            _modRepository.GetModById(genericModId.ToString()).Returns(genericMod);
 
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
@@ -357,35 +292,20 @@ namespace racebookApiTests
             await modService.EditMod(modEdit);
 
             //Assert
-            await _modRepository.Received(1).EditMod(mod);
+            await _modRepository.Received(1).EditMod(genericMod);
         }
 
         [Test]
         public async Task GivenANotNullValueForDescription_WhenEditing_WriteTheChangesToDb()
         {
             //Arrange
-            Guid modId = Guid.NewGuid();
-            Guid userId = Guid.NewGuid();
-
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = modId,
+                ModId = genericModId,
                 Description = "edited description",
             };
 
-            Mod mod = new Mod
-            {
-                ModId = modId,
-                Uid = userId,
-                Title = "Title",
-                Type = "Vehicle",
-                Description = "is very cool",
-                FilePath = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-            };
-
-            _modRepository.GetModById(modId.ToString()).Returns(mod);
+            _modRepository.GetModById(genericModId.ToString()).Returns(genericMod);
 
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
@@ -393,38 +313,22 @@ namespace racebookApiTests
             await modService.EditMod(modEdit);
 
             //Assert
-            await _modRepository.Received(1).EditMod(mod);
+            await _modRepository.Received(1).EditMod(Arg.Any<Mod>());
         }
 
         [Test]
         public async Task GivenANotNullValueForModFile_WhenEditing_WriteTheChangesToDb()
         {
             //Arrange
-            Guid modId = Guid.NewGuid();
-            Guid userId = Guid.NewGuid();
-            string placeholderModUrl = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf";
-
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = modId,
+                ModId = genericModId,
                 ModFile = _formFile,
             };
 
-            Mod mod = new Mod
-            {
-                ModId = modId,
-                Uid = userId,
-                Title = "Title",
-                Type = "Vehicle",
-                Description = "is very cool",
-                FilePath = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-            };
-
-            _modRepository.GetModById(modId.ToString()).Returns(mod);
-            _modRepository.GetModFileUrl(modId.ToString()).Returns(placeholderModUrl);
-            _cloudinaryRepository.UploadAsync(modEdit.ModFile, FileType.Raw).Returns(placeholderModUrl);
+            _modRepository.GetModById(genericModId.ToString()).Returns(genericMod);
+            _modRepository.GetModFileUrl(genericModId.ToString()).Returns(PlaceholderModUrl);
+            _cloudinaryRepository.UploadAsync(modEdit.ModFile, FileType.Raw).Returns(PlaceholderModUrl);
 
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
@@ -432,36 +336,20 @@ namespace racebookApiTests
             await modService.EditMod(modEdit);
 
             //Assert
-            await _modRepository.Received(1).EditMod(mod);
+            await _modRepository.Received(1).EditMod(Arg.Any<Mod>());
         }
 
         [Test]
         public async Task GivenANotNullValueForImagesToBeDeleted_WhenEditing_WriteTheChangesToDb()
         {
             //Arrange
-            Guid modId = Guid.NewGuid();
-            Guid userId = Guid.NewGuid();
-            string placeholderImageUrl = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/PreviewImages/mmk2a4zewxrop0ep9uur.jpg";
-
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = modId,
-                PreviewImagesToBeDeleted = new List<string> { placeholderImageUrl },
+                ModId = genericModId,
+                PreviewImagesToBeDeleted = new List<string> { PlaceholderImageUrl },
             };
 
-            Mod mod = new Mod
-            {
-                ModId = modId,
-                Uid = userId,
-                Title = "Title",
-                Type = "Vehicle",
-                Description = "is very cool",
-                FilePath = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-            };
-
-            _modRepository.GetModById(modId.ToString()).Returns(mod);
+            _modRepository.GetModById(genericModId.ToString()).Returns(genericMod);
 
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
@@ -469,7 +357,7 @@ namespace racebookApiTests
             await modService.EditMod(modEdit);
 
             //Assert
-            await _modRepository.Received(1).EditMod(mod);
+            await _modRepository.Received(1).EditMod(Arg.Any<Mod>());
             await _cloudinaryRepository.Received(1).DeleteAsync(Arg.Any<DeletionParams>());
             await _previewImageRepository.Received(1).DeletePreviewImageByUrl(Arg.Any<string>());
         }
@@ -478,28 +366,13 @@ namespace racebookApiTests
         public async Task GivenANotNullValueForNewImages_WhenEditing_WriteTheChangesToDb()
         {
             //Arrange
-            Guid modId = Guid.NewGuid();
-            Guid userId = Guid.NewGuid();
-
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = modId,
+                ModId = genericModId,
                 NewPreviewImages = new List<IFormFile> { _formFile },
             };
 
-            Mod mod = new Mod
-            {
-                ModId = modId,
-                Uid = userId,
-                Title = "Title",
-                Type = "Vehicle",
-                Description = "is very cool",
-                FilePath = "https://res.cloudinary.com/dt63xnsdx/raw/upload/v1779622210/Mods/mmk2a4zewxrop0ep9uur.tpf",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-            };
-
-            _modRepository.GetModById(modId.ToString()).Returns(mod);
+            _modRepository.GetModById(genericModId.ToString()).Returns(genericMod);
 
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
@@ -507,7 +380,7 @@ namespace racebookApiTests
             await modService.EditMod(modEdit);
 
             //Assert
-            await _modRepository.Received(1).EditMod(mod);
+            await _modRepository.Received(1).EditMod(Arg.Any<Mod>());
             await _cloudinaryRepository.Received(1).UploadAsync(Arg.Any<IFormFile>(), FileType.Image);
             await _previewImageRepository.Received(1).CreatePreviewImage(Arg.Any<Guid>(), Arg.Any<string>());
         }

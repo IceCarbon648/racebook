@@ -5,8 +5,6 @@ using racebookApi.Models.DTOs.FromClient;
 using racebookApi.Models.DTOs.ToClient;
 using racebookApi.Repositories.Interfaces;
 using racebookApi.Services.Interfaces;
-using System.Reflection;
-using System.Security.Cryptography;
 
 namespace racebookApi.Services
 {
@@ -188,30 +186,30 @@ namespace racebookApi.Services
             };
         }
 
-        public async Task<List<GetModDto>> GetAllMods()
+        private async Task<List<GetModDto>> GetModsById(List<Guid> modIds)
         {
-            List<GetModDto> allMods = new List<GetModDto>();
-            List<Guid> modIds = await _modRepository.GetAllModIds();
+            List<GetModDto> mods = new List<GetModDto>();
 
             foreach (Guid modId in modIds)
             {
-                allMods.Add(await GetMod(modId.ToString()));
+                mods.Add(await GetMod(modId.ToString()));
             }
 
-            return allMods;
+            return mods;
+        }
+
+        public async Task<List<GetModDto>> GetAllMods()
+        {
+            List<Guid> modIds = await _modRepository.GetAllModIds();
+
+            return await GetModsById(modIds);
         }
 
         public async Task<List<GetModDto>> GetMyMods(string uid)
         {
-            List<GetModDto> myMods = new List<GetModDto>();
-            List<Guid> myModIds = await _modRepository.GetMyModIds(uid);
+            List<Guid> modIds = await _modRepository.GetMyModIds(uid);
 
-            foreach (Guid modId in myModIds)
-            {
-                myMods.Add(await GetMod(modId.ToString()));
-            }
-
-            return myMods;
+            return await GetModsById(modIds);
         }
     }
 }
