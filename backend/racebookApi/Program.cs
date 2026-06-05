@@ -2,23 +2,26 @@ using AspNet.Security.OAuth.Discord;
 using CloudinaryDotNet;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using racebookApi.Repositories;
 using racebookApi.Repositories.Interfaces;
 using racebookApi.Services;
 using racebookApi.Services.Interfaces;
 using Scalar.AspNetCore;
 using System.Data;
+using System.Text;
 
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-string discordClientId = Environment.GetEnvironmentVariable("discordClientId");
-string discordClientSecret = Environment.GetEnvironmentVariable("discordClientSecret");
-string cloudinaryName = Environment.GetEnvironmentVariable("cloudinaryName");
-string cloudinaryKey = Environment.GetEnvironmentVariable("cloudinaryKey");
-string cloudinarySecret = Environment.GetEnvironmentVariable("cloudinarySecret");
+string discordClientId = Environment.GetEnvironmentVariable("discordClientId")!;
+string discordClientSecret = Environment.GetEnvironmentVariable("discordClientSecret")!;
+string cloudinaryName = Environment.GetEnvironmentVariable("cloudinaryName")!;
+string cloudinaryKey = Environment.GetEnvironmentVariable("cloudinaryKey")!;
+string cloudinarySecret = Environment.GetEnvironmentVariable("cloudinarySecret")!;
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -44,6 +47,20 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = DiscordAuthenticationDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(jwtOptions =>
+{
+    jwtOptions.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]!)),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true
+    };
 })
 .AddCookie()
 .AddDiscord(options =>
