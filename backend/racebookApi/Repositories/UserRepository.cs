@@ -30,5 +30,17 @@ namespace racebookApi.Repositories
 
             await _dbConnection.ExecuteAsync(sql, new { amaxUsername = playerName, username = "BobBuilder" });
         }
+
+        public async Task GetAccountInfoByEmail(string email)
+        {
+            string sql = @"SELECT
+                               Uid,
+                               Username,
+                               AmaxUsername
+                           FROM [User]
+                           WHERE Email = @email";
+
+
+        }
     }
 }
