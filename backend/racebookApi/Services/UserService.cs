@@ -15,7 +15,7 @@ namespace racebookApi.Services
 
         public async Task<bool> RegisterUserAsync(RegisterUserDto dto)
         {
-
+            return true;
         }
     }
 }
