@@ -15,7 +15,16 @@ namespace racebookApi.Services
 
         public async Task<bool> RegisterUserAsync(RegisterUserDto dto)
         {
+            if (await _userRepository.UserExists(dto.Email))
+            {
+                return false;
+            }
 
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+            await _userRepository.RegisterUser(dto.Email, dto.Username, hashedPassword);
+
+            return true;
         }
     }
 }

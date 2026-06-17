@@ -12,6 +12,7 @@ using racebookApi.Services.Interfaces;
 using Scalar.AspNetCore;
 using System.Data;
 using System.Text;
+using AmaxApiAdapter.Startup;
 
 Env.Load();
 
@@ -31,6 +32,8 @@ builder.Services.AddHttpClient("amax-api", client =>
     client.BaseAddress = new Uri("https://amax-emu.com/api/");
 });
 
+builder.Services.AddAmax();
+
 builder.Services.AddScoped<IDbConnection>(sp =>
     new SqlConnection(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection"))
 );
@@ -41,6 +44,7 @@ builder.Services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
 builder.Services.AddScoped<IModRepository, ModRepository>();
 builder.Services.AddScoped<IModService, ModService>();
 builder.Services.AddScoped<IPreviewImageRepository, PreviewImageRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 
 builder.Services.AddAuthentication(options =>

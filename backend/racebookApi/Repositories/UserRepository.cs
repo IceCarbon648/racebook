@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using racebookApi.Models;
 using racebookApi.Repositories.Interfaces;
 using System.Data;
 
@@ -31,16 +32,42 @@ namespace racebookApi.Repositories
             await _dbConnection.ExecuteAsync(sql, new { amaxUsername = playerName, username = "BobBuilder" });
         }
 
-        public async Task GetAccountInfoByEmail(string email)
+        public async Task<AccountInfo> GetAccountInfoByEmail(string email)
         {
             string sql = @"SELECT
                                Uid,
                                Username,
-                               AmaxUsername
+                               AmaxUsername,
+                               PasswordHash
                            FROM [User]
                            WHERE Email = @email";
 
+            return await _dbConnection.QueryFirstAsync<AccountInfo>(sql, new { email });
+        }
 
+        public async Task<bool> UserExists(string email)
+        {
+            string sql = @"SELECT COUNT(1)
+                           FROM [User]
+                           WHERE Email = @email";
+
+            return await _dbConnection.ExecuteScalarAsync<bool>(sql, new { email });
+        }
+
+        public async Task RegisterUser(string email, string username, string passwordHash)
+        {
+            string sql = @"INSERT INTO [User] (
+                               Email,
+                               Username,
+                               PasswordHash
+                           )
+                           VALUES (
+                               @email,
+                               @username,
+                               @passwordHash
+                           )";
+
+            await _dbConnection.ExecuteAsync(sql, new { email, username, passwordHash });
         }
     }
 }

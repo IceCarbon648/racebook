@@ -2,6 +2,7 @@ using AspNet.Security.OAuth.Discord;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using racebookApi.Models.DTOs.FromClient;
 using racebookApi.Services.Interfaces;
 using System.Text.Json;
 
@@ -41,6 +42,19 @@ namespace racebookApi.Controllers
 			await _authService.setAmaxUsername(amaxUsername);
 
 			return Ok("set amax name");
+		}
+
+		[HttpPost("login")]
+		public async Task<IActionResult> Login([FromForm] LoginDto dto)
+		{
+			string? jwt = await _authService.LoginAsync(dto);
+
+			if (string.IsNullOrEmpty(jwt))
+			{
+				return Unauthorized();
+			}
+
+			return Ok(jwt);
 		}
 	}
 }
