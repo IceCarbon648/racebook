@@ -14,8 +14,8 @@ namespace racebookApi.Controllers
             _playerStatsSnapshotService = playerStatsSnapshotService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> SaveStatsSnapshot()
+        [HttpPost("open-session")]
+        public async Task<IActionResult> OpenStatsSession([FromBody] string sessionName)
         {
             await _playerStatsSnapshotService.SaveSnapshot("IceCarbon");
 

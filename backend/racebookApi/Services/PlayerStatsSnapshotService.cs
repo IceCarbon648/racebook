@@ -16,11 +16,11 @@ namespace racebookApi.Services
             _playerStatsSnapshotRepository = playerStatsSnapshotRepository;
         }
 
-        public async Task SaveSnapshot(string amaxUsername)
+        public async Task<Guid> SaveSnapshot(string amaxUsername)
         {
             PlayerStats playerStats = await _amaxAdapter.GetPlayerStats(amaxUsername);
 
-            Guid uid = await _playerStatsSnapshotRepository.InsertSnapshot(playerStats);
+            return await _playerStatsSnapshotRepository.InsertSnapshot(playerStats);
         }
     }
 }

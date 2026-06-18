@@ -2,6 +2,6 @@
 {
     public interface IPlayerStatsSnapshotService
     {
-        Task SaveSnapshot(string amaxUsername);
+        Task<Guid> SaveSnapshot(string amaxUsername);
     }
 }
