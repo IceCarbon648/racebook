@@ -10,12 +10,10 @@ namespace racebookApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IAmaxAdapter _amaxAdapter;
 
-        public UserController(IUserService userService, IAmaxAdapter amaxAdapter)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _amaxAdapter = amaxAdapter;
         }
 
         [HttpPost("register")]
@@ -24,12 +22,6 @@ namespace racebookApi.Controllers
             bool userIsRegistered = await _userService.RegisterUserAsync(dto);
 
             return Ok();
-        }
-
-        [HttpGet("amax-stats")]
-        public async Task<IActionResult> GetPlayerStats()
-        {
-            return Ok(await _amaxAdapter.GetPlayerStats("IceCarbon"));
         }
     }
 }

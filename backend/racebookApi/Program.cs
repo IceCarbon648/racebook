@@ -45,6 +45,7 @@ builder.Services.AddScoped<IModService, ModService>();
 builder.Services.AddScoped<IPreviewImageRepository, PreviewImageRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPlayerStatsSnapshotRepository, PlayerStatsSnapshotRepository>();
+builder.Services.AddScoped<IPlayerStatsSnapshotService, PlayerStatsSnapshotService>();
 
 
 builder.Services.AddAuthentication(options =>
