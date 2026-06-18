@@ -20,7 +20,7 @@ namespace racebookApi.Services
         {
             PlayerStats playerStats = await _amaxAdapter.GetPlayerStats(amaxUsername);
 
-            await _playerStatsSnapshotRepository.InsertSnapshot(playerStats);
+            Guid uid = await _playerStatsSnapshotRepository.InsertSnapshot(playerStats);
         }
     }
 }

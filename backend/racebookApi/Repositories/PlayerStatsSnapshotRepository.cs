@@ -28,7 +28,7 @@ namespace racebookApi.Repositories
                                PowerUpHits,
                                Date
                            )
-                           OUTPUT INSETRED.SnapshotId
+                           OUTPUT INSERTED.SnapshotId
                            VALUES (
                                @totalFans,
                                @totalRaceTime,

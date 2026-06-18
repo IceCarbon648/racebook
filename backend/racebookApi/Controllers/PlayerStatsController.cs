@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using racebookApi.Repositories.Interfaces;
 using racebookApi.Services.Interfaces;
 
 namespace racebookApi.Controllers
@@ -18,7 +17,7 @@ namespace racebookApi.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveStatsSnapshot()
         {
-
+            await _playerStatsSnapshotService.SaveSnapshot("IceCarbon");
 
             return Ok();
         }
