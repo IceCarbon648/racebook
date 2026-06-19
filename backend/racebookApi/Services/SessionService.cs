@@ -12,7 +12,7 @@ namespace racebookApi.Services
             _sessionRepository = sessionRepository;
         }
 
-        public async Task OpenSession(Guid uid, string name, Guid snapshotId)
+        public async Task OpenSession(string uid, string name, Guid snapshotId)
         {
             await _sessionRepository.OpenSession(uid.ToString(), name, snapshotId);
         }

@@ -9,12 +9,12 @@ namespace racebookApi.Controllers
     public class PlayerStatsController : ControllerBase
     {
         private readonly IPlayerStatsSnapshotService _playerStatsSnapshotService;
-        private readonly ISessionRepository _sessionRepository;
+        private readonly ISessionService _sessionService;
 
-        public PlayerStatsController(IPlayerStatsSnapshotService playerStatsSnapshotService, ISessionRepository sessionRepository)
+        public PlayerStatsController(IPlayerStatsSnapshotService playerStatsSnapshotService, ISessionService sessionService)
         {
             _playerStatsSnapshotService = playerStatsSnapshotService;
-            _sessionRepository = sessionRepository;
+            _sessionService = sessionService;
         }
 
         [HttpPost("open-session")]
@@ -22,7 +22,7 @@ namespace racebookApi.Controllers
         {
             Guid snapshotId = await _playerStatsSnapshotService.SaveSnapshot("IceCarbon");
 
-            await _sessionRepository.OpenSession("9D51DE57-A958-4B74-B975-52A5F81C7F93", sessionName, snapshotId);
+            await _sessionService.OpenSession("9D51DE57-A958-4B74-B975-52A5F81C7F93", sessionName, snapshotId);
 
             return Ok();
         }
@@ -32,7 +32,7 @@ namespace racebookApi.Controllers
         {
             Guid snapshotId = await _playerStatsSnapshotService.SaveSnapshot("IceCarbon");
 
-            await _sessionRepository.CloseSession(sessionId, snapshotId);
+            await _sessionService.CloseSession(sessionId, snapshotId);
 
             return Ok();
         }
