@@ -37,7 +37,7 @@ namespace racebookApi.Repositories
         public async Task CloseSession(string sessionId, Guid snapshotId)
         {
             string sql = @"UPDATE Session
-                           SET EndSnapshotId = @snapshot
+                           SET EndSnapshotId = @snapshotId
                            WHERE SessionId = @sessionId";
 
             await _dbConnection.ExecuteAsync(sql, new

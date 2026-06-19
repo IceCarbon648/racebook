@@ -46,6 +46,8 @@ builder.Services.AddScoped<IPreviewImageRepository, PreviewImageRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPlayerStatsSnapshotRepository, PlayerStatsSnapshotRepository>();
 builder.Services.AddScoped<IPlayerStatsSnapshotService, PlayerStatsSnapshotService>();
+builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 
 
 builder.Services.AddAuthentication(options =>
