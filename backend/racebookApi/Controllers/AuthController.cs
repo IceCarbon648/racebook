@@ -63,5 +63,13 @@ namespace racebookApi.Controllers
 
             return Ok(new {message = "You have been logged in"});
 		}
+
+		[HttpPost]
+		public async Task<IActionResult> Logout()
+		{
+            Response.Cookies.Delete("access_token");
+
+            return Ok(new { message = "You have been logged out" });
+        }
 	}
 }
