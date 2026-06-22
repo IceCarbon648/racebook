@@ -19,7 +19,7 @@ public class PlayerStatsSnapshortServiceTests
     }
 
     [Test]
-    public async Task Test1()
+    public async Task GivenAmaxUsername_WhenGettingPlayerStats_WritePlayerStatsToDb()
     {
         //Arrange
         string amaxUsername = "Banan";

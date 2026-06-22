@@ -54,7 +54,14 @@ namespace racebookApi.Controllers
 				return Unauthorized();
 			}
 
-			return Ok(jwt);
+            Response.Cookies.Append("access_token", jwt, new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(30)
+            });
+
+            return Ok(new {message = "You have been logged in"});
 		}
 	}
 }
