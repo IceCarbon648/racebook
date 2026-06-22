@@ -1,7 +1,10 @@
+using AmaxApiAdapter.Startup;
 using AspNet.Security.OAuth.Discord;
 using CloudinaryDotNet;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using racebookApi.Repositories;
@@ -11,7 +14,6 @@ using racebookApi.Services.Interfaces;
 using Scalar.AspNetCore;
 using System.Data;
 using System.Text;
-using AmaxApiAdapter.Startup;
 
 Env.Load();
 
@@ -77,6 +79,14 @@ builder.Services.AddAuthentication(options =>
     options.SaveTokens = true;
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -86,6 +96,15 @@ if (app.Environment.IsDevelopment())
         o.WithTheme(ScalarTheme.BluePlanet)
     );
 }
+
+app.Use(async (context, next) =>
+{
+    var token = context.Request.Cookies["access_token"];
+    if (!string.IsNullOrEmpty(token))
+        context.Request.Headers.Authorization = $"Bearer {token}";
+
+    await next();
+});
 
 app.UseHttpsRedirection();
 

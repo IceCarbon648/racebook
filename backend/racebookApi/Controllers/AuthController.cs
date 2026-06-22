@@ -20,6 +20,7 @@ namespace racebookApi.Controllers
 		}
 
 		[HttpGet("AuthenticateViaDiscord")]
+		[Authorize]
 		public IActionResult AuthenticateViaDiscord()
 		{
 			AuthenticationProperties properties = new AuthenticationProperties { RedirectUri = "api/Auth/AmaxUsername" };
@@ -64,7 +65,7 @@ namespace racebookApi.Controllers
             return Ok(new {message = "You have been logged in"});
 		}
 
-		[HttpPost]
+		[HttpPost("logout")]
 		public async Task<IActionResult> Logout()
 		{
             Response.Cookies.Delete("access_token");
