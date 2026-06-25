@@ -23,13 +23,13 @@ namespace racebookApi.Repositories
             return await _dbConnection.ExecuteScalarAsync<string>(sql, new { userId });
         }
 
-        public async Task UpdateAmaxUsername(string playerName)
+        public async Task UpdateAmaxUsername(string uid, string amaxUsername)
         {
             string sql = @"UPDATE [User]
                            SET AmaxUsername = @amaxUsername
-                           WHERE Username = @username";
+                           WHERE Uid = @uid";
 
-            await _dbConnection.ExecuteAsync(sql, new { amaxUsername = playerName, username = "BobBuilder" });
+            await _dbConnection.ExecuteAsync(sql, new { amaxUsername, uid });
         }
 
         public async Task<AccountInfo> GetAccountInfoByEmail(string email)

@@ -33,6 +33,17 @@ builder.Services.AddHttpClient("amax-api", client =>
     client.BaseAddress = new Uri("https://amax-emu.com/api/");
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin", policy =>
+    {
+        policy.WithOrigins("http://localhost:5089")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.AddAmax();
 
 builder.Services.AddScoped<IDbConnection>(sp =>
@@ -105,6 +116,8 @@ app.Use(async (context, next) =>
 
     await next();
 });
+
+app.UseCors("AllowOrigin");
 
 app.UseHttpsRedirection();
 

@@ -5,61 +5,20 @@ using racebookApi.Models.DTOs.FromClient;
 using racebookApi.Repositories.Interfaces;
 using racebookApi.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 
 namespace racebookApi.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly HttpClient _httpClient;
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
 
-        public AuthService(IHttpClientFactory httpClientFactory, IUserRepository userRepository, IConfiguration configuration)
+        public AuthService(IUserRepository userRepository, IConfiguration configuration)
         {
-            _httpClient = httpClientFactory.CreateClient("amax-api");
             _userRepository = userRepository;
             _configuration = configuration;
-        }
-
-        private async Task<string> GetDiscordBearerToken(HttpContext httpContext)
-        {
-            string discordBearerToken = await httpContext.GetTokenAsync("access_token");
-
-            return discordBearerToken;
-        }
-
-        public async Task<JsonDocument> GetUserAmaxData(HttpContext httpContext)
-        {
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await GetDiscordBearerToken(httpContext));
-
-            HttpResponseMessage response = await _httpClient.GetAsync("players/@me");
-            JsonDocument jsonResponse = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-
-            return jsonResponse;
-        }
-
-        public bool HasAmaxAccount(JsonDocument userAmaxData)
-        {
-            return userAmaxData.RootElement.GetProperty("amax_account").GetBoolean();
-        }
-
-        public string GetAmaxUsername(JsonDocument userAmaxData)
-        {
-            return userAmaxData.RootElement
-                .GetProperty("amax_player_data")
-                .GetProperty("stats")
-                .GetProperty("playerName")
-                .GetString();
-        }
-
-        public async Task setAmaxUsername(string playerName)
-        {
-            await _userRepository.UpdateAmaxUsername(playerName);
         }
 
         public async Task<string?> LoginAsync(LoginDto dto)

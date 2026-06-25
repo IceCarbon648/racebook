@@ -26,5 +26,10 @@ namespace racebookApi.Services
 
             return true;
         }
+
+        public async Task setAmaxUsername(string uid, string playerName)
+        {
+            await _userRepository.UpdateAmaxUsername(uid, playerName);
+        }
     }
 }

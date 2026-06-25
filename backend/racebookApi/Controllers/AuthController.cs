@@ -1,10 +1,11 @@
+using AmaxApiAdapter.Adapters;
 using AspNet.Security.OAuth.Discord;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using racebookApi.Models.DTOs.FromClient;
 using racebookApi.Services.Interfaces;
-using System.Text.Json;
+using System.Security.Claims;
 
 namespace racebookApi.Controllers
 {
@@ -23,26 +24,9 @@ namespace racebookApi.Controllers
 		[Authorize]
 		public IActionResult AuthenticateViaDiscord()
 		{
-			AuthenticationProperties properties = new AuthenticationProperties { RedirectUri = "api/Auth/AmaxUsername" };
+			AuthenticationProperties properties = new AuthenticationProperties { RedirectUri = "api/User/AmaxUsername" };
 
 			return Challenge(properties, DiscordAuthenticationDefaults.AuthenticationScheme);
-		}
-
-		[HttpPost("AmaxUsername")]
-		[Authorize]
-		public async Task<IActionResult> SetAmaxUsername()
-		{
-			JsonDocument userAmaxData = await _authService.GetUserAmaxData(HttpContext);
-
-			if (!_authService.HasAmaxAccount(userAmaxData))
-			{
-				return Ok("No amax account associated with the discord account");
-			}
-
-			string amaxUsername = _authService.GetAmaxUsername(userAmaxData);
-			await _authService.setAmaxUsername(amaxUsername);
-
-			return Ok("set amax name");
 		}
 
 		[HttpPost("login")]
@@ -58,19 +42,20 @@ namespace racebookApi.Controllers
             Response.Cookies.Append("access_token", jwt, new CookieOptions
             {
                 HttpOnly = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.Lax,
                 Expires = DateTimeOffset.UtcNow.AddMinutes(30)
             });
 
-            return Ok(new {message = "You have been logged in"});
+            return Ok(new {message = $"You have been logged in"});
 		}
 
 		[HttpPost("logout")]
+		[Authorize]
 		public async Task<IActionResult> Logout()
 		{
             Response.Cookies.Delete("access_token");
 
             return Ok(new { message = "You have been logged out" });
         }
-	}
+    }
 }
