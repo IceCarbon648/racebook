@@ -5,7 +5,7 @@ namespace racebookApi.Services.Interfaces
 {
     public interface IModService
     {
-        Task UploadMod(ModDto dto);
+        Task UploadMod(string uid, ModDto dto);
         Task DeleteMod(string modId);
         Task EditMod(string modId, ModEditDto dto);
         Task<byte[]?> DownloadModFile(string modFileUrl);

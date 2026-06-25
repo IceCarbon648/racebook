@@ -26,13 +26,13 @@ namespace racebookApi.Services
             _userRepository = userRepository;
         }
 
-        public async Task UploadMod(ModDto dto)
+        public async Task UploadMod(string uid, ModDto dto)
         {
             string modFileUrl = await _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw);
             List<string> previewImageUrls = await UploadPreviewImages(dto.PreviewImages);
 
             Guid modId = await _modRepository.CreateMod(
-                "9D51DE57-A958-4B74-B975-52A5F81C7F93",
+                uid,
                 dto.Title,
                 dto.Type,
                 dto.Description,

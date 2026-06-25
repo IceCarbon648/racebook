@@ -21,7 +21,9 @@ namespace racebookApi.Controllers
         [Authorize]
         public async Task<IActionResult> UploadMod([FromForm] ModDto dto)
         {
-            await _modService.UploadMod(dto);
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+
+            await _modService.UploadMod(uid, dto);
 
             return Ok();
         }
