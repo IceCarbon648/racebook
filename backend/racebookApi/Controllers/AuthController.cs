@@ -1,16 +1,14 @@
-using AmaxApiAdapter.Adapters;
 using AspNet.Security.OAuth.Discord;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using racebookApi.Models.DTOs.FromClient;
 using racebookApi.Services.Interfaces;
-using System.Security.Claims;
 
 namespace racebookApi.Controllers
 {
 	[ApiController]
-	[Route("api/[controller]")]
+	[Route("api/auth")]
 	public class AuthController : ControllerBase
 	{
 		private readonly IAuthService _authService;
@@ -20,7 +18,7 @@ namespace racebookApi.Controllers
 			_authService = authService;
 		}
 
-		[HttpGet("AuthenticateViaDiscord")]
+		[HttpGet("discord")]
 		[Authorize]
 		public IActionResult AuthenticateViaDiscord()
 		{
@@ -46,7 +44,7 @@ namespace racebookApi.Controllers
                 Expires = DateTimeOffset.UtcNow.AddMinutes(30)
             });
 
-            return Ok(new {message = $"You have been logged in"});
+            return Ok(new {message = "Login successful"});
 		}
 
 		[HttpPost("logout")]
@@ -55,7 +53,7 @@ namespace racebookApi.Controllers
 		{
             Response.Cookies.Delete("access_token");
 
-            return Ok(new { message = "You have been logged out" });
+            return Ok(new { message = "Logout successful" });
         }
     }
 }

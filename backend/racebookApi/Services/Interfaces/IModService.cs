@@ -7,9 +7,9 @@ namespace racebookApi.Services.Interfaces
     {
         Task UploadMod(ModDto dto);
         Task DeleteMod(string modId);
-        Task EditMod(ModEditDto dto);
+        Task EditMod(string modId, ModEditDto dto);
         Task<byte[]?> DownloadModFile(string modFileUrl);
-        Task<GetModDto> GetMod(string modID);
+        Task<GetModDto> GetMod(string modId);
         Task<List<GetModDto>> GetAllMods();
         Task<List<GetModDto>> GetMyMods(string uid);
     }

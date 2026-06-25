@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using racebookApi.Repositories.Interfaces;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using racebookApi.Services.Interfaces;
+using System.Security.Claims;
 
 namespace racebookApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/amax-player-stats")]
     [ApiController]
     public class PlayerStatsController : ControllerBase
     {
@@ -20,21 +22,24 @@ namespace racebookApi.Controllers
         [HttpPost("open-session")]
         public async Task<IActionResult> OpenStatsSession([FromBody] string sessionName)
         {
-            Guid snapshotId = await _playerStatsSnapshotService.SaveSnapshot("IceCarbon");
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+            string? amaxUsername = User.FindFirst(ClaimTypes.GivenName)?.Value.ToString();
+            Guid snapshotId = await _playerStatsSnapshotService.SaveSnapshot(amaxUsername);
 
-            await _sessionService.OpenSession("9D51DE57-A958-4B74-B975-52A5F81C7F93", sessionName, snapshotId);
+            await _sessionService.OpenSession(uid, sessionName, snapshotId);
 
-            return Ok();
+            return Ok(new { message = "Session opened successfully" });
         }
 
         [HttpPost("close-session")]
         public async Task<IActionResult> CloseStatsSession([FromBody] string sessionId)
         {
-            Guid snapshotId = await _playerStatsSnapshotService.SaveSnapshot("IceCarbon");
+            string? amaxUsername = User.FindFirst(ClaimTypes.GivenName)?.Value.ToString();
+            Guid snapshotId = await _playerStatsSnapshotService.SaveSnapshot(amaxUsername);
 
             await _sessionService.CloseSession(sessionId, snapshotId);
 
-            return Ok();
+            return Ok(new { message = "Session closed successfully" });
         }
     }
 }

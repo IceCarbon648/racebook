@@ -107,9 +107,9 @@ namespace racebookApi.Services
             await DeleteFromCloudinaryByPublicId(modFilePublicId);
         }
 
-        public async Task EditMod(ModEditDto dto)
+        public async Task EditMod(string modId, ModEditDto dto)
         {
-            Mod modDetails = await _modRepository.GetModById(dto.ModId.ToString());
+            Mod modDetails = await _modRepository.GetModById(modId);
 
             if (dto.PreviewImagesToBeDeleted != null)
             {
@@ -124,12 +124,12 @@ namespace racebookApi.Services
             if (dto.NewPreviewImages != null)
             {
                 List<string> previewImageUrls = await UploadPreviewImages(dto.NewPreviewImages);
-                await SavePreviewImages(dto.ModId, previewImageUrls);
+                await SavePreviewImages(Guid.Parse(modId), previewImageUrls);
             }
 
             if (dto.ModFile != null)
             {
-                string oldModFileUrl = await _modRepository.GetModFileUrl(dto.ModId.ToString());
+                string oldModFileUrl = await _modRepository.GetModFileUrl(modId);
                 await DeleteModFile(oldModFileUrl, ModPublicIdStart);
 
                 string newModFileUrl = await _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw);

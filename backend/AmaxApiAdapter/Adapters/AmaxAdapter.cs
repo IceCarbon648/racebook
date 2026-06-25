@@ -19,20 +19,20 @@ namespace AmaxApiAdapter.Adapters
             return userAmaxData.RootElement.GetProperty("amax_account").GetBoolean();
         }
 
-        public async Task<string> GetAmaxUsername(string bearerToken)
+        public async Task<string?> GetAmaxUsername(string bearerToken)
         {
             JsonDocument userAmaxData = await _amaxHttpClient.GetUserAmaxData(bearerToken);
 
             if (!HasAmaxAccount(userAmaxData))
             {
-                return null!;
+                return null;
             }
 
             return userAmaxData.RootElement
                 .GetProperty("amax_player_data")
                 .GetProperty("stats")
                 .GetProperty("playerName")
-                .GetString()!;
+                .GetString();
         }
 
         public async Task<PlayerStats> GetPlayerStats(string amaxUsername)

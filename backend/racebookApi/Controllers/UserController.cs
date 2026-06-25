@@ -1,10 +1,8 @@
 ﻿using AmaxApiAdapter.Adapters;
-using AspNet.Security.OAuth.Discord;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using racebookApi.Models.DTOs.FromClient;
-using racebookApi.Services;
 using racebookApi.Services.Interfaces;
 using System.Security.Claims;
 
@@ -28,24 +26,24 @@ namespace racebookApi.Controllers
         {
             bool userIsRegistered = await _userService.RegisterUserAsync(dto);
 
-            return Ok();
+            return Ok(new { message = "Registration successful" });
         }
 
-        [HttpGet("amaxUsername")]
+        [HttpGet("amax-username")]
         [Authorize]
         public async Task<IActionResult> SetAmaxUsername()
         {
-            var uid = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            string amaxUsername = await _amaxAdapter.GetAmaxUsername(await HttpContext.GetTokenAsync("access_token"));
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+            string? amaxUsername = await _amaxAdapter.GetAmaxUsername(await HttpContext.GetTokenAsync("access_token"));
 
-            if (!string.IsNullOrEmpty(amaxUsername))
+            if (!string.IsNullOrEmpty(amaxUsername) && !string.IsNullOrEmpty(uid))
             {
                 await _userService.setAmaxUsername(uid, amaxUsername);
 
-                return Ok($"set amax name\n{uid}");
+                return Ok(new { message = "Saved amax username" });
             }
 
-            return Ok("No amax account associated with the discord account");
+            return Ok(new { message = "No amax account associated with the discord account" });
         }
     }
 }
