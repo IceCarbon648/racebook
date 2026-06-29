@@ -38,19 +38,32 @@ namespace racebookApi.Services
             return GenerateToken(accountInfo);
         }
 
+        public string GenerateTokenWithAmaxUsername(string uid, string username, string amaxUsername)
+        {
+            string dummyHash = "$2a$11$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+
+            return GenerateToken(new AccountInfo
+            {
+                Uid = Guid.Parse(uid),
+                Username = username,
+                AmaxUsername = amaxUsername,
+                PasswordHash = dummyHash
+            });
+        }
+
         private string GenerateToken(AccountInfo accountInfo)
         {
-            var claims = new[]
+            Claim[] claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, accountInfo.Uid.ToString()),
                 new Claim(ClaimTypes.Name, accountInfo.Username),
                 new Claim(ClaimTypes.GivenName, accountInfo.AmaxUsername ?? "")
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
+            SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityToken(
+            JwtSecurityToken token = new JwtSecurityToken(
                 issuer: _configuration["JwtSettings:Issuer"]!,
                 audience: _configuration["JwtSettings:Audience"]!,
                 claims: claims,

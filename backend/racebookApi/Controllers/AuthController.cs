@@ -22,7 +22,7 @@ namespace racebookApi.Controllers
 		[Authorize]
 		public IActionResult AuthenticateViaDiscord()
 		{
-			AuthenticationProperties properties = new AuthenticationProperties { RedirectUri = "api/User/AmaxUsername" };
+			AuthenticationProperties properties = new AuthenticationProperties { RedirectUri = "api/user/callback" };
 
 			return Challenge(properties, DiscordAuthenticationDefaults.AuthenticationScheme);
 		}
