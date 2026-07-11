@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using racebookApi.Models.DTOs.FromClient;
-using racebookApi.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Business.Models.DTOs.Request;
+using Business.Interfaces;
+using System.Security.Claims;
 
 namespace racebookApi.Controllers
 {
@@ -16,14 +18,18 @@ namespace racebookApi.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> UploadMod([FromForm] ModDto dto)
         {
-            await _modService.UploadMod(dto);
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+
+            await _modService.UploadMod(uid, dto);
 
             return Ok();
         }
 
         [HttpDelete("{modId}")]
+        [Authorize]
         public async Task<IActionResult> DeleteMod([FromRoute] string modId)
         {
             await _modService.DeleteMod(modId);
@@ -31,18 +37,13 @@ namespace racebookApi.Controllers
             return Ok();
         }
 
-        [HttpPatch("ammend")]
-        public async Task<IActionResult> EditMod([FromForm] ModEditDto dto)
+        [HttpPatch("{modId}")]
+        [Authorize]
+        public async Task<IActionResult> EditMod([FromRoute] string modId, [FromForm] ModEditDto dto)
         {
-            await _modService.EditMod(dto);
+            await _modService.EditMod(modId, dto);
 
             return Ok();
-        }
-
-        [HttpGet("download")]
-        public async Task<IActionResult> Download([FromBody] string modFileUrl)
-        {
-            return File(await _modService.DownloadModFile(modFileUrl), "application/octet-stream");
         }
 
         [HttpGet("{modId}")]
@@ -58,9 +59,12 @@ namespace racebookApi.Controllers
         }
 
         [HttpGet("my-mods")]
+        [Authorize]
         public async Task<IActionResult> GetMyMods()
         {
-            return Ok(await _modService.GetMyMods("9D51DE57-A958-4B74-B975-52A5F81C7F93"));
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+
+            return Ok(await _modService.GetMyMods(uid!));
         }
     }
 }

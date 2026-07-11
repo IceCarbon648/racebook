@@ -1,24 +1,27 @@
+using AmaxApiAdapter.Startup;
+using Business.Startup;
+using Infrastructure.Startup;
 using AspNet.Security.OAuth.Discord;
 using CloudinaryDotNet;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.SqlClient;
-using racebookApi.Repositories;
-using racebookApi.Repositories.Interfaces;
-using racebookApi.Services;
-using racebookApi.Services.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Data;
+using System.Text;
 
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-string discordClientId = Environment.GetEnvironmentVariable("discordClientId");
-string discordClientSecret = Environment.GetEnvironmentVariable("discordClientSecret");
-string cloudinaryName = Environment.GetEnvironmentVariable("cloudinaryName");
-string cloudinaryKey = Environment.GetEnvironmentVariable("cloudinaryKey");
-string cloudinarySecret = Environment.GetEnvironmentVariable("cloudinarySecret");
+string discordClientId = Environment.GetEnvironmentVariable("discordClientId")!;
+string discordClientSecret = Environment.GetEnvironmentVariable("discordClientSecret")!;
+string cloudinaryName = Environment.GetEnvironmentVariable("cloudinaryName")!;
+string cloudinaryKey = Environment.GetEnvironmentVariable("cloudinaryKey")!;
+string cloudinarySecret = Environment.GetEnvironmentVariable("cloudinarySecret")!;
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -28,16 +31,25 @@ builder.Services.AddHttpClient("amax-api", client =>
     client.BaseAddress = new Uri("https://amax-emu.com/api/");
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin", policy =>
+    {
+        policy.WithOrigins("http://localhost:5089")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+builder.Services.AddAmax();
+builder.Services.AddBusiness();
+builder.Services.AddInfrastructure();
+
 builder.Services.AddScoped<IDbConnection>(sp =>
     new SqlConnection(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection"))
 );
 builder.Services.AddSingleton(provider => new Cloudinary(new Account { ApiKey = cloudinaryKey, ApiSecret = cloudinarySecret, Cloud = cloudinaryName }));
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
-builder.Services.AddScoped<IModRepository, ModRepository>();
-builder.Services.AddScoped<IModService, ModService>();
-builder.Services.AddScoped<IPreviewImageRepository, PreviewImageRepository>();
 
 
 builder.Services.AddAuthentication(options =>
@@ -45,12 +57,34 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = DiscordAuthenticationDefaults.AuthenticationScheme;
 })
+.AddJwtBearer(jwtOptions =>
+{
+    jwtOptions.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]!)),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true
+    };
+})
 .AddCookie()
 .AddDiscord(options =>
 {
     options.ClientId = discordClientId;
     options.ClientSecret = discordClientSecret;
     options.SaveTokens = true;
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+        .RequireAuthenticatedUser()
+        .Build();
 });
 
 var app = builder.Build();
@@ -62,6 +96,17 @@ if (app.Environment.IsDevelopment())
         o.WithTheme(ScalarTheme.BluePlanet)
     );
 }
+
+app.Use(async (context, next) =>
+{
+    var token = context.Request.Cookies["access_token"];
+    if (!string.IsNullOrEmpty(token))
+        context.Request.Headers.Authorization = $"Bearer {token}";
+
+    await next();
+});
+
+app.UseCors("AllowOrigin");
 
 app.UseHttpsRedirection();
 

@@ -2,13 +2,13 @@ using AspNet.Security.OAuth.Discord;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using racebookApi.Services.Interfaces;
-using System.Text.Json;
+using Business.Models.DTOs.Request;
+using Business.Interfaces;
 
 namespace racebookApi.Controllers
 {
 	[ApiController]
-	[Route("api/[controller]")]
+	[Route("api/auth")]
 	public class AuthController : ControllerBase
 	{
 		private readonly IAuthService _authService;
@@ -18,29 +18,42 @@ namespace racebookApi.Controllers
 			_authService = authService;
 		}
 
-		[HttpGet("AuthenticateViaDiscord")]
+		[HttpGet("discord")]
+		[Authorize]
 		public IActionResult AuthenticateViaDiscord()
 		{
-			AuthenticationProperties properties = new AuthenticationProperties { RedirectUri = "api/Auth/AmaxUsername" };
+			AuthenticationProperties properties = new AuthenticationProperties { RedirectUri = "api/user/callback" };
 
 			return Challenge(properties, DiscordAuthenticationDefaults.AuthenticationScheme);
 		}
 
-		[HttpPost("AmaxUsername")]
-		[Authorize]
-		public async Task<IActionResult> SetAmaxUsername()
+		[HttpPost("login")]
+		public async Task<IActionResult> Login([FromForm] LoginDto dto)
 		{
-			JsonDocument userAmaxData = await _authService.GetUserAmaxData(HttpContext);
+			string? jwt = await _authService.LoginAsync(dto);
 
-			if (!_authService.HasAmaxAccount(userAmaxData))
+			if (string.IsNullOrEmpty(jwt))
 			{
-				return Ok("No amax account associated with the discord account");
+				return Unauthorized();
 			}
 
-			string amaxUsername = _authService.GetAmaxUsername(userAmaxData);
-			await _authService.setAmaxUsername(amaxUsername);
+            Response.Cookies.Append("access_token", jwt, new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(30)
+            });
 
-			return Ok("set amax name");
+            return Ok(new {message = "Login successful"});
 		}
-	}
+
+		[HttpPost("logout")]
+		[Authorize]
+		public async Task<IActionResult> Logout()
+		{
+            Response.Cookies.Delete("access_token");
+
+            return Ok(new { message = "Logout successful" });
+        }
+    }
 }
