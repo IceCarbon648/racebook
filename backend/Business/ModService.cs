@@ -157,16 +157,6 @@ namespace Business
             await _modRepository.EditMod(modDetails);
         }
 
-        public async Task<byte[]?> DownloadModFile(string modFileUrl)
-        {
-            using HttpClient httpClient = new HttpClient();
-            HttpResponseMessage response = await httpClient.GetAsync(modFileUrl);
-
-            if (!response.IsSuccessStatusCode) return null;//ASK DAMIAN. . .prolly needs adapter
-
-            return await response.Content.ReadAsByteArrayAsync();
-        }
-
         public async Task<GetModDto> GetMod(string modId)
         {
             Mod modInfo = await _modRepository.GetModById(modId);
