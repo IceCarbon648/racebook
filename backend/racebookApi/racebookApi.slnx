@@ -1,5 +1,7 @@
 <Solution>
   <Project Path="../AmaxApiAdapter/AmaxApiAdapter.csproj" />
+  <Project Path="../Business/Business.csproj" Id="093e8861-e76b-48ae-b3c2-57f0152de995" />
+  <Project Path="../Infrastructure/Infrastructure.csproj" Id="66eff8e6-e1d4-4ba5-851e-4a4b7735bd5b" />
   <Project Path="../racebookApiTests/racebookApiTests.csproj" Id="98e6ba0e-ba3d-4c8d-ac3e-f14e41d4b6a2" />
   <Project Path="racebookApi.csproj" />
 </Solution>

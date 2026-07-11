@@ -2,8 +2,8 @@ using AspNet.Security.OAuth.Discord;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using racebookApi.Models.DTOs.FromClient;
-using racebookApi.Services.Interfaces;
+using Business.Models.DTOs.Request;
+using Business.Interfaces;
 
 namespace racebookApi.Controllers
 {

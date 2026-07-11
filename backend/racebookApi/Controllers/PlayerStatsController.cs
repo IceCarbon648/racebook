@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using racebookApi.Services.Interfaces;
+using Business.Interfaces;
 using System.Security.Claims;
 
 namespace racebookApi.Controllers

@@ -1,4 +1,6 @@
 using AmaxApiAdapter.Startup;
+using Business.Startup;
+using Infrastructure.Startup;
 using AspNet.Security.OAuth.Discord;
 using CloudinaryDotNet;
 using DotNetEnv;
@@ -7,10 +9,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
-using racebookApi.Repositories;
-using racebookApi.Repositories.Interfaces;
-using racebookApi.Services;
-using racebookApi.Services.Interfaces;
 using Scalar.AspNetCore;
 using System.Data;
 using System.Text;
@@ -45,22 +43,13 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddAmax();
+builder.Services.AddBusiness();
+builder.Services.AddInfrastructure();
 
 builder.Services.AddScoped<IDbConnection>(sp =>
     new SqlConnection(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection"))
 );
 builder.Services.AddSingleton(provider => new Cloudinary(new Account { ApiKey = cloudinaryKey, ApiSecret = cloudinarySecret, Cloud = cloudinaryName }));
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
-builder.Services.AddScoped<IModRepository, ModRepository>();
-builder.Services.AddScoped<IModService, ModService>();
-builder.Services.AddScoped<IPreviewImageRepository, PreviewImageRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IPlayerStatsSnapshotRepository, PlayerStatsSnapshotRepository>();
-builder.Services.AddScoped<IPlayerStatsSnapshotService, PlayerStatsSnapshotService>();
-builder.Services.AddScoped<ISessionService, SessionService>();
-builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 
 
 builder.Services.AddAuthentication(options =>

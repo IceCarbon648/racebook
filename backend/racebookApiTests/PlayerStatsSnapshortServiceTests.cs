@@ -1,8 +1,8 @@
 ﻿using AmaxApiAdapter.Adapters;
 using AmaxApiAdapter.Models.DTOs;
 using NSubstitute;
-using racebookApi.Repositories.Interfaces;
-using racebookApi.Services;
+using Infrastructure.Interfaces;
+using Business;
 
 namespace racebookApiTests;
 

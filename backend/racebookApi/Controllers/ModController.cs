@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using racebookApi.Models.DTOs.FromClient;
-using racebookApi.Services.Interfaces;
+using Business.Models.DTOs.Request;
+using Business.Interfaces;
 using System.Security.Claims;
 
 namespace racebookApi.Controllers

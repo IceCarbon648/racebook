@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using racebookApi.Models.DTOs.FromClient;
-using racebookApi.Services.Interfaces;
+using Business.Models.DTOs.Request;
+using Business.Interfaces;
 using System.Security.Claims;
 
 namespace racebookApi.Controllers
@@ -24,7 +24,7 @@ namespace racebookApi.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterUserDto([FromForm] RegisterUserDto dto)
+        public async Task<IActionResult> RegisterUser([FromForm] RegisterUserDto dto)
         {
             bool userIsRegistered = await _userService.RegisterUserAsync(dto);
 

@@ -1,12 +1,12 @@
 ﻿using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using NSubstitute;
-using racebookApi.Constants;
-using racebookApi.Models;
-using racebookApi.Models.DTOs.FromClient;
-using racebookApi.Models.DTOs.ToClient;
-using racebookApi.Repositories.Interfaces;
-using racebookApi.Services;
+using Infrastructure.Constants;
+using Infrastructure.Models;
+using Business.Models.DTOs.Request;
+using Business.Models.DTOs.Response;
+using Infrastructure.Interfaces;
+using Business;
 
 namespace racebookApiTests
 {
@@ -98,7 +98,7 @@ namespace racebookApiTests
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
             //Act
-            await modService.UploadMod(dto);
+            await modService.UploadMod(genericUserId.ToString(), dto);
 
             //Assert
             await _cloudinaryRepository.Received(1).UploadAsync(dto.ModFile, FileType.Raw);
@@ -259,7 +259,6 @@ namespace racebookApiTests
             //Arrange
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = genericModId,
                 Title = "edited Title",
             };
 
@@ -268,7 +267,7 @@ namespace racebookApiTests
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
             //Act
-            await modService.EditMod(modEdit);
+            await modService.EditMod(genericModId.ToString(), modEdit);
 
             //Assert
             await _modRepository.Received(1).EditMod(Arg.Any<Mod>());
@@ -280,7 +279,6 @@ namespace racebookApiTests
             //Arrange
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = genericModId,
                 Type = "edited Type",
             };
 
@@ -289,7 +287,7 @@ namespace racebookApiTests
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
             //Act
-            await modService.EditMod(modEdit);
+            await modService.EditMod(genericModId.ToString(), modEdit);
 
             //Assert
             await _modRepository.Received(1).EditMod(genericMod);
@@ -301,7 +299,6 @@ namespace racebookApiTests
             //Arrange
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = genericModId,
                 Description = "edited description",
             };
 
@@ -310,7 +307,7 @@ namespace racebookApiTests
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
             //Act
-            await modService.EditMod(modEdit);
+            await modService.EditMod(genericModId.ToString(), modEdit);
 
             //Assert
             await _modRepository.Received(1).EditMod(Arg.Any<Mod>());
@@ -322,7 +319,6 @@ namespace racebookApiTests
             //Arrange
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = genericModId,
                 ModFile = _formFile,
             };
 
@@ -333,7 +329,7 @@ namespace racebookApiTests
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
             //Act
-            await modService.EditMod(modEdit);
+            await modService.EditMod(genericModId.ToString(), modEdit);
 
             //Assert
             await _modRepository.Received(1).EditMod(Arg.Any<Mod>());
@@ -345,7 +341,6 @@ namespace racebookApiTests
             //Arrange
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = genericModId,
                 PreviewImagesToBeDeleted = new List<string> { PlaceholderImageUrl },
             };
 
@@ -354,7 +349,7 @@ namespace racebookApiTests
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
             //Act
-            await modService.EditMod(modEdit);
+            await modService.EditMod(genericModId.ToString(), modEdit);
 
             //Assert
             await _modRepository.Received(1).EditMod(Arg.Any<Mod>());
@@ -368,7 +363,6 @@ namespace racebookApiTests
             //Arrange
             ModEditDto modEdit = new ModEditDto
             {
-                ModId = genericModId,
                 NewPreviewImages = new List<IFormFile> { _formFile },
             };
 
@@ -377,7 +371,7 @@ namespace racebookApiTests
             ModService modService = new ModService(_cloudinaryRepository, _modRepository, _previewImageRepository, _userRepository);
 
             //Act
-            await modService.EditMod(modEdit);
+            await modService.EditMod(genericModId.ToString(), modEdit);
 
             //Assert
             await _modRepository.Received(1).EditMod(Arg.Any<Mod>());

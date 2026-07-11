@@ -1,7 +1,7 @@
-﻿using racebookApi.Repositories.Interfaces;
+﻿using Infrastructure.Interfaces;
 using NSubstitute;
-using racebookApi.Services;
-using racebookApi.Models.DTOs.FromClient;
+using Business;
+using Business.Models.DTOs.Request;
 
 namespace racebookApiTests;
 
