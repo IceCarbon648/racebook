@@ -32,7 +32,7 @@ namespace Infrastructure
             await _dbConnection.ExecuteAsync(sql, new { amaxUsername, uid });
         }
 
-        public async Task<AccountInfo> GetAccountInfoByEmail(string email)
+        public async Task<AccountInfo?> GetAccountInfoByEmail(string email)
         {
             string sql = @"SELECT
                                Uid,
@@ -42,7 +42,7 @@ namespace Infrastructure
                            FROM [User]
                            WHERE Email = @email";
 
-            return await _dbConnection.QueryFirstAsync<AccountInfo>(sql, new { email });
+            return await _dbConnection.QueryFirstOrDefaultAsync<AccountInfo>(sql, new { email });
         }
 
         public async Task<bool> UserExists(string email)

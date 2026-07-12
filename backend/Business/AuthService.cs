@@ -23,14 +23,9 @@ namespace Business
 
         public async Task<string?> LoginAsync(LoginDto dto)
         {
-            if (!await _userRepository.UserExists(dto.Email))
-            {
-                return null;
-            }
+            AccountInfo? accountInfo = await _userRepository.GetAccountInfoByEmail(dto.Email);
 
-            AccountInfo accountInfo = await _userRepository.GetAccountInfoByEmail(dto.Email);
-
-            if (!BCrypt.Net.BCrypt.Verify(dto.Password, accountInfo.PasswordHash))
+            if (accountInfo is null || !BCrypt.Net.BCrypt.Verify(dto.Password, accountInfo.PasswordHash))
             {
                 return null;
             }
