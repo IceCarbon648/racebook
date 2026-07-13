@@ -5,7 +5,6 @@ using Business.Models.DTOs.Request;
 using Business.Models.DTOs.Response;
 using Infrastructure.Interfaces;
 using Business.Interfaces;
-using Microsoft.AspNetCore.Http;
 
 namespace Business
 {
@@ -13,24 +12,22 @@ namespace Business
     {
         private readonly ICloudinaryRepository _cloudinaryRepository;
         private readonly IModRepository _modRepository;
-        private readonly IPreviewImageRepository _previewImageRepository;
         private readonly IUserRepository _userRepository;
 
         const string PreviewImagesPublicIdStart = "PreviewImages";
         const string ModPublicIdStart = "Mods";
 
-        public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository, IPreviewImageRepository previewImageRepository, IUserRepository userRepository)
+        public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository, IUserRepository userRepository)
         {
             _cloudinaryRepository = cloudinaryRepository;
             _modRepository = modRepository;
-            _previewImageRepository = previewImageRepository;
             _userRepository = userRepository;
         }
 
         public async Task UploadMod(string uid, ModDto dto)
         {
             string modFileUrl = await _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw);
-            List<string> previewImageUrls = await UploadPreviewImages(dto.PreviewImages);
+            string previewImageUrl = await _cloudinaryRepository.UploadAsync(dto.PreviewImage, FileType.Image);
 
             Guid modId = await _modRepository.CreateMod(
                 uid,
@@ -39,41 +36,16 @@ namespace Business
                 dto.Description,
                 DateOnly.FromDateTime(DateTime.Now).ToString(),
                 DateOnly.FromDateTime(DateTime.Now).ToString(),
-                modFileUrl);
-
-            await SavePreviewImages(modId, previewImageUrls);
-        }
-
-        private async Task<List<string>> UploadPreviewImages(List<IFormFile> previewImages)
-        {
-            List<string> previewImageUrls = new List<string>();
-
-            foreach (IFormFile previewImage in previewImages)
-            {
-                previewImageUrls.Add(await _cloudinaryRepository.UploadAsync(previewImage, FileType.Image));
-            }
-
-            return previewImageUrls;
-        }
-
-        private async Task SavePreviewImages(Guid modId, List<string> previewImageUrls)
-        {
-            foreach (string previewImageUrl in previewImageUrls)
-            {
-                await _previewImageRepository.CreatePreviewImage(modId, previewImageUrl);
-            }
+                modFileUrl,
+                previewImageUrl);
         }
 
         public async Task DeleteMod(string modId)
         {
-            List<string> previewImageUrls = await _previewImageRepository.GetPreviewImageUrl(modId);
-            string modFileUrl = await _modRepository.GetModFileUrl(modId);
+            Mod mod = await _modRepository.DeleteMod(modId);
 
-            await DeletePreviewImages(previewImageUrls, PreviewImagesPublicIdStart);
-            await _previewImageRepository.DeletePreviewImageByModId(modId);
-
-            await DeleteModFile(modFileUrl, ModPublicIdStart);
-            await _modRepository.DeleteMod(modId);
+            await DeleteFromCloudinary(mod.ImageUrl, PreviewImagesPublicIdStart);
+            await DeleteFromCloudinary(mod.ModFileUrl, ModPublicIdStart);
         }
 
         private string GetPublicIdFromUrl(string cloudniaryUrl, string publicIdStart)
@@ -83,58 +55,34 @@ namespace Business
             return cloudniaryUrl.Substring(publicIdStartIndex);
         }
 
-        private async Task DeleteFromCloudinaryByPublicId(string publicId)
-        {
-            await _cloudinaryRepository.DeleteAsync(new DeletionParams(publicId)
+        private async Task DeleteFromCloudinary(string fileUrl, string publicIdStart)
+        {//ASK DAMIAN: MOVE THIS GUY TO ITS OWN SERVICE OR NAH?
+            string filePublicId = GetPublicIdFromUrl(fileUrl, publicIdStart);
+
+            await _cloudinaryRepository.DeleteAsync(new DeletionParams(filePublicId)
             {
                 ResourceType = ResourceType.Raw
             });
-        }
-
-        private async Task DeletePreviewImages(List<string> previewImageUrls, string publicIdStart)
-        {
-            string imagePublicId = "";
-
-            foreach (string previewImageUrl in previewImageUrls)
-            {
-                imagePublicId = GetPublicIdFromUrl(previewImageUrl, publicIdStart);
-                await DeleteFromCloudinaryByPublicId(imagePublicId);
-            }
-        }
-
-        private async Task DeleteModFile(string modFileUrl, string publicIdStart)
-        {
-            string modFilePublicId = GetPublicIdFromUrl(modFileUrl, ModPublicIdStart);
-            await DeleteFromCloudinaryByPublicId(modFilePublicId);
         }
 
         public async Task EditMod(string modId, ModEditDto dto)
         {
             Mod modDetails = await _modRepository.GetModById(modId);
 
-            if (dto.PreviewImagesToBeDeleted != null)
+            if (dto.PreviewImage != null)
             {
-                await DeletePreviewImages(dto.PreviewImagesToBeDeleted, PreviewImagesPublicIdStart);
+                await DeleteFromCloudinary(modDetails.ImageUrl, PreviewImagesPublicIdStart);
 
-                foreach (string previewImageUrl in dto.PreviewImagesToBeDeleted)
-                {
-                    await _previewImageRepository.DeletePreviewImageByUrl(previewImageUrl);
-                }
-            }
-
-            if (dto.NewPreviewImages != null)
-            {
-                List<string> previewImageUrls = await UploadPreviewImages(dto.NewPreviewImages);
-                await SavePreviewImages(Guid.Parse(modId), previewImageUrls);
+                string newImageUrl = await _cloudinaryRepository.UploadAsync(dto.PreviewImage, FileType.Image);
+                modDetails.ImageUrl = newImageUrl;
             }
 
             if (dto.ModFile != null)
             {
-                string oldModFileUrl = await _modRepository.GetModFileUrl(modId);
-                await DeleteModFile(oldModFileUrl, ModPublicIdStart);
+                await DeleteFromCloudinary(modDetails.ModFileUrl, ModPublicIdStart);
 
                 string newModFileUrl = await _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw);
-                modDetails.FilePath = newModFileUrl;
+                modDetails.ModFileUrl = newModFileUrl;
             }
 
             if (dto.Description != null)
@@ -161,7 +109,6 @@ namespace Business
         {
             Mod modInfo = await _modRepository.GetModById(modId);
             string username = await _userRepository.GetUsernameByUserId(modInfo.Uid.ToString());
-            List<string> previewImageUrls = await _previewImageRepository.GetPreviewImageUrl(modId);
 
             return new GetModDto
             {
@@ -172,8 +119,8 @@ namespace Business
                 Description = modInfo.Description,
                 UploadDate = modInfo.UploadDate,
                 EditDate = modInfo.EditDate,
-                ModFileUrl = modInfo.FilePath,
-                PreviewImageUrls = previewImageUrls,
+                ModFileUrl = modInfo.ModFileUrl,
+                PreviewImageUrl = modInfo.ImageUrl
             };
         }
 

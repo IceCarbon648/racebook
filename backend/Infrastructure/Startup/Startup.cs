@@ -10,7 +10,6 @@ namespace Infrastructure.Startup
             services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
             services.AddScoped<IModRepository, ModRepository>();
             services.AddScoped<IPlayerStatsSnapshotRepository,PlayerStatsSnapshotRepository>();
-            services.AddScoped<IPreviewImageRepository, PreviewImageRepository>();
             services.AddScoped<ISessionRepository, SessionRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
 

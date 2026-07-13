@@ -8,6 +8,6 @@ namespace Business.Models.DTOs.Request
         public required string Type { get; set; }
         public required string Description { get; set; }
         public required IFormFile ModFile { get; set; }
-        public required List<IFormFile> PreviewImages { get; set; }
+        public required IFormFile PreviewImage { get; set; }
     }
 }

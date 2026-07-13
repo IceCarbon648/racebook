@@ -14,7 +14,7 @@ namespace Infrastructure
             _dbConnection = dbConnection;
         }
 
-        public async Task<Guid> CreateMod(string uid, string title, string type, string description, string uploadDate, string editDate, string modFileUrl)
+        public async Task<Guid> CreateMod(string uid, string title, string type, string description, string uploadDate, string editDate, string modFileUrl, string previewImageUrl)
         {
             string sql = @"INSERT INTO Mod (
                                Uid,
@@ -23,7 +23,8 @@ namespace Infrastructure
                                Description,
                                UploadDate,
                                EditDate,
-                               FilePath
+                               ModFileUrl,
+                               ImageUrl
                            )
                            OUTPUT INSERTED.ModId
                            VALUES (
@@ -33,19 +34,21 @@ namespace Infrastructure
                                @description,
                                @uploadDate,
                                @editDate,
-                               @modFileUrl
+                               @modFileUrl,
+                               @previewImageUrl
                            )";
 
-            return await _dbConnection.ExecuteScalarAsync<Guid>(sql, new { uid, title, type, description, uploadDate, editDate, modFileUrl });
+            return await _dbConnection.ExecuteScalarAsync<Guid>(sql, new { uid, title, type, description, uploadDate, editDate, modFileUrl, previewImageUrl });
         }
 
-        public async Task DeleteMod(string modId)
+        public async Task<Mod> DeleteMod(string modId)
         {
             string sql = @"DELETE 
                            FROM Mod
+                           OUTPUT DELETED.*
                            WHERE ModId = @modId";
 
-            await _dbConnection.ExecuteAsync(sql, new { modId });
+            return await _dbConnection.QueryFirstOrDefaultAsync<Mod>(sql, new { modId });
         }
 
         public async Task<string> GetModFileUrl(string modId)
@@ -73,7 +76,8 @@ namespace Infrastructure
                                Type = @type,
                                Description = @description,
                                EditDate = @editDate,
-                               FilePath = @filePath
+                               ModFileUrl = @modFileUrl,
+                               ImageUrl = @imageUrl
                            WHERE ModId = @modId";
 
             await _dbConnection.ExecuteAsync(sql, new {
@@ -82,7 +86,8 @@ namespace Infrastructure
                 type = mod.Type,
                 description = mod.Description,
                 editDate = mod.EditDate,
-                filePath = mod.FilePath
+                modFileUrl = mod.ModFileUrl,
+                imageUrl = mod.ImageUrl,
             });
         }
 

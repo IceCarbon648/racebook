@@ -9,6 +9,7 @@
         public required string Description { get; set; }
         public required DateTime UploadDate { get; set; }
         public required DateTime EditDate { get; set; }
-        public required string FilePath { get; set; }
+        public required string ModFileUrl { get; set; }
+        public required string ImageUrl { get; set; }
     }
 }

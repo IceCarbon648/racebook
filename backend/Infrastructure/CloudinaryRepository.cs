@@ -33,8 +33,6 @@ namespace Infrastructure
 
             RawUploadResult result = await _cloudinary.UploadAsync(uploadParams);
 
-            if (result.Error != null) throw new Exception($"Cloudinary upload failed: {result.Error.Message}");
-
             return result.SecureUrl.ToString();
         }
 

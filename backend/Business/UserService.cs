@@ -15,7 +15,7 @@ namespace Business
 
         public async Task<bool> RegisterUserAsync(RegisterUserDto dto)
         {
-            if (await _userRepository.UserExists(dto.Email))
+            if (await _userRepository.GetAccountInfoByEmail(dto.Email) is not null)
             {
                 return false;
             }

@@ -26,7 +26,10 @@ namespace racebookApi.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromForm] RegisterUserDto dto)
         {
-            bool userIsRegistered = await _userService.RegisterUserAsync(dto);
+            if (!await _userService.RegisterUserAsync(dto))
+            {
+                return Unauthorized(new { message = "Registration was not successful" });
+            }
 
             return Ok(new { message = "Registration successful" });
         }

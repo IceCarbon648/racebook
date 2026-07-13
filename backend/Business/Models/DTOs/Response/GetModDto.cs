@@ -10,6 +10,6 @@
         public required DateTime UploadDate { get; set; }
         public required DateTime EditDate { get; set; }
         public required string ModFileUrl { get; set; }
-        public required List<string> PreviewImageUrls { get; set; }
+        public required string PreviewImageUrl { get; set; }
     }
 }
