@@ -54,20 +54,23 @@ namespace Infrastructure
             return await _dbConnection.ExecuteScalarAsync<bool>(sql, new { email });
         }
 
-        public async Task RegisterUser(string email, string username, string passwordHash)
+        public async Task<bool> RegisterUser(string email, string username, string passwordHash)
         {
             string sql = @"INSERT INTO [User] (
                                Email,
                                Username,
                                PasswordHash
                            )
-                           VALUES (
+                           SELECT
                                @email,
                                @username,
                                @passwordHash
+                           WHERE NOT EXISTS (
+                               SELECT 1 FROM [User]
+                               WHERE Email = @email
                            )";
 
-            await _dbConnection.ExecuteAsync(sql, new { email, username, passwordHash });
+            return await _dbConnection.ExecuteAsync(sql, new { email, username, passwordHash }) > 0;
         }
     }
 }

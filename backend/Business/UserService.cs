@@ -15,16 +15,9 @@ namespace Business
 
         public async Task<bool> RegisterUserAsync(RegisterUserDto dto)
         {
-            if (await _userRepository.GetAccountInfoByEmail(dto.Email) is not null)
-            {
-                return false;
-            }
-
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
-            await _userRepository.RegisterUser(dto.Email, dto.Username, hashedPassword);
-
-            return true;
+            return await _userRepository.RegisterUser(dto.Email, dto.Username, hashedPassword);
         }
 
         public async Task setAmaxUsername(string uid, string playerName)
