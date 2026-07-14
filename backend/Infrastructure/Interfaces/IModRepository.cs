@@ -1,4 +1,5 @@
-﻿using Infrastructure.Models;
+﻿using Infrastructure.Models.DTOs.Response;
+using Infrastructure.Models;
 
 namespace Infrastructure.Interfaces
 {
@@ -8,8 +9,8 @@ namespace Infrastructure.Interfaces
         Task<Mod> DeleteMod(string modId);
         Task<string> GetModFileUrl(string modId);
         Task<Mod> GetModById(string modId);
-        Task EditMod(Mod mod);
-        Task<List<Guid>> GetAllModIds();
-        Task<List<Guid>> GetMyModIds(string uid);
+        Task EditMod(Mod mod, string? title, string? type, string? description);
+        Task<List<GetModDto>> GetAllMods();
+        Task<List<Mod>> GetMyMods(string uid);
     }
 }

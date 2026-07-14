@@ -2,7 +2,7 @@
 using Infrastructure.Constants;
 using Infrastructure.Models;
 using Business.Models.DTOs.Request;
-using Business.Models.DTOs.Response;
+using Infrastructure.Models.DTOs.Response;
 using Infrastructure.Interfaces;
 using Business.Interfaces;
 
@@ -12,16 +12,14 @@ namespace Business
     {
         private readonly ICloudinaryRepository _cloudinaryRepository;
         private readonly IModRepository _modRepository;
-        private readonly IUserRepository _userRepository;
 
         const string PreviewImagesPublicIdStart = "PreviewImages";
         const string ModPublicIdStart = "Mods";
 
-        public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository, IUserRepository userRepository)
+        public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository)
         {
             _cloudinaryRepository = cloudinaryRepository;
             _modRepository = modRepository;
-            _userRepository = userRepository;
         }
 
         public async Task UploadMod(string uid, ModDto dto)
@@ -68,86 +66,31 @@ namespace Business
         public async Task EditMod(string modId, ModEditDto dto)
         {
             Mod modDetails = await _modRepository.GetModById(modId);
+            modDetails.EditDate = DateTime.Now;
 
             if (dto.PreviewImage != null)
             {
                 await DeleteFromCloudinary(modDetails.ImageUrl, PreviewImagesPublicIdStart);
-
-                string newImageUrl = await _cloudinaryRepository.UploadAsync(dto.PreviewImage, FileType.Image);
-                modDetails.ImageUrl = newImageUrl;
+                modDetails.ImageUrl = await _cloudinaryRepository.UploadAsync(dto.PreviewImage, FileType.Image);
             }
 
             if (dto.ModFile != null)
             {
                 await DeleteFromCloudinary(modDetails.ModFileUrl, ModPublicIdStart);
-
-                string newModFileUrl = await _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw);
-                modDetails.ModFileUrl = newModFileUrl;
+                modDetails.ModFileUrl = await _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw);
             }
 
-            if (dto.Description != null)
-            {
-                modDetails.Description = dto.Description;
-            }
-
-            if (dto.Type != null)
-            {
-                modDetails.Type = dto.Type;
-            }
-
-            if (dto.Title != null)
-            {
-                modDetails.Title = dto.Title;
-            }
-
-            modDetails.EditDate = DateTime.Now;
-
-            await _modRepository.EditMod(modDetails);
-        }
-
-        public async Task<GetModDto> GetMod(string modId)
-        {
-            Mod modInfo = await _modRepository.GetModById(modId);
-            string username = await _userRepository.GetUsernameByUserId(modInfo.Uid.ToString());
-
-            return new GetModDto
-            {
-                Id = modId,
-                Creator = username,
-                Title = modInfo.Title,
-                Type = modInfo.Type,
-                Description = modInfo.Description,
-                UploadDate = modInfo.UploadDate,
-                EditDate = modInfo.EditDate,
-                ModFileUrl = modInfo.ModFileUrl,
-                PreviewImageUrl = modInfo.ImageUrl
-            };
-        }
-
-        private async Task<List<GetModDto>> GetModsById(List<Guid> modIds)
-        {
-            List<GetModDto> mods = new List<GetModDto>();
-
-            foreach (Guid modId in modIds)
-            {
-                mods.Add(await GetMod(modId.ToString()));
-            }
-
-            return mods;
+            await _modRepository.EditMod(modDetails, dto.Title, dto.Type, dto.Description);
         }
 
         public async Task<List<GetModDto>> GetAllMods()
         {
-            List<Guid> modIds = await _modRepository.GetAllModIds();
-
-            return await GetModsById(modIds);
+            return await _modRepository.GetAllMods();
         }
 
-        public async Task<List<GetModDto>> GetMyMods(string uid)
+        public async Task<List<Mod>> GetMyMods(string uid)
         {
-            List<Guid> modIds = await _modRepository.GetMyModIds(uid);
-
-            return await GetModsById(modIds);
+            return await _modRepository.GetMyMods(uid);
         }
     }
 }

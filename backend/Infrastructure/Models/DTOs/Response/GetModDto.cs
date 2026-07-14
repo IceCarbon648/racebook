@@ -1,8 +1,7 @@
-﻿namespace Business.Models.DTOs.Response
+﻿namespace Infrastructure.Models.DTOs.Response
 {
     public class GetModDto
     {
-        public required string Id { get; set; }
         public required string Creator { get; set; }
         public required string Title { get; set; }
         public required string Type { get; set; }

@@ -1,5 +1,6 @@
 ﻿using Business.Models.DTOs.Request;
-using Business.Models.DTOs.Response;
+using Infrastructure.Models;
+using Infrastructure.Models.DTOs.Response;
 
 namespace Business.Interfaces
 {
@@ -8,8 +9,7 @@ namespace Business.Interfaces
         Task UploadMod(string uid, ModDto dto);
         Task DeleteMod(string modId);
         Task EditMod(string modId, ModEditDto dto);
-        Task<GetModDto> GetMod(string modId);
         Task<List<GetModDto>> GetAllMods();
-        Task<List<GetModDto>> GetMyMods(string uid);
+        Task<List<Mod>> GetMyMods(string uid);
     }
 }

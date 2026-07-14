@@ -46,12 +46,6 @@ namespace racebookApi.Controllers
             return Ok();
         }
 
-        [HttpGet("{modId}")]
-        public async Task<IActionResult> GetMod([FromRoute] string modId)
-        {
-            return Ok(await _modService.GetMod(modId));
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAllMods()
         {

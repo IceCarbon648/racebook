@@ -2,6 +2,7 @@
 using Infrastructure.Models;
 using Infrastructure.Interfaces;
 using System.Data;
+using Infrastructure.Models.DTOs.Response;
 
 namespace Infrastructure
 {
@@ -69,45 +70,55 @@ namespace Infrastructure
             return await _dbConnection.QueryFirstAsync<Mod>(sql, new { modId });
         }
 
-        public async Task EditMod(Mod mod)
+        public async Task EditMod(Mod mod, string? title, string? type, string? description)
         {
             string sql = @"UPDATE Mod
-                           SET Title = @title,
-                               Type = @type,
-                               Description = @description,
-                               EditDate = @editDate,
-                               ModFileUrl = @modFileUrl,
-                               ImageUrl = @imageUrl
+                           SET 
+                               Title = COALESCE(@title, Title),
+                               Type = COALESCE(@type, Type),
+                               Description = COALESCE(@description, Description),
+                               ModFileUrl = COALESCE(@modFileUrl, ModFileUrl),
+                               ImageUrl = COALESCE(@imageUrl, ImageUrl),
+                               EditDate = @editDate
                            WHERE ModId = @modId";
 
             await _dbConnection.ExecuteAsync(sql, new {
                 modId = mod.ModId,
-                title = mod.Title,
-                type = mod.Type,
-                description = mod.Description,
+                title,
+                type,
+                description,
                 editDate = mod.EditDate,
                 modFileUrl = mod.ModFileUrl,
                 imageUrl = mod.ImageUrl,
             });
         }
 
-        public async Task<List<Guid>> GetAllModIds()
+        public async Task<List<GetModDto>> GetAllMods()
         {
-            string sql = @"SELECT ModId
-                           FROM Mod";
+            string sql = @"SELECT 
+                               u.Username,
+                               m.Title,
+                               m.Type,
+                               m.Description,
+                               m.UploadDate,
+                               m.EditDate,
+                               m.ModFileUrl,
+                               m.ImageUrl
+                           FROM Mod m
+                           INNER JOIN [User] u ON m.Uid = u.Uid";
 
-            IEnumerable<Guid> queryResult = await _dbConnection.QueryAsync<Guid>(sql);
+            IEnumerable<GetModDto> queryResult = await _dbConnection.QueryAsync<GetModDto>(sql);
 
             return queryResult.ToList();
         }
 
-        public async Task<List<Guid>> GetMyModIds(string uid)
+        public async Task<List<Mod>> GetMyMods(string uid)
         {
-            string sql = @"SELECT ModId
+            string sql = @"SELECT *
                            FROM Mod
                            WHERE Uid = @uid";
 
-            IEnumerable<Guid> queryResult = await _dbConnection.QueryAsync<Guid>(sql, new { uid });
+            IEnumerable<Mod> queryResult = await _dbConnection.QueryAsync<Mod>(sql, new { uid });
 
             return queryResult.ToList();
         }
