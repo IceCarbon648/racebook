@@ -7,6 +7,6 @@ namespace Infrastructure.Interfaces
     public interface ICloudinaryRepository
     {
         Task<string> UploadAsync(IFormFile file, FileType fileType);
-        Task DeleteAsync(DeletionParams deletionParams);
+        Task DeleteAsync(string fileUrl, string publicIdStart);
     }
 }

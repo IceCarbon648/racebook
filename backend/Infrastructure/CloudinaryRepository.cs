@@ -36,9 +36,21 @@ namespace Infrastructure
             return result.SecureUrl.ToString();
         }
 
-        public async Task DeleteAsync(DeletionParams deletionParams)
+        private string GetPublicIdFromUrl(string cloudniaryUrl, string publicIdStart)
         {
-            await _cloudinary.DestroyAsync(deletionParams);
+            int publicIdStartIndex = cloudniaryUrl.IndexOf(publicIdStart);
+
+            return cloudniaryUrl.Substring(publicIdStartIndex);
+        }
+
+        public async Task DeleteAsync(string fileUrl, string publicIdStart)
+        {
+            string filePublicId = GetPublicIdFromUrl(fileUrl, publicIdStart);
+
+            await _cloudinary.DestroyAsync(new DeletionParams(filePublicId)
+            {
+                ResourceType = ResourceType.Raw
+            });
         }
     }
 }

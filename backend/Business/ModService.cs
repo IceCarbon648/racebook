@@ -1,5 +1,4 @@
-﻿using CloudinaryDotNet.Actions;
-using Infrastructure.Constants;
+﻿using Infrastructure.Constants;
 using Infrastructure.Models;
 using Business.Models.DTOs.Request;
 using Infrastructure.Models.DTOs.Response;
@@ -42,25 +41,8 @@ namespace Business
         {
             Mod mod = await _modRepository.DeleteMod(modId);
 
-            await DeleteFromCloudinary(mod.ImageUrl, PreviewImagesPublicIdStart);
-            await DeleteFromCloudinary(mod.ModFileUrl, ModPublicIdStart);
-        }
-
-        private string GetPublicIdFromUrl(string cloudniaryUrl, string publicIdStart)
-        {
-            int publicIdStartIndex = cloudniaryUrl.IndexOf(publicIdStart);
-
-            return cloudniaryUrl.Substring(publicIdStartIndex);
-        }
-
-        private async Task DeleteFromCloudinary(string fileUrl, string publicIdStart)
-        {//ASK DAMIAN: MOVE THIS GUY TO ITS OWN SERVICE OR NAH?
-            string filePublicId = GetPublicIdFromUrl(fileUrl, publicIdStart);
-
-            await _cloudinaryRepository.DeleteAsync(new DeletionParams(filePublicId)
-            {
-                ResourceType = ResourceType.Raw
-            });
+            await _cloudinaryRepository.DeleteAsync(mod.ImageUrl, PreviewImagesPublicIdStart);
+            await _cloudinaryRepository.DeleteAsync(mod.ModFileUrl, ModPublicIdStart);
         }
 
         public async Task EditMod(string modId, ModEditDto dto)
@@ -70,14 +52,14 @@ namespace Business
 
             if (dto.PreviewImage != null)
             {
-                await DeleteFromCloudinary(modDetails.ImageUrl, PreviewImagesPublicIdStart);
                 modDetails.ImageUrl = await _cloudinaryRepository.UploadAsync(dto.PreviewImage, FileType.Image);
+                await _cloudinaryRepository.DeleteAsync(modDetails.ImageUrl, PreviewImagesPublicIdStart);
             }
 
             if (dto.ModFile != null)
             {
-                await DeleteFromCloudinary(modDetails.ModFileUrl, ModPublicIdStart);
                 modDetails.ModFileUrl = await _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw);
+                await _cloudinaryRepository.DeleteAsync(modDetails.ModFileUrl, ModPublicIdStart);
             }
 
             await _modRepository.EditMod(modDetails, dto.Title, dto.Type, dto.Description);
