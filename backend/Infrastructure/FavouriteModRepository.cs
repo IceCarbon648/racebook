@@ -53,5 +53,16 @@ namespace Infrastructure
 
             return queryResult.ToList();
         }
+
+        public async Task DeleteFromFavourites(string uid, string modId)
+        {
+            string sql = @"DELETE FROM FavouriteMod
+                           WHERE
+                               Uid = @uid
+                           AND
+                               ModId = @modId";
+
+            await _dbConnection.ExecuteAsync(sql, new { uid, modId });
+        }
     }
 }

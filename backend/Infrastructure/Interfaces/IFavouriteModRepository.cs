@@ -6,5 +6,6 @@ namespace Infrastructure.Interfaces
     {
         Task AddToFavourites(string uid, string modId);
         Task<List<GetModDto>> GetFavourites(string uid);
+        Task DeleteFromFavourites(string uid, string modId);
     }
 }

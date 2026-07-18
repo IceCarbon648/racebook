@@ -21,5 +21,10 @@ namespace Business
         {
             return await _favouriteModRepository.GetFavourites(uid);
         }
+
+        public async Task DeleteFromFavourites(string uid, string modId)
+        {
+            await _favouriteModRepository.DeleteFromFavourites(uid, modId);
+        }
     }
 }
