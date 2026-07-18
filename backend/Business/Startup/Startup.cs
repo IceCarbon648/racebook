@@ -12,6 +12,7 @@ namespace Business.Startup
             services.AddScoped<IPlayerStatsSnapshotService, PlayerStatsSnapshotService>();
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IFavouriteModService, FavouriteModService>();
 
             return services;
         }
