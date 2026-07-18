@@ -64,5 +64,13 @@ namespace Infrastructure
 
             await _dbConnection.ExecuteAsync(sql, new { uid, modId });
         }
+
+        public async Task DeleteFavouriteModReference(string modId)
+        {
+            string sql = @"DELETE FROM FavouriteMod
+                           WHERE ModId = @modId";
+
+            await _dbConnection.ExecuteAsync(sql, new { modId });
+        }
     }
 }

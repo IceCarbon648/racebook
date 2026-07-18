@@ -11,14 +11,16 @@ namespace Business
     {
         private readonly ICloudinaryRepository _cloudinaryRepository;
         private readonly IModRepository _modRepository;
+        private readonly IFavouriteModRepository _favouriteModRepository;
 
         const string PreviewImagesPublicIdStart = "PreviewImages";
         const string ModPublicIdStart = "Mods";
 
-        public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository)
+        public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository, IFavouriteModRepository favouriteModRepository)
         {
             _cloudinaryRepository = cloudinaryRepository;
             _modRepository = modRepository;
+            _favouriteModRepository = favouriteModRepository;
         }
 
         public async Task UploadMod(string uid, ModDto dto)
@@ -39,6 +41,7 @@ namespace Business
 
         public async Task DeleteMod(string modId)
         {
+            await _favouriteModRepository.DeleteFavouriteModReference(modId);
             Mod mod = await _modRepository.DeleteMod(modId);
 
             await _cloudinaryRepository.DeleteAsync(mod.ImageUrl, PreviewImagesPublicIdStart);
