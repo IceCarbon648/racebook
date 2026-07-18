@@ -32,7 +32,8 @@ namespace Infrastructure
         public async Task<List<GetModDto>> GetFavourites(string uid)
         {
             string sql = @"SELECT
-                               u.Username,
+                               u.Username
+                                   AS 'Creator',
                                m.Title,
                                m.Type,
                                m.Description,
@@ -40,6 +41,7 @@ namespace Infrastructure
                                m.EditDate,
                                m.ModFileUrl,
                                m.ImageUrl
+                                   AS 'PreviewImageUrl'
                            FROM FavouriteMod fm
                            INNER JOIN Mod m
                                ON fm.ModId = m.ModId
