@@ -12,6 +12,7 @@ namespace Infrastructure.Startup
             services.AddScoped<IPlayerStatsSnapshotRepository,PlayerStatsSnapshotRepository>();
             services.AddScoped<ISessionRepository, SessionRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IFavouriteModRepository, FavouriteModRepository>();
 
             return services;
         }

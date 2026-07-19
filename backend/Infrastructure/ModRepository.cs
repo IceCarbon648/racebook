@@ -96,7 +96,8 @@ namespace Infrastructure
         public async Task<List<GetModDto>> GetAllMods()
         {
             string sql = @"SELECT 
-                               u.Username,
+                               u.Username
+                                   AS 'Creator',
                                m.Title,
                                m.Type,
                                m.Description,
@@ -104,6 +105,7 @@ namespace Infrastructure
                                m.EditDate,
                                m.ModFileUrl,
                                m.ImageUrl
+                                   AS 'PreviewImageUrl'
                            FROM Mod m
                            INNER JOIN [User] u ON m.Uid = u.Uid";
 
