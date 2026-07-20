@@ -4,6 +4,7 @@ using Business.Models.Validators.Filter;
 using Business.Startup;
 using CloudinaryDotNet;
 using DotNetEnv;
+using FluentValidation;
 using Infrastructure.Startup;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -47,6 +48,7 @@ builder.Services.AddAmax();
 builder.Services.AddBusiness();
 builder.Services.AddInfrastructure();
 builder.Services.AddScoped(typeof(ValidationFilter<>));
+ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Continue;
 
 builder.Services.AddScoped<IDbConnection>(sp =>
     new SqlConnection(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection"))
