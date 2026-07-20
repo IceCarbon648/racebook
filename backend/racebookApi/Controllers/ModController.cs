@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Business.Interfaces;
 using Business.Models.DTOs.Request;
-using Business.Interfaces;
+using Business.Models.Validators.Filter;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace racebookApi.Controllers
@@ -19,6 +20,7 @@ namespace racebookApi.Controllers
 
         [HttpPost]
         [Authorize]
+        [ServiceFilter(typeof(ValidationFilter<ModDto>))]
         public async Task<IActionResult> UploadMod([FromForm] ModDto dto)
         {
             string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
@@ -39,6 +41,7 @@ namespace racebookApi.Controllers
 
         [HttpPatch("{modId}")]
         [Authorize]
+        [ServiceFilter(typeof(ValidationFilter<ModEditDto>))]
         public async Task<IActionResult> EditMod([FromRoute] string modId, [FromForm] ModEditDto dto)
         {
             await _modService.EditMod(modId, dto);

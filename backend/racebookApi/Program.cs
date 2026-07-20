@@ -1,9 +1,10 @@
 using AmaxApiAdapter.Startup;
-using Business.Startup;
-using Infrastructure.Startup;
 using AspNet.Security.OAuth.Discord;
+using Business.Models.Validators.Filter;
+using Business.Startup;
 using CloudinaryDotNet;
 using DotNetEnv;
+using Infrastructure.Startup;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -45,6 +46,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddAmax();
 builder.Services.AddBusiness();
 builder.Services.AddInfrastructure();
+builder.Services.AddScoped(typeof(ValidationFilter<>));
 
 builder.Services.AddScoped<IDbConnection>(sp =>
     new SqlConnection(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection"))

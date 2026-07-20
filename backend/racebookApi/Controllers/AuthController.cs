@@ -1,9 +1,10 @@
 using AspNet.Security.OAuth.Discord;
+using Business.Interfaces;
+using Business.Models.DTOs.Request;
+using Business.Models.Validators.Filter;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Business.Models.DTOs.Request;
-using Business.Interfaces;
 
 namespace racebookApi.Controllers
 {
@@ -28,7 +29,8 @@ namespace racebookApi.Controllers
 		}
 
 		[HttpPost("login")]
-		public async Task<IActionResult> Login([FromForm] LoginDto dto)
+        [ServiceFilter(typeof(ValidationFilter<LoginDto>))]
+        public async Task<IActionResult> Login([FromForm] LoginDto dto)
 		{
 			string? jwt = await _authService.LoginAsync(dto);
 
