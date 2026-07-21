@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -15,15 +16,16 @@ namespace Business.Models.Validators.Filter
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var argument = context.ActionArguments.Values.OfType<T>().FirstOrDefault();
+            T? dto = context.ActionArguments.Values.OfType<T>().FirstOrDefault();
 
-            if (argument is null)
+            if (dto is null)
             {
-                context.Result = new BadRequestObjectResult("Request body is missing or invalid.");
+                context.Result = new BadRequestObjectResult("Invalid request");
+
                 return;
             }
 
-            var result = await _validator.ValidateAsync(argument);
+            ValidationResult result = await _validator.ValidateAsync(dto);
 
             if (!result.IsValid)
             {
@@ -32,6 +34,7 @@ namespace Business.Models.Validators.Filter
                     field = e.PropertyName,
                     error = e.ErrorMessage
                 }));
+
                 return;
             }
 
