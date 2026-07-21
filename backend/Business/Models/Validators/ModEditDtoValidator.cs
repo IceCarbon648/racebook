@@ -1,21 +1,15 @@
-﻿using Business.Models.DTOs.Request;
+﻿using Business.Helpers.Interfaces;
+using Business.Models.DTOs.Request;
 using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Business.Models.Validators
 {
     public class ModEditDtoValidator : AbstractValidator<ModEditDto>
     {
-        private static readonly string[] AllowedImageExtensions = [".png", ".jpg", ".jpeg"];
-        private static readonly string[] AllowedImageMimeTypes = ["image/png", "image/jpeg"];
-        private const string AllowedModExtension = ".tpf";
-        private const string AllowedModMimeType = "application/octet-stream";
         private const long MaxModFileSize = 10 * 1024 * 1024;
         private const long MaxImageSize = 5 * 1024 * 1024;
 
-        public ModEditDtoValidator()
+        public ModEditDtoValidator(IFileChecker fileChecker)
         {
             RuleFor(x => x.Title)
                 .MaximumLength(32)
@@ -32,20 +26,18 @@ namespace Business.Models.Validators
             RuleFor(x => x.ModFile)
                 .Must(f => f!.Length <= MaxModFileSize)
                     .WithMessage("Mod file cannot be larger than 10MB")
-                .Must(f => Path.GetExtension(f!.FileName).Equals(AllowedModExtension, StringComparison.OrdinalIgnoreCase))
-                    .WithMessage("Mod file must be a .tpf file")
-                .Must(f => f.ContentType.Equals(AllowedModMimeType, StringComparison.OrdinalIgnoreCase))
-                    .WithMessage("Mod file has an invalid MIME type")
-                .When(x => x.ModFile != null);
+                .Must(f => fileChecker.HasSafeName(f))
+                    .WithMessage("Mod file has an invalid file name")
+                .MustAsync(async (f, _) => await fileChecker.IsValidModAsync(f))
+                    .WithMessage("Invalid mod file");
 
             RuleFor(x => x.PreviewImage)
                 .Must(f => f!.Length <= MaxImageSize)
                     .WithMessage("Preview image cannot be larger than 5MB")
-                .Must(f => AllowedImageExtensions.Contains(Path.GetExtension(f!.FileName).ToLower()))
-                    .WithMessage("Preview image must be a .png or .jpg file")
-                .Must(f => AllowedImageMimeTypes.Contains(f!.ContentType.ToLower()))
-                    .WithMessage("Preview image has an invalid MIME type")
-                .When(x => x.PreviewImage != null);
+                .Must(f => fileChecker.HasSafeName(f))
+                    .WithMessage("Preview image has an invalid file name")
+                .MustAsync(async (f, _) => await fileChecker.IsValidImageAsync(f))
+                    .WithMessage("Invalid image file");
         }
     }
 }
