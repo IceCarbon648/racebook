@@ -1,9 +1,14 @@
 using AmaxApiAdapter.Startup;
-using Business.Startup;
-using Infrastructure.Startup;
 using AspNet.Security.OAuth.Discord;
+using Business.Helpers;
+using Business.Helpers.Interfaces;
+using Business.Models.Validators.Filter;
+using Business.Startup;
 using CloudinaryDotNet;
 using DotNetEnv;
+using FluentValidation;
+using Infrastructure.Startup;
+using MagicBytesValidator.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -45,12 +50,21 @@ builder.Services.AddCors(options =>
 builder.Services.AddAmax();
 builder.Services.AddBusiness();
 builder.Services.AddInfrastructure();
+builder.Services.AddScoped(typeof(ValidationFilter<>));
+ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Continue;
+
+builder.Services.AddSingleton<MagicBytesValidator.Services.IValidator, Validator>(sp => {
+    Validator validator = new Validator();
+    validator.Mapping.Register([new TpfFileType(), new PngFileType(), new JpgFileType()]);
+    return validator;
+});
+
+builder.Services.AddScoped<IFileChecker, FileChecker>();
 
 builder.Services.AddScoped<IDbConnection>(sp =>
     new SqlConnection(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection"))
 );
 builder.Services.AddSingleton(provider => new Cloudinary(new Account { ApiKey = cloudinaryKey, ApiSecret = cloudinarySecret, Cloud = cloudinaryName }));
-
 
 builder.Services.AddAuthentication(options =>
 {

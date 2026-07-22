@@ -1,9 +1,10 @@
 ﻿using AmaxApiAdapter.Adapters;
+using Business.Interfaces;
+using Business.Models.DTOs.Request;
+using Business.Models.Validators.Filter;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Business.Models.DTOs.Request;
-using Business.Interfaces;
 using System.Security.Claims;
 
 namespace racebookApi.Controllers
@@ -24,6 +25,7 @@ namespace racebookApi.Controllers
         }
 
         [HttpPost("register")]
+        [ServiceFilter(typeof(ValidationFilter<RegisterUserDto>))]
         public async Task<IActionResult> RegisterUser([FromForm] RegisterUserDto dto)
         {
             if (!await _userService.RegisterUserAsync(dto))
