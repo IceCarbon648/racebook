@@ -9,7 +9,7 @@ namespace Business.Helpers
     {
         private readonly IValidator _validator;
 
-        public FileChecker(Validator validator)
+        public FileChecker(IValidator validator)
         {
             _validator = validator;
         }

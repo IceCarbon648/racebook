@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
+using racebookApi.Middleware;
 using Scalar.AspNetCore;
 using System.Data;
 using System.Text;
@@ -65,6 +66,8 @@ builder.Services.AddScoped<IDbConnection>(sp =>
     new SqlConnection(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection"))
 );
 builder.Services.AddSingleton(provider => new Cloudinary(new Account { ApiKey = cloudinaryKey, ApiSecret = cloudinarySecret, Cloud = cloudinaryName }));
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -120,6 +123,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
+app.UseExceptionHandler(_ => { });
 app.UseCors("AllowOrigin");
 
 app.UseHttpsRedirection();
