@@ -17,7 +17,6 @@ using Microsoft.IdentityModel.Tokens;
 using racebookApi.Middleware;
 using Scalar.AspNetCore;
 using Serilog;
-using Serilog.Events;
 using System.Data;
 using System.Text;
 
@@ -108,17 +107,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Host.UseSerilog((context, config) =>
 {
-    config
-        .MinimumLevel.Information()
-        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-        .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-        .Enrich.FromLogContext()
-        .WriteTo.Console()
-        .WriteTo.File(
-            path: "logs/log-.txt",
-            rollingInterval: RollingInterval.Day,
-            retainedFileCountLimit: 7
-        );
+    config.ReadFrom.Configuration(context.Configuration);
 });
 
 var app = builder.Build();
