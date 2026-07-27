@@ -16,6 +16,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using racebookApi.Middleware;
 using Scalar.AspNetCore;
+using Serilog;
 using System.Data;
 using System.Text;
 
@@ -102,6 +103,11 @@ builder.Services.AddAuthorization(options =>
         .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
         .RequireAuthenticatedUser()
         .Build();
+});
+
+builder.Host.UseSerilog((context, config) =>
+{
+    config.ReadFrom.Configuration(context.Configuration);
 });
 
 var app = builder.Build();

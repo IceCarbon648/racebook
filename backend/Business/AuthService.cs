@@ -1,12 +1,13 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using Infrastructure.Models;
+﻿using Business.Interfaces;
 using Business.Models.DTOs.Request;
 using Infrastructure.Interfaces;
-using Business.Interfaces;
+using Infrastructure.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 
 namespace Business
 {
@@ -14,27 +15,44 @@ namespace Business
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AuthService> _logger;
 
-        public AuthService(IUserRepository userRepository, IConfiguration configuration)
+        public AuthService(IUserRepository userRepository, IConfiguration configuration, ILogger<AuthService> logger)
         {
             _userRepository = userRepository;
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task<string?> LoginAsync(LoginDto dto)
         {
+            _logger.LogInformation("Login attempt for email: {Email}", dto.Email);
+
             AccountInfo? accountInfo = await _userRepository.GetAccountInfoByEmail(dto.Email);
 
-            if (accountInfo is null || !BCrypt.Net.BCrypt.Verify(dto.Password, accountInfo.PasswordHash))
+            if (accountInfo is null)
             {
+                _logger.LogWarning("Login failed — no account found for email: {Email}", dto.Email);
+
                 return null;
             }
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.Password, accountInfo.PasswordHash))
+            {
+                _logger.LogWarning("Login failed — invalid password for email: {Email}", dto.Email);
+
+                return null;
+            }
+
+            _logger.LogInformation("User {Uid} logged in with {Email}", accountInfo.Uid, dto.Email);
 
             return GenerateToken(accountInfo);
         }
 
         public string GenerateTokenWithAmaxUsername(string uid, string username, string amaxUsername)
         {
+            _logger.LogInformation("Generating refreshed token for user: {Uid}", uid);
+
             string dummyHash = "$2a$11$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
             return GenerateToken(new AccountInfo
@@ -64,6 +82,8 @@ namespace Business
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: creds);
+
+            _logger.LogDebug("JWT generated for user: {Uid}", accountInfo.Uid);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
