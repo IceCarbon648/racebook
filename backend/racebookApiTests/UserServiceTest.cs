@@ -2,51 +2,64 @@
 using NSubstitute;
 using Business;
 using Business.Models.DTOs.Request;
+using Microsoft.Extensions.Logging;
 
 namespace racebookApiTests;
 
-public class UserServiceTest
+[TestFixture]
+public class UserServiceTests
 {
     private IUserRepository _userRepository;
-
-    RegisterUserDto dto = new RegisterUserDto
-    {
-        Email = "pat@bonana.com",
-        Username = "username",
-        Password = "12345678"
-    };
+    private ILogger<UserService> _logger;
+    private UserService _userService;
 
     [SetUp]
-    public void Setup()
+    public void SetUp()
     {
         _userRepository = Substitute.For<IUserRepository>();
+        _logger = Substitute.For<ILogger<UserService>>();
+        _userService = new UserService(_userRepository, _logger);
     }
 
     [Test]
-    public async Task GivenAnExistingEmail_WhenRegistering_ReturnFalse()
+    public async Task GivenNewEmail_WhenRegisterUserAsyncIsCalled_ThenUserIsRegistered()
     {
         //Arrange
-        _userRepository.UserExists(dto.Email).Returns(true);
-        UserService userService = new UserService(_userRepository);
+        RegisterUserDto dto = new RegisterUserDto
+        {
+            Email = "testing@test.com",
+            Username = "TestUser",
+            Password = "Password1!"
+        };
+
+        _userRepository.RegisterUser(dto.Email, dto.Username, Arg.Any<string>()).Returns(true);
 
         //Act
-        bool actualResult = await userService.RegisterUserAsync(dto);
+        bool result = await _userService.RegisterUserAsync(dto);
 
         //Assert
-        Assert.That(actualResult, Is.False);
+        Assert.That(result, Is.True);
+        await _userRepository.Received(1).RegisterUser(dto.Email, dto.Username, Arg.Any<string>());
     }
 
     [Test]
-    public async Task GivenAnNonExistentEmail_WhenRegistering_ReturnTrue()
+    public async Task GivenExistingEmail_WhenRegisterUserAsyncIsCalled_ThenUserIsNotRegistered()
     {
         //Arrange
-        _userRepository.UserExists(dto.Email).Returns(false);
-        UserService userService = new UserService(_userRepository);
+        RegisterUserDto dto = new RegisterUserDto
+        {
+            Email = "existing.mail@test.com",
+            Username = "TestUser",
+            Password = "Password1!"
+        };
+
+        _userRepository.RegisterUser(dto.Email, dto.Username, Arg.Any<string>()).Returns(false);
 
         //Act
-        bool actualResult = await userService.RegisterUserAsync(dto);
+        bool result = await _userService.RegisterUserAsync(dto);
 
         //Assert
-        Assert.That(actualResult, Is.True);
+        Assert.That(result, Is.False);
+        await _userRepository.Received(1).RegisterUser(dto.Email, dto.Username, Arg.Any<string>());
     }
 }
