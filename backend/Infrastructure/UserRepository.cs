@@ -14,15 +14,6 @@ namespace Infrastructure
             _dbConnection = dbConnection;
         }
 
-        public async Task<string> GetUsernameByUserId(string userId)
-        {
-            string sql = @"SELECT Username
-                           FROM [User]
-                           WHERE Uid = @userId";
-
-            return await _dbConnection.ExecuteScalarAsync<string>(sql, new { userId });
-        }
-
         public async Task UpdateAmaxUsername(string uid, string amaxUsername)
         {
             string sql = @"UPDATE [User]
@@ -43,15 +34,6 @@ namespace Infrastructure
                            WHERE Email = @email";
 
             return await _dbConnection.QueryFirstOrDefaultAsync<AccountInfo>(sql, new { email });
-        }
-
-        public async Task<bool> UserExists(string email)
-        {
-            string sql = @"SELECT COUNT(1)
-                           FROM [User]
-                           WHERE Email = @email";
-
-            return await _dbConnection.ExecuteScalarAsync<bool>(sql, new { email });
         }
 
         public async Task<bool> RegisterUser(string email, string username, string passwordHash)
