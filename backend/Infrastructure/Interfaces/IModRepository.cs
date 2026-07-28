@@ -1,5 +1,5 @@
-﻿using Infrastructure.Models.DTOs.Response;
-using Infrastructure.Models;
+﻿using Models.DTOs.Response;
+using Models;
 
 namespace Infrastructure.Interfaces
 {

@@ -1,4 +1,4 @@
-﻿using Business.Models.DTOs.Request;
+﻿using Models.DTOs.Request;
 
 namespace Business.Interfaces
 {

@@ -1,4 +1,4 @@
-﻿using Infrastructure.Models.DTOs.Response;
+﻿using Models.DTOs.Response;
 
 namespace Infrastructure.Interfaces
 {

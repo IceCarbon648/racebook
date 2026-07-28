@@ -1,9 +1,9 @@
-﻿using Business.Helpers.Interfaces;
+﻿using Helpers.Interfaces;
 using MagicBytesValidator.Models;
 using MagicBytesValidator.Services;
 using Microsoft.AspNetCore.Http;
 
-namespace Business.Helpers
+namespace Helpers
 {
     public class FileChecker : IFileChecker
     {

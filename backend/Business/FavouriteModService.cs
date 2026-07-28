@@ -1,6 +1,6 @@
 ﻿using Business.Interfaces;
 using Infrastructure.Interfaces;
-using Infrastructure.Models.DTOs.Response;
+using Models.DTOs.Response;
 using Microsoft.Extensions.Logging;
 
 namespace Business

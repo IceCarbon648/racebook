@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using Infrastructure.Models;
+using Models;
 using Infrastructure.Interfaces;
 using System.Data;
 

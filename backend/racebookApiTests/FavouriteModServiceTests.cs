@@ -1,6 +1,6 @@
 ﻿using Business;
 using Infrastructure.Interfaces;
-using Infrastructure.Models.DTOs.Response;
+using Models.DTOs.Response;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 

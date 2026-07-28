@@ -1,7 +1,7 @@
 ﻿using Business.Interfaces;
-using Business.Models.DTOs.Request;
+using Models.DTOs.Request;
 using Infrastructure.Interfaces;
-using Infrastructure.Models;
+using Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;

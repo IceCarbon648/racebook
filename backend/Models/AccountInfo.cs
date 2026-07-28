@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Models
+﻿namespace Models
 {
     public class AccountInfo
     {

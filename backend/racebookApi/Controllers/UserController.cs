@@ -1,7 +1,7 @@
 ﻿using AmaxApiAdapter.Adapters;
 using Business.Interfaces;
-using Business.Models.DTOs.Request;
-using Business.Models.Validators.Filter;
+using Models.DTOs.Request;
+using Models.Validators.Filter;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

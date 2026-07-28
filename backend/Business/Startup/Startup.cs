@@ -1,6 +1,6 @@
 ﻿using Business.Interfaces;
-using Business.Models.DTOs.Request;
-using Business.Models.Validators;
+using Models.DTOs.Request;
+using Models.Validators;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 

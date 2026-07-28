@@ -1,6 +1,6 @@
-﻿using Business.Models.DTOs.Request;
-using Infrastructure.Models;
-using Infrastructure.Models.DTOs.Response;
+﻿using Models.DTOs.Request;
+using Models;
+using Models.DTOs.Response;
 
 namespace Business.Interfaces
 {

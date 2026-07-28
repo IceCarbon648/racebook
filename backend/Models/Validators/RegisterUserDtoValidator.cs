@@ -1,7 +1,7 @@
-﻿using Business.Models.DTOs.Request;
-using FluentValidation;
+﻿using FluentValidation;
+using Models.DTOs.Request;
 
-namespace Business.Models.Validators
+namespace Models.Validators
 {
     public class RegisterUserDtoValidator : AbstractValidator<RegisterUserDto>
     {

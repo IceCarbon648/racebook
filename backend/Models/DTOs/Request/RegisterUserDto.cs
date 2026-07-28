@@ -1,4 +1,4 @@
-﻿namespace Business.Models.DTOs.Request
+﻿namespace Models.DTOs.Request
 {
     public class RegisterUserDto
     {

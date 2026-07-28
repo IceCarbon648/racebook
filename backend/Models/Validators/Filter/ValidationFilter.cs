@@ -3,7 +3,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Business.Models.Validators.Filter
+namespace Models.Validators.Filter
 {
     public class ValidationFilter<T> : IAsyncActionFilter where T : class
     {

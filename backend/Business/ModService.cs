@@ -1,9 +1,9 @@
 ﻿using Business.Interfaces;
-using Business.Models.DTOs.Request;
+using Models.DTOs.Request;
 using Infrastructure.Constants;
 using Infrastructure.Interfaces;
-using Infrastructure.Models;
-using Infrastructure.Models.DTOs.Response;
+using Models;
+using Models.DTOs.Response;
 using Microsoft.Extensions.Logging;
 
 namespace Business

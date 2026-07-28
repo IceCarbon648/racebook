@@ -1,4 +1,4 @@
-﻿using Infrastructure.Models;
+﻿using Models;
 
 namespace Infrastructure.Interfaces
 {

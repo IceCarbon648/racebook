@@ -1,8 +1,8 @@
 ﻿using Dapper;
-using Infrastructure.Models;
+using Models;
 using Infrastructure.Interfaces;
 using System.Data;
-using Infrastructure.Models.DTOs.Response;
+using Models.DTOs.Response;
 
 namespace Infrastructure
 {

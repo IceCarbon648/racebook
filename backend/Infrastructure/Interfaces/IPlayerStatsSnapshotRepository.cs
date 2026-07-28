@@ -1,5 +1,5 @@
 ﻿using AmaxApiAdapter.Models.DTOs;
-using Infrastructure.Models;
+using Models;
 
 namespace Infrastructure.Interfaces
 {

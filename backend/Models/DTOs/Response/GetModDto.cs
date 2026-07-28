@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Models.DTOs.Response
+﻿namespace Models.DTOs.Response
 {
     public class GetModDto
     {

@@ -1,8 +1,7 @@
 using AmaxApiAdapter.Startup;
 using AspNet.Security.OAuth.Discord;
 using Business.Helpers;
-using Business.Helpers.Interfaces;
-using Business.Models.Validators.Filter;
+using Helpers.Interfaces;
 using Business.Startup;
 using CloudinaryDotNet;
 using DotNetEnv;
@@ -19,6 +18,8 @@ using Scalar.AspNetCore;
 using Serilog;
 using System.Data;
 using System.Text;
+using Models.Validators.Filter;
+using Helpers;
 
 Env.Load();
 

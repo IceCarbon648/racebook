@@ -1,8 +1,8 @@
-﻿using Business.Helpers.Interfaces;
-using Business.Models.DTOs.Request;
+﻿using Helpers.Interfaces;
 using FluentValidation;
+using Models.DTOs.Request;
 
-namespace Business.Models.Validators
+namespace Models.Validators
 {
     public class ModDtoValidator : AbstractValidator<ModDto>
     {

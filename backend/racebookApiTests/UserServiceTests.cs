@@ -1,7 +1,7 @@
 ﻿using Infrastructure.Interfaces;
 using NSubstitute;
 using Business;
-using Business.Models.DTOs.Request;
+using Models.DTOs.Request;
 using Microsoft.Extensions.Logging;
 
 namespace racebookApiTests;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Business.Helpers.Interfaces
+namespace Helpers.Interfaces
 {
     public interface IFileChecker
     {
