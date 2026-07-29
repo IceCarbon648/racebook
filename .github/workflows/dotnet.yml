@@ -21,8 +21,8 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore ../../backend/racebookApi/racebookApi.csproj
+      run: dotnet restore backend/racebookApi/racebookApi.csproj
     - name: Build
-      run: dotnet build --no-restore ../../backend/racebookApi/racebookApi.slnx
+      run: dotnet build --no-restore backend/racebookApi/racebookApi.csproj
     - name: Test
-      run: dotnet test --no-build --verbosity normal ../../backend/racebookApiTests/racebookApiTests.csproj
+      run: dotnet test --no-build --verbosity normal backend/racebookApiTests/racebookApiTests.csproj
