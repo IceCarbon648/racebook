@@ -25,4 +25,10 @@ jobs:
     - name: Build
       run: dotnet build --no-restore backend/racebookApi/racebookApi.csproj
     - name: Test
-      run: dotnet test --no-build --verbosity normal backend/racebookApiTests/racebookApiTests.csproj
+      run: dotnet test --no-build --verbosity normal backend/racebookApiTests/racebookApiTests.csproj --no-restore --logger trx --results-directory "TestResults-${{ matrix.dotnet-version }}"
+    - name: Upload dotnet test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: dotnet-results-${{ matrix.dotnet-version }}
+        path: TestResults-${{ matrix.dotnet-version }}
+      if: ${{ always() }}
