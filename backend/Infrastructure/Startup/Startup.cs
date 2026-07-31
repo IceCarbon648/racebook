@@ -9,8 +9,6 @@ namespace Infrastructure.Startup
         {
             services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
             services.AddScoped<IModRepository, ModRepository>();
-            services.AddScoped<IPlayerStatsSnapshotRepository,PlayerStatsSnapshotRepository>();
-            services.AddScoped<ISessionRepository, SessionRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IFavouriteModRepository, FavouriteModRepository>();
 

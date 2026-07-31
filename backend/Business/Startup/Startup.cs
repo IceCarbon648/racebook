@@ -12,8 +12,6 @@ namespace Business.Startup
         {
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IModService, ModService>();
-            services.AddScoped<IPlayerStatsSnapshotService, PlayerStatsSnapshotService>();
-            services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFavouriteModService, FavouriteModService>();
             services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();

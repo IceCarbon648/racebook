@@ -1,11 +1,7 @@
-﻿using AmaxApiAdapter.Adapters;
-using Business.Interfaces;
+﻿using Business.Interfaces;
 using Models.DTOs.Request;
 using Models.Validators.Filter;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace racebookApi.Controllers
 {
@@ -14,14 +10,10 @@ namespace racebookApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IAmaxAdapter _amaxAdapter;
-        private readonly IAuthService _authService;
 
-        public UserController(IUserService userService, IAmaxAdapter amaxAdapter, IAuthService authService)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _amaxAdapter = amaxAdapter;
-            _authService = authService;
         }
 
         [HttpPost("register")]
@@ -34,34 +26,6 @@ namespace racebookApi.Controllers
             }
 
             return Ok(new { message = "Registration successful" });
-        }
-
-        [HttpGet("callback")]
-        [Authorize]
-        public async Task<IActionResult> SetAmaxUsername()
-        {
-            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
-            string? amaxUsername = await _amaxAdapter.GetAmaxUsername(await HttpContext.GetTokenAsync("access_token"));
-
-            if (string.IsNullOrEmpty(amaxUsername) || string.IsNullOrEmpty(uid))
-            {
-                return Ok(new { message = "No amax account associated with the discord account" });
-            }
-
-            string? username = User.FindFirst(ClaimTypes.Name)?.Value.ToString();
-            await _userService.setAmaxUsername(uid, amaxUsername);
-            Response.Cookies.Delete("access_token");
-
-            string jwt = _authService.GenerateTokenWithAmaxUsername(uid, username, amaxUsername);
-
-            Response.Cookies.Append("access_token", jwt, new CookieOptions
-            {
-                HttpOnly = true,
-                SameSite = SameSiteMode.Lax,
-                Expires = DateTimeOffset.UtcNow.AddMinutes(30)
-            });
-
-            return Ok(new { message = "Saved amax username" });
         }
     }
 }

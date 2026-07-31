@@ -1,4 +1,3 @@
-using AmaxApiAdapter.Startup;
 using AspNet.Security.OAuth.Discord;
 using Business.Helpers;
 using Helpers.Interfaces;
@@ -50,7 +49,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddAmax();
 builder.Services.AddBusiness();
 builder.Services.AddInfrastructure();
 builder.Services.AddScoped(typeof(ValidationFilter<>));

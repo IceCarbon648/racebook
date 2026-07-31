@@ -1,6 +1,4 @@
-using AspNet.Security.OAuth.Discord;
 using Business.Interfaces;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Request;
@@ -17,15 +15,6 @@ namespace racebookApi.Controllers
 		public AuthController(IAuthService authService)
 		{
 			_authService = authService;
-		}
-
-		[HttpGet("discord")]
-		[Authorize]
-		public IActionResult AuthenticateViaDiscord()
-		{
-			AuthenticationProperties properties = new AuthenticationProperties { RedirectUri = "api/user/callback" };
-
-			return Challenge(properties, DiscordAuthenticationDefaults.AuthenticationScheme);
 		}
 
 		[HttpPost("login")]

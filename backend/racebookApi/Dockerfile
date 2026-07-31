@@ -10,7 +10,6 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["racebookApi/racebookApi.csproj", "racebookApi/"]
-COPY ["AmaxApiAdapter/AmaxApiAdapter.csproj", "AmaxApiAdapter/"]
 RUN dotnet restore "racebookApi/racebookApi.csproj"
 COPY . .
 WORKDIR "/src/racebookApi"
