@@ -9,6 +9,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["Helpers/Helpers.csproj", "Helpers/"]
+COPY ["Models/Models.csproj", "Models/"]
+COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
+COPY ["Business/Business.csproj", "Business/"]
 COPY ["racebookApi/racebookApi.csproj", "racebookApi/"]
 RUN dotnet restore "racebookApi/racebookApi.csproj"
 COPY . .
