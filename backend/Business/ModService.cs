@@ -1,10 +1,11 @@
-﻿using Business.Interfaces;
-using Models.DTOs.Request;
+﻿using Ardalis.GuardClauses;
+using Business.Interfaces;
 using Infrastructure.Constants;
 using Infrastructure.Interfaces;
-using Models;
-using Models.DTOs.Response;
 using Microsoft.Extensions.Logging;
+using Models;
+using Models.DTOs.Request;
+using Models.DTOs.Response;
 
 namespace Business
 {
@@ -56,7 +57,8 @@ namespace Business
             await _favouriteModRepository.DeleteFavouriteModReference(modId);
             _logger.LogDebug("Favourite references removed for mod {ModId}", modId);
 
-            Mod mod = await _modRepository.DeleteMod(modId);
+            Mod? mod = await _modRepository.DeleteMod(modId);
+            Guard.Against.Null(mod, nameof(mod), $"Mod {modId} not found");
             _logger.LogDebug("Mod {ModId} deleted from database", modId);
 
             await _cloudinaryRepository.DeleteAsync(mod.ImageUrl, PreviewImagesPublicIdStart);
@@ -72,7 +74,8 @@ namespace Business
         {
             _logger.LogInformation("Editing mod {ModId}", modId);
 
-            Mod modDetails = await _modRepository.GetModById(modId);
+            Mod? modDetails = await _modRepository.GetModById(modId);
+            Guard.Against.Null(modDetails, nameof(modDetails), $"Mod {modId} not found");
             modDetails.EditDate = DateTime.Now;
 
             if (dto.PreviewImage != null)

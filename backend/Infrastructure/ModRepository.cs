@@ -42,7 +42,7 @@ namespace Infrastructure
             return await _dbConnection.ExecuteScalarAsync<Guid>(sql, new { uid, title, type, description, uploadDate, editDate, modFileUrl, previewImageUrl });
         }
 
-        public async Task<Mod> DeleteMod(string modId)
+        public async Task<Mod?> DeleteMod(string modId)
         {
             string sql = @"DELETE 
                            FROM Mod
@@ -61,13 +61,13 @@ namespace Infrastructure
             return await _dbConnection.ExecuteScalarAsync<string>(sql, new { modId });
         }
 
-        public async Task<Mod> GetModById(string modId)
+        public async Task<Mod?> GetModById(string modId)
         {
             string sql = @"SELECT *
                            FROM Mod
                            WHERE ModId = @modId";
 
-            return await _dbConnection.QueryFirstAsync<Mod>(sql, new { modId });
+            return await _dbConnection.QueryFirstOrDefaultAsync<Mod>(sql, new { modId });
         }
 
         public async Task EditMod(Mod mod, string? title, string? type, string? description)

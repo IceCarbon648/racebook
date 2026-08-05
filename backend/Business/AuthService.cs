@@ -1,10 +1,11 @@
-﻿using Business.Interfaces;
-using Models.DTOs.Request;
+﻿using Ardalis.GuardClauses;
+using Business.Interfaces;
 using Infrastructure.Interfaces;
-using Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Models;
+using Models.DTOs.Request;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -51,6 +52,9 @@ namespace Business
 
         public string GenerateTokenWithAmaxUsername(string uid, string username, string amaxUsername)
         {
+            Guard.Against.NullOrWhiteSpace(uid, nameof(uid));
+            Guard.Against.NullOrWhiteSpace(username, nameof(username));
+
             _logger.LogInformation("Generating refreshed token for user: {Uid}", uid);
 
             string dummyHash = "$2a$11$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
