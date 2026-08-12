@@ -95,7 +95,8 @@ namespace Infrastructure
 
         public async Task<List<GetModDto>> GetAllMods()
         {
-            string sql = @"SELECT 
+            string sql = @"SELECT
+                               m.ModId,
                                u.Username
                                    AS 'Creator',
                                m.Title,

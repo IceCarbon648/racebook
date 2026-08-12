@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Request;
 using Models.Validators.Filter;
+using System.Security.Claims;
 
 namespace racebookApi.Controllers
 {
@@ -35,7 +36,11 @@ namespace racebookApi.Controllers
                 Expires = DateTimeOffset.UtcNow.AddMinutes(30)
             });
 
-            return Ok(new {message = "Login successful"});
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? username = User.FindFirst(ClaimTypes.Name)?.Value;
+            string? amaxUsername = User.FindFirst(ClaimTypes.GivenName)?.Value;
+
+            return Ok(new { uid, username, amaxUsername });
 		}
 
 		[HttpPost("logout")]

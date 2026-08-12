@@ -1,0 +1,64 @@
+.register {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 60px);
+}
+
+.register-card {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 32px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.register-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.register-field label {
+    font-weight: 500;
+}
+
+.register-field input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.register-btn {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #000;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.register-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.register-error {
+    color: red;
+    font-size: 14px;
+}
+
+.register-login {
+    text-align: center;
+    font-size: 14px;
+}

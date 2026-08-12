@@ -31,6 +31,7 @@ namespace Infrastructure
         public async Task<List<GetModDto>> GetFavourites(string uid)
         {
             string sql = @"SELECT
+                               m.ModId,
                                u.Username
                                    AS 'Creator',
                                m.Title,

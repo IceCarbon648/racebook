@@ -5,6 +5,7 @@ export interface User {
 }
 
 export interface Mod {
+    modId: string;
     creator: string;
     title: string;
     type: string;
@@ -38,22 +39,8 @@ export interface RegisterRequest {
     password: string;
 }
 
-export interface ModUploadRequest {
-    title: string;
-    type: string;
-    description: string;
-    modFile: File;
-    previewImage: File;
-}
-
-export interface ModEditRequest {
-    title?: string;
-    type?: string;
-    description?: string;
-    modFile?: File;
-    previewImage?: File;
-}
-
 export interface AuthResponse {
-    token: string;
+    uid: string;
+    username: string;
+    amaxUsername?: string;
 }
