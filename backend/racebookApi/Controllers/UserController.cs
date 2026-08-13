@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Request;
 using Models.Validators.Filter;
 using System.Security.Claims;
-using System.Security.Cryptography;
 
 namespace racebookApi.Controllers
 {
