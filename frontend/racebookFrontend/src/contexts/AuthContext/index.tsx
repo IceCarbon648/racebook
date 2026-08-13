@@ -1,6 +1,6 @@
 import { createContext, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login as loginService, logout as logoutService } from '../../services';
+import { login as loginService, logout as logoutService, me as meService } from '../../services';
 import type { AuthContextType } from './index.types';
 import type { User } from '../../types';
 
@@ -13,7 +13,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const isAuthenticated = user !== null;
 
     const login = async (email: string, password: string): Promise<void> => {
-        const response = await loginService({ email, password });
+        await loginService({ email, password });
+
+        const response = await meService();
+
         const user: User = {
             uid: response.uid,
             username: response.username,

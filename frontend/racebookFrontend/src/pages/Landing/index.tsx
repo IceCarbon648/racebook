@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts';
+import { racebookLogo } from '../../assets/images';
 import './index.css';
 
 const Landing = () => {
@@ -8,7 +9,7 @@ const Landing = () => {
     return (
         <div className="landing">
             <div className="landing-content">
-                <img src="/src/assets/images/logo.svg" alt="Racebook logo" className="landing-logo" />
+                <img src={racebookLogo} alt="Racebook logo" className="landing-logo" />
                 <h1>Welcome to Racebook</h1>
                 <p>Your go-to destination for Blur mods</p>
                 <div className="landing-actions">

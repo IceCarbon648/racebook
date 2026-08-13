@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts';
+import { racebookLogo } from '../../../assets/images';
 import './index.css';
 
 const Navbar = () => {
@@ -9,7 +10,7 @@ const Navbar = () => {
         <nav className="navbar">
             <div className="navbar-left">
                 <Link to="/">
-                    <img src="/src/assets/images/logo.svg" alt="Racebook logo" className="navbar-logo" />
+                    <img src={racebookLogo} alt="Racebook logo" className="navbar-logo" />
                 </Link>
                 <Link to="/mods">Mods</Link>
                 {isAuthenticated && (
