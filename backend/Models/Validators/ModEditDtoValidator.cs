@@ -39,7 +39,7 @@ namespace Models.Validators
                     .WithMessage("Preview image has an invalid file name")
                 .MustAsync(async (f, _) => await fileChecker.IsValidImageAsync(f))
                     .WithMessage("Invalid image file")
-                .When(x => x.ModFile != null);
+                .When(x => x.PreviewImage != null);
         }
     }
 }
