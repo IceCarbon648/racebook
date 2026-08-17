@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { getFavourites } from '../../services';
 import { ModCard } from '../../components';
 import type { Mod } from '../../types';
-import './index.css';
 
 const Favourites = () => {
     const navigate = useNavigate();
@@ -30,14 +29,28 @@ const Favourites = () => {
         navigate(`/mods/${mod.modId}`, { state: { mod } });
     };
 
-    if (isLoading) return <div className="favourites-status">Loading favourites...</div>;
-    if (error) return <div className="favourites-status">{error}</div>;
-    if (favourites.length === 0) return <div className="favourites-status">You have no favourites yet</div>;
+    if (isLoading) return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+            <p className="text-gray-500">Loading favourites...</p>
+        </div>
+    );
+
+    if (error) return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+            <p className="text-red-500">{error}</p>
+        </div>
+    );
+
+    if (favourites.length === 0) return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+            <p className="text-gray-500">You have no favourites yet</p>
+        </div>
+    );
 
     return (
-        <div className="favourites">
-            <h1>Favourites</h1>
-            <div className="favourites-grid">
+        <div className="px-6 py-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Favourites</h1>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
                 {favourites.map((mod) => (
                     <ModCard
                         key={mod.modId}

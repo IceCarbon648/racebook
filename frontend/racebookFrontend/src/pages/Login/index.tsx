@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts';
-import './index.css';
 
 const Login = () => {
     const { login } = useAuth();
@@ -24,41 +23,52 @@ const Login = () => {
     };
 
     return (
-        <div className="login">
-            <div className="login-card">
-                <h1>Login</h1>
-                {error && <p className="login-error">{error}</p>}
-                <div className="login-form">
-                    <div className="login-field">
-                        <label htmlFor="email">Email</label>
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4">
+            <div className="flex flex-col gap-6 w-full max-w-sm p-8 border border-gray-200 rounded-lg">
+                <h1 className="text-2xl font-bold text-gray-900">Login</h1>
+                {error && (
+                    <p className="text-sm text-red-500">{error}</p>
+                )}
+                <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                            Email
+                        </label>
                         <input
                             id="email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Enter your email"
+                            className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
                         />
                     </div>
-                    <div className="login-field">
-                        <label htmlFor="password">Password</label>
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="password" className="text-sm font-medium text-gray-700">
+                            Password
+                        </label>
                         <input
                             id="password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Enter your password"
+                            className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
                         />
                     </div>
                     <button
-                        className="login-btn"
                         onClick={handleSubmit}
                         disabled={isLoading}
+                        className="mt-2 px-4 py-2 text-sm font-medium border border-gray-900 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? 'Logging in...' : 'Login'}
                     </button>
                 </div>
-                <p className="login-register">
-                    Don't have an account? <Link to="/register">Register</Link>
+                <p className="text-sm text-center text-gray-500">
+                    Don't have an account?{' '}
+                    <Link to="/register" className="font-medium text-gray-900 hover:underline">
+                        Register
+                    </Link>
                 </p>
             </div>
         </div>
