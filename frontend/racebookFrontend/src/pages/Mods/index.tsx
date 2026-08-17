@@ -92,7 +92,6 @@ const Mods = () => {
         <div className="px-6 py-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Mods</h1>
 
-            {/* Controls */}
             <div className="flex items-center gap-3 mb-6">
                 <input
                     type="text"
@@ -126,7 +125,6 @@ const Mods = () => {
                 </button>
             </div>
 
-            {/* Grid */}
             {paginated.length === 0 ? (
                 <div className="flex items-center justify-center min-h-[200px]">
                     <p className="text-gray-500">No mods found</p>
@@ -143,7 +141,6 @@ const Mods = () => {
                 </div>
             )}
 
-            {/* Pagination */}
             {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 mt-8">
                     <button

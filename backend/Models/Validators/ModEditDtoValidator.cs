@@ -1,14 +1,12 @@
 ﻿using Helpers.Interfaces;
 using FluentValidation;
 using Models.DTOs.Request;
+using static Models.Constants.Constants;
 
 namespace Models.Validators
 {
     public class ModEditDtoValidator : AbstractValidator<ModEditDto>
     {
-        private const long MaxModFileSize = 10 * 1024 * 1024;
-        private const long MaxImageSize = 5 * 1024 * 1024;
-
         public ModEditDtoValidator(IFileChecker fileChecker)
         {
             RuleFor(x => x.Title)
@@ -17,6 +15,7 @@ namespace Models.Validators
 
             RuleFor(x => x.Type)
                 .MaximumLength(16)
+                .Must(x => Types.Contains(x))
                 .When(x => x.Type != null);
 
             RuleFor(x => x.Description)
