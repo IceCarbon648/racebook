@@ -94,14 +94,19 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                         <label htmlFor="type" className="text-sm font-medium text-gray-700">
                             Category
                         </label>
-                        <input
+                        <select
                             id="type"
-                            type="text"
                             value={type}
                             onChange={(e) => setType(e.target.value)}
-                            placeholder="Enter mod category"
                             className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
-                        />
+                        >
+                            <option value="">Select a category</option>
+                            <option value="Vehicle">Vehicle</option>
+                            <option value="Environment">Environment</option>
+                            <option value="UI">UI</option>
+                            <option value="Pack">Pack</option>
+                            <option value="Misc">Misc</option>
+                        </select>
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="description" className="text-sm font-medium text-gray-700">
