@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts';
 import { racebookLogo } from '../../assets/images';
+import { FluidCursor } from '../../components';
 
 const Landing = () => {
     const { isAuthenticated } = useAuth();
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] gap-6 text-center px-4">
+        <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] gap-6 text-center px-4">
+            <FluidCursor />
             <img src={racebookLogo} alt="Racebook logo" className="h-32 w-auto" />
             <h1 className="text-5xl font-bold text-gray-900">Welcome to Racebook</h1>
             <p className="text-lg text-gray-500 max-w-md">
