@@ -1,8 +1,10 @@
 ﻿using Business.Interfaces;
-using Models.DTOs.Request;
-using Models.Validators.Filter;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models.DTOs.Request;
+using Models.Validators.Filter;
 using System.Security.Claims;
 
 namespace racebookApi.Controllers
@@ -52,7 +54,9 @@ namespace racebookApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllMods()
         {
-            return Ok(await _modService.GetAllMods());
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+
+            return Ok(await _modService.GetAllMods(uid));
         }
 
         [HttpGet("my-mods")]

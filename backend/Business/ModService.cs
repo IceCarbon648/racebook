@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Models;
 using Models.DTOs.Request;
 using Models.DTOs.Response;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Business
 {
@@ -102,10 +103,10 @@ namespace Business
             _logger.LogInformation("Mod {ModId} successfully edited", modId);
         }
 
-        public async Task<List<GetModDto>> GetAllMods()
+        public async Task<List<GetModDto>> GetAllMods(string? uid)
         {
             _logger.LogInformation("Retrieving all mods");
-            List<GetModDto> mods = await _modRepository.GetAllMods();
+            List<GetModDto> mods = await _modRepository.GetAllMods(uid);
 
             if (mods.Count == 0)
             {

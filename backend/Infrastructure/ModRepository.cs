@@ -93,24 +93,28 @@ namespace Infrastructure
             });
         }
 
-        public async Task<List<GetModDto>> GetAllMods()
+        public async Task<List<GetModDto>> GetAllMods(string? uid)
         {
             string sql = @"SELECT
-                               m.ModId,
-                               u.Username
-                                   AS 'Creator',
-                               m.Title,
-                               m.Type,
-                               m.Description,
-                               m.UploadDate,
-                               m.EditDate,
-                               m.ModFileUrl,
-                               m.ImageUrl
-                                   AS 'PreviewImageUrl'
-                           FROM Mod m
-                           INNER JOIN [User] u ON m.Uid = u.Uid";
+                             m.ModId,
+                             u.Username AS Creator,
+                             m.Title,
+                             m.Type,
+                             m.Description,
+                             m.UploadDate,
+                             m.EditDate,
+                             m.ModFileUrl,
+                             m.ImageUrl AS PreviewImageUrl,
+                         CASE 
+                             WHEN @uid IS NULL THEN NULL
+                             WHEN f.FavouriteId IS NOT NULL THEN CAST(1 AS BIT)
+                             ELSE CAST(0 AS BIT)
+                         END AS IsFavourite
+                         FROM Mod m
+                         INNER JOIN [User] u ON m.Uid = u.Uid
+                         LEFT JOIN FavouriteMod f ON f.ModId = m.ModId AND f.Uid = @uid";
 
-            IEnumerable<GetModDto> queryResult = await _dbConnection.QueryAsync<GetModDto>(sql);
+            IEnumerable<GetModDto> queryResult = await _dbConnection.QueryAsync<GetModDto>(sql, new { uid });
 
             return queryResult.ToList();
         }

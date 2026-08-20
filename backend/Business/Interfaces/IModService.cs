@@ -9,7 +9,7 @@ namespace Business.Interfaces
         Task UploadMod(string uid, ModDto dto);
         Task DeleteMod(string modId);
         Task EditMod(string modId, ModEditDto dto);
-        Task<List<GetModDto>> GetAllMods();
+        Task<List<GetModDto>> GetAllMods(string? uid);
         Task<List<Mod>> GetMyMods(string uid);
     }
 }

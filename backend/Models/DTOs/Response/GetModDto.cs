@@ -11,5 +11,6 @@
         public required DateTime EditDate { get; set; }
         public required string ModFileUrl { get; set; }
         public required string PreviewImageUrl { get; set; }
+        public bool? IsFavourite { get; set; }
     }
 }

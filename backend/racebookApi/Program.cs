@@ -72,6 +72,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = DiscordAuthenticationDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(jwtOptions =>
@@ -132,6 +133,14 @@ app.UseExceptionHandler(_ => { });
 app.UseCors("AllowOrigin");
 
 app.UseHttpsRedirection();
+
+app.Use(async (context, next) =>
+{
+    var token = context.Request.Cookies["access_token"];
+    if (!string.IsNullOrEmpty(token))
+        context.Request.Headers.Authorization = $"Bearer {token}";
+    await next();
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

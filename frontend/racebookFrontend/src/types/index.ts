@@ -14,6 +14,7 @@ export interface Mod {
     editDate: string;
     modFileUrl: string;
     previewImageUrl: string;
+    isFavourite?: boolean;
 }
 
 export interface MyMod {
