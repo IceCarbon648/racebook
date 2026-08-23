@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllMods } from '../../services';
+import { getAllMods, addToFavourites, deleteFromFavourites } from '../../services';
 import { ModCard } from '../../components';
 import type { Mod } from '../../types';
 
@@ -76,6 +76,24 @@ const Mods = () => {
         setPage(1);
     };
 
+    const handleFavouriteClick = async (modId: string, isFavourite: boolean) => {
+    try {
+        if (isFavourite) {
+            await deleteFromFavourites(modId);
+        } else {
+            await addToFavourites(modId);
+        }
+
+        setMods((prev) => prev.map((m) =>
+            m.modId === modId
+                ? { ...m, isFavourite: !isFavourite }
+                : m
+        ));
+    } catch {
+        setError('Failed to update favourites');
+    }
+};
+
     if (isLoading) return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
             <p className="text-gray-500">Loading mods...</p>
@@ -136,6 +154,7 @@ const Mods = () => {
                             key={mod.modId}
                             mod={mod}
                             onClick={handleModClick}
+                            onFavourite={handleFavouriteClick}
                         />
                     ))}
                 </div>
