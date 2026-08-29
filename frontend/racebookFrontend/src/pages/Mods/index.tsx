@@ -77,22 +77,22 @@ const Mods = () => {
     };
 
     const handleFavouriteClick = async (modId: string, isFavourite: boolean) => {
-    try {
-        if (isFavourite) {
-            await deleteFromFavourites(modId);
-        } else {
-            await addToFavourites(modId);
-        }
+        try {
+            if (isFavourite) {
+                await deleteFromFavourites(modId);
+            } else {
+                await addToFavourites(modId);
+            }
 
-        setMods((prev) => prev.map((m) =>
-            m.modId === modId
-                ? { ...m, isFavourite: !isFavourite }
-                : m
-        ));
-    } catch {
-        setError('Failed to update favourites');
-    }
-};
+            setMods((prev) => prev.map((m) =>
+                m.modId === modId
+                    ? { ...m, isFavourite: !isFavourite }
+                    : m
+            ));
+        } catch {
+            setError('Failed to update favourites');
+        }
+    };
 
     if (isLoading) return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
@@ -152,9 +152,13 @@ const Mods = () => {
                     {paginated.map((mod) => (
                         <ModCard
                             key={mod.modId}
-                            mod={mod}
-                            onClick={handleModClick}
-                            onFavourite={handleFavouriteClick}
+                            title={mod.title}
+                            type={mod.type}
+                            imageUrl={mod.previewImageUrl}
+                            creator={mod.creator}
+                            isFavourite={mod.isFavourite ?? undefined}
+                            onClick={() => handleModClick(mod)}
+                            onFavourite={() => handleFavouriteClick(mod.modId, mod.isFavourite!)}
                         />
                     ))}
                 </div>
@@ -173,11 +177,10 @@ const Mods = () => {
                         <button
                             key={p}
                             onClick={() => setPage(p)}
-                            className={`px-3 py-1.5 text-sm border rounded ${
-                                page === p
+                            className={`px-3 py-1.5 text-sm border rounded ${page === p
                                     ? 'border-gray-900 bg-gray-900 text-white'
                                     : 'border-gray-200 hover:bg-gray-50'
-                            }`}
+                                }`}
                         >
                             {p}
                         </button>

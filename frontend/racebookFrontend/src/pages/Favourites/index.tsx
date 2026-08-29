@@ -54,8 +54,12 @@ const Favourites = () => {
                 {favourites.map((mod) => (
                     <ModCard
                         key={mod.modId}
-                        mod={mod}
-                        onClick={handleModClick}
+                        title={mod.title}
+                        type={mod.type}
+                        imageUrl={mod.previewImageUrl}
+                        creator={mod.creator}
+                        isFavourite={mod.isFavourite ?? undefined}
+                        onClick={() => handleModClick(mod)}
                     />
                 ))}
             </div>

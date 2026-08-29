@@ -97,9 +97,11 @@ const MyMods = () => {
                     {mods.map((mod) => (
                         <ModCard
                             key={mod.modId}
-                            mod={mod}
-                            onEdit={handleEditClick}
-                            onDelete={handleDeleteClick}
+                            title={mod.title}
+                            type={mod.type}
+                            imageUrl={mod.imageUrl}
+                            onEdit={() => handleEditClick(mod)}
+                            onDelete={() => handleDeleteClick(mod.modId)}
                         />
                     ))}
                 </div>
