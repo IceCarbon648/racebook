@@ -1,5 +1,6 @@
 import reactLogo from '../../../assets/images/react.svg';
 import viteLogo from '../../../assets/images/vite.svg';
+import { diagonal_lines } from '../../../assets';
 import type { ModCardProps } from './index.types';
 import { Tilt } from '@gfazioli/react-tilt';
 
@@ -10,42 +11,44 @@ const ModCard = ({
     onClick, onEdit, onDelete, onFavourite
 }: ModCardProps) => {
     return (
-        <div className="relative h-64 w-64">
-            <Tilt threshold={22.5} hoverScale={1.08}>
+        <div className="relative h-64 w-64 text-left">
+            <Tilt threshold={15} hoverScale={1.08}>
+                <img src={diagonal_lines} alt="" className="absolute right-5 top-45 w-24 h-6"/>
+
                 <div
-                    className="flex flex-col p-4 cursor-pointer"
+                    className="flex flex-col p-5 cursor-pointer"
                     onClick={onClick}
                 >
                     <Tilt.Layer depth={1.1}>
-                        <img src={imageUrl} alt={title} className="w-full aspect-video object-cover" />
+                        <img src={imageUrl} alt={title} className="w-full aspect-video object-cover rounded-sm" />
                     </Tilt.Layer>
 
-                    <div>
-                        <Tilt.Layer className="self-start" depth={2.2}>
-                            <h2>{title}</h2>
-                        </Tilt.Layer>
-
-                        {creator && (
-                            <Tilt.Layer className="self-end mt-auto" depth={0.55}>
-                                <p>By {creator}</p>
+                    <div className="flex flex-col gap-3">
+                        <div>
+                            <Tilt.Layer depth={2.2} className="text-3xl text-white">
+                                <p>{title}</p>
                             </Tilt.Layer>
-                        )}
-                    </div>
 
-                    <div>
-                        <Tilt.Layer className="self-end" depth={0.825}>
-                            <p>{type}</p>
-                        </Tilt.Layer>
+                            {creator && (
+                                <Tilt.Layer depth={0.55} className="text-sm text-[#d7d7d7]">
+                                    <p>@{creator}</p>
+                                </Tilt.Layer>
+                            )}
+                        </div>
 
-                        {isFavourite !== undefined && onFavourite && (
-                            <button
-                                onClick={(e) => { e.stopPropagation(); onFavourite(); }}
-                                className="absolute bottom-0 right-0 flex items-center gap-1.5 text-xs font-medium text-gray-400 transition-colors hover:text-gray-100"
-                            >
-                                <img src={isFavourite ? reactLogo : viteLogo} alt="" className="h-3.5 w-3.5" />
-                                {isFavourite ? 'Unfavourite' : 'Favourite'}
-                            </button>
-                        )}
+                        <div className="flex flex-row items-center justify-between w-11/20">
+                            {isFavourite !== undefined && onFavourite && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onFavourite(); }}
+                                >
+                                    <img src={isFavourite ? reactLogo : viteLogo} alt="" className="h-7 w-7" />
+                                </button>
+                            )}
+
+                            <Tilt.Layer depth={0.825} className="flex justify-center items-center w-13/20 h-5 text-center text-white text-[10px] font-bold bg-[#930093] rounded-full">
+                                <p>{type}</p>
+                            </Tilt.Layer>
+                        </div>
                     </div>
 
                     {onEdit && onDelete && (
@@ -60,7 +63,7 @@ const ModCard = ({
                     )}
 
                     <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 256 256" preserveAspectRatio="none">
-                        <path d={cardShape} fill="none" stroke="#8e0093" strokeWidth="2" />
+                        <path d={cardShape} fill="none" stroke="#cc00cc" strokeWidth="2" />
                     </svg>
                 </div>
             </Tilt>
