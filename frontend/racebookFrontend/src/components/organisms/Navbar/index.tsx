@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts';
 import { racebookLogo } from '../../../assets/images';
+import SlotMachineText from '../../atoms/SlotMachineText';
 
 const Navbar = () => {
     const { user, isAuthenticated, logout } = useAuth();
@@ -20,7 +21,7 @@ const Navbar = () => {
                             My Mods
                         </Link>
                         <Link to="/favourites" className="text-sm font-medium hover:text-gray-600">
-                            Favourites
+                            <SlotMachineText text="Favourites" />
                         </Link>
                     </>
                 )}
