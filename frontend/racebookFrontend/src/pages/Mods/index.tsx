@@ -4,7 +4,7 @@ import { getAllMods, addToFavourites, deleteFromFavourites } from '../../service
 import { ModCard } from '../../components';
 import type { Mod } from '../../types';
 
-const CATEGORIES = ['All', 'Vehicle', 'Environment', 'UI', 'Pack', 'Misc'];
+const CATEGORIES = ['ALL', 'VEHICLE', 'ENVIRONMENT', 'UI', 'PACK', 'MISC'];
 const PAGE_SIZE = 16;
 
 const Mods = () => {

@@ -101,11 +101,11 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                             className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
                         >
                             <option value="">Select a category</option>
-                            <option value="Vehicle">Vehicle</option>
-                            <option value="Environment">Environment</option>
+                            <option value="VEHICLE">Vehicle</option>
+                            <option value="ENVIRONMENT">Environment</option>
                             <option value="UI">UI</option>
-                            <option value="Pack">Pack</option>
-                            <option value="Misc">Misc</option>
+                            <option value="PACK">Pack</option>
+                            <option value="MISC">Misc</option>
                         </select>
                     </div>
                     <div className="flex flex-col gap-1.5">
