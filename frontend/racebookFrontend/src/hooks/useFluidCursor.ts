@@ -402,8 +402,10 @@ const useFluidCursor = (baseSrc, revealSrc) => {
    
            float density = clamp(max(c.r, max(c.g, c.b)), 0.0, 1.0);
 
-          vec3 baseColor = texture2D(uBase, vUv).rgb;
-          vec3 revealColor = texture2D(uReveal, vUv).rgb;
+          vec2 imgUv = vec2(vUv.x, 1.0 - vUv.y);
+
+          vec3 baseColor = texture2D(uBase, imgUv).rgb;
+          vec3 revealColor = texture2D(uReveal, imgUv).rgb;
 
           gl_FragColor = vec4(mix(baseColor, revealColor, density), 1.0);
        }
