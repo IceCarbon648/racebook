@@ -1,1 +1,1 @@
-export { default as FluidCursor } from './FluidCursor';
+export { default as FluidCursor } from './FluidReveal';

@@ -1,5 +1,5 @@
 // @ts-nocheck
-const useFluidCursor = () => {
+const useFluidCursor = (baseSrc, revealSrc) => {
   const canvas = document.getElementById('fluid');
   resizeCanvas();
 
@@ -20,7 +20,7 @@ const useFluidCursor = () => {
     COLOR_UPDATE_SPEED: 10,
     PAUSED: false,
     BACK_COLOR: { r: 0.5, g: 0, b: 0 },
-    TRANSPARENT: true,
+    TRANSPARENT: false,
   };
 
   function pointerPrototype() {
@@ -373,6 +373,8 @@ const useFluidCursor = () => {
        uniform sampler2D uDithering;
        uniform vec2 ditherScale;
        uniform vec2 texelSize;
+       uniform sampler2D uBase;
+       uniform sampler2D uReveal;
    
        vec3 linearToGamma (vec3 color) {
            color = max(color, vec3(0));
@@ -398,8 +400,12 @@ const useFluidCursor = () => {
            c *= diffuse;
        #endif
    
-           float a = max(c.r, max(c.g, c.b));
-           gl_FragColor = vec4(c, a);
+           float density = clamp(max(c.r, max(c.g, c.b)), 0.0, 1.0);
+
+          vec3 baseColor = texture2D(uBase, vUv).rgb;
+          vec3 revealColor = texture2D(uReveal, vUv).rgb;
+
+          gl_FragColor = vec4(mix(baseColor, revealColor, density), 1.0);
        }
    `;
 
@@ -649,6 +655,8 @@ const useFluidCursor = () => {
   let divergence;
   let curl;
   let pressure;
+  let baseTexture = createTextureAsync(baseSrc);
+  let revealTexture = createTextureAsync(revealSrc);
 
   const copyProgram = new Program(baseVertexShader, copyShader);
   const clearProgram = new Program(baseVertexShader, clearShader);
@@ -851,7 +859,7 @@ const useFluidCursor = () => {
 
   function createTextureAsync(url) {
     let texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.bindTexture(gl.TEXTURE_2D, texture); 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
@@ -1079,6 +1087,8 @@ const useFluidCursor = () => {
         1.0 / height
       );
     gl.uniform1i(displayMaterial.uniforms.uTexture, dye.read.attach(0));
+    gl.uniform1i(displayMaterial.uniforms.uBase, baseTexture.attach(1));
+    gl.uniform1i(displayMaterial.uniforms.uReveal, revealTexture.attach(2));
     blit(target);
   }
 
