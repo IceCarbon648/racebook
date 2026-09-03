@@ -1,21 +1,28 @@
 // @ts-nocheck
-const useFluidCursor = (baseSrc, revealSrc) => {
+const useFluidCursor = (baseSrc, revealSrc, depthSrc) => {
   const canvas = document.getElementById('fluid');
   resizeCanvas();
 
+  let smoothMouse = { x: 0, y: 0 };
+  let targetMouse = { x: 0, y: 0 };
+
+  window.addEventListener('mousemove', (e) => {
+    targetMouse.x = (e.clientX / window.innerWidth - 0.5) * 2;
+    targetMouse.y = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
   //try to adjust settings
 
   let config = {
     SIM_RESOLUTION: 128,
     DYE_RESOLUTION: 1440,
     CAPTURE_RESOLUTION: 512,
-    DENSITY_DISSIPATION: 3.5,
-    VELOCITY_DISSIPATION: 2,
-    PRESSURE: 0.1,
+    DENSITY_DISSIPATION: 0.8,
+    VELOCITY_DISSIPATION: 1,
+    PRESSURE: 0.4,
     PRESSURE_ITERATIONS: 20,
-    CURL: 3,
+    CURL: 8,
     SPLAT_RADIUS: 0.2,
-    SPLAT_FORCE: 6000,
+    SPLAT_FORCE: 10000,
     SHADING: true,
     COLOR_UPDATE_SPEED: 10,
     PAUSED: false,
@@ -375,6 +382,9 @@ const useFluidCursor = (baseSrc, revealSrc) => {
        uniform vec2 texelSize;
        uniform sampler2D uBase;
        uniform sampler2D uReveal;
+       uniform sampler2D uDepth;
+       uniform vec2 uMouse;
+       uniform float uParallax;
    
        vec3 linearToGamma (vec3 color) {
            color = max(color, vec3(0));
@@ -402,10 +412,14 @@ const useFluidCursor = (baseSrc, revealSrc) => {
    
            float density = clamp(max(c.r, max(c.g, c.b)), 0.0, 1.0);
 
-          vec2 imgUv = vec2(vUv.x, 1.0 - vUv.y);
+                  vec2 imgUv = vec2(vUv.x, 1.0 - vUv.y);
 
-          vec3 baseColor = texture2D(uBase, imgUv).rgb;
-          vec3 revealColor = texture2D(uReveal, imgUv).rgb;
+        float depth = texture2D(uDepth, imgUv).r;
+        vec2 offset = uMouse * (depth - 0.5) * uParallax;
+        vec2 parallaxUv = imgUv + offset;
+
+        vec3 baseColor = texture2D(uBase, parallaxUv).rgb;
+        vec3 revealColor = texture2D(uReveal, parallaxUv).rgb;
 
           gl_FragColor = vec4(mix(baseColor, revealColor, density), 1.0);
        }
@@ -659,6 +673,7 @@ const useFluidCursor = (baseSrc, revealSrc) => {
   let pressure;
   let baseTexture = createTextureAsync(baseSrc);
   let revealTexture = createTextureAsync(revealSrc);
+  let depthTexture = createTextureAsync(depthSrc);
 
   const copyProgram = new Program(baseVertexShader, copyShader);
   const clearProgram = new Program(baseVertexShader, clearShader);
@@ -1074,6 +1089,8 @@ const useFluidCursor = (baseSrc, revealSrc) => {
   function render(target) {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.enable(gl.BLEND);
+    smoothMouse.x += (targetMouse.x - smoothMouse.x) * 0.05;
+    smoothMouse.y += (targetMouse.y - smoothMouse.y) * 0.05;
     drawDisplay(target);
   }
 
@@ -1091,6 +1108,11 @@ const useFluidCursor = (baseSrc, revealSrc) => {
     gl.uniform1i(displayMaterial.uniforms.uTexture, dye.read.attach(0));
     gl.uniform1i(displayMaterial.uniforms.uBase, baseTexture.attach(1));
     gl.uniform1i(displayMaterial.uniforms.uReveal, revealTexture.attach(2));
+
+    gl.uniform1i(displayMaterial.uniforms.uDepth, depthTexture.attach(3));
+    gl.uniform2f(displayMaterial.uniforms.uMouse, smoothMouse.x, smoothMouse.y);
+    gl.uniform1f(displayMaterial.uniforms.uParallax, 0.03);
+
     blit(target);
   }
 

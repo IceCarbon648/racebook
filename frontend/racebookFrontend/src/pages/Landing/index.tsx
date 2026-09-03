@@ -6,9 +6,9 @@ const Landing = () => {
     const { isAuthenticated } = useAuth();
 
     return (
-        
+
         <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] gap-6 text-center px-4">
-            <Background reveal={true}/>
+            <Background reveal={true} />
             <h1 className="text-5xl font-bold text-gray-900">Welcome to Racebook</h1>
             <p className="text-lg text-gray-500 max-w-md">
                 Your go-to destination for Blur mods

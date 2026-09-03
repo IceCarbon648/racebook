@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { backgrounds } from '../../../assets/images';
-import FluidCursor from '../../atoms/FluidReveal';
+import FluidReveal from '../../atoms/FluidReveal';
 
 interface BackgroundProps {
     reveal?: boolean;
@@ -25,7 +25,7 @@ const Background = ({ reveal = false, interval = 15000 }: BackgroundProps) => {
     const set = backgrounds[index];
 
     if (reveal) {
-        return <FluidCursor revealSrc={set.original} baseSrc={set.tinted} />;
+        return <FluidReveal revealSrc={set.original} baseSrc={set.tinted} depthSrc={set.depthMap} />;
     }
 
     return (

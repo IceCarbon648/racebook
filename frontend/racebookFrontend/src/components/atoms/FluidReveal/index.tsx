@@ -4,11 +4,12 @@ import fluidCursor from '../../../hooks/useFluidCursor';
 interface FluidRevealProps {
     revealSrc: string;
     baseSrc: string;
+    depthSrc: string;
 }
 
-const FluidReveal = ({ revealSrc, baseSrc }: FluidRevealProps) => {
+const FluidReveal = ({ revealSrc, baseSrc, depthSrc }: FluidRevealProps) => {
     useEffect(() => {
-        fluidCursor(baseSrc, revealSrc);
+        fluidCursor(baseSrc, revealSrc, depthSrc);
     }, [baseSrc, revealSrc]);
 
     return (
