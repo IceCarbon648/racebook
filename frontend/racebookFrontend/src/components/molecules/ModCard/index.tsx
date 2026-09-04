@@ -1,24 +1,33 @@
+import { useState } from 'react';
 import { card_accent } from '../../../assets';
+import { NEON } from '../../../constants/theme';
 import type { ModCardProps } from './index.types';
 import { Tilt } from '@gfazioli/react-tilt';
 
 const cardShape = "M 0,0 L 255,0 L 255,215 L 247,223 L 159,223 L 127,255 L 16,255 L 0,239 Z";
+const favouriteIconShape = "M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.7z";
 
 const ModCard = ({
     title, type, imageUrl, creator, isFavourite,
     onClick, onEdit, onDelete, onFavourite
 }: ModCardProps) => {
+    const [hovered, setHovered] = useState(false);
+
+    const blur = hovered ? NEON.glowBlurSelected : NEON.glowBlur;
+    const border = hovered ? NEON.borderSelected : NEON.borderColour;
+
     return (
-        <div className="relative h-64 w-64 text-left">
+        <div
+            className="relative h-64 w-64 text-left"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+        >
             <Tilt threshold={15} hoverScale={1.08}>
                 <Tilt.Layer depth={-0.75}>
                     <img src={card_accent} alt="" className="absolute right-5 top-45 w-24 h-6 opacity-15" />
                 </Tilt.Layer>
 
-                <div
-                    className="flex flex-col p-5 cursor-pointer"
-                    onClick={onClick}
-                >
+                <div className="flex flex-col p-5 cursor-pointer" onClick={onClick}>
                     <Tilt.Layer depth={-1}>
                         <img src={imageUrl} alt={title} className="w-full aspect-video object-cover rounded-sm" />
                     </Tilt.Layer>
@@ -53,13 +62,17 @@ const ModCard = ({
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
                                         >
-                                            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.7z" />
+                                            <path d={favouriteIconShape} />
                                         </svg>
                                     </button>
                                 )}
                             </Tilt.Layer>
 
-                            <Tilt.Layer depth={1} className="flex justify-center items-center w-13/20 h-5 text-center text-white text-[10px] font-bold bg-[#930093] rounded-full">
+                            <Tilt.Layer
+                                depth={1}
+                                className="flex justify-center items-center w-13/20 h-5 text-center text-white text-[10px] font-bold rounded-full"
+                                style={{ backgroundColor: NEON.fill }}
+                            >
                                 <p>{type}</p>
                             </Tilt.Layer>
                         </div>
@@ -83,20 +96,26 @@ const ModCard = ({
                     >
                         <defs>
                             <filter id="cardGlow" x="-50%" y="-50%" width="200%" height="200%">
-                                <feGaussianBlur stdDeviation="4" />
+                                <feGaussianBlur stdDeviation={blur} />
                             </filter>
-                            <clipPath id="cardClip">
-                                <path d={cardShape} />
-                            </clipPath>
                         </defs>
 
-                        <path d={cardShape} fill="none" stroke="#cc00cc" strokeWidth="4" filter="url(#cardGlow)" />
+                        <path
+                            d={cardShape}
+                            fill="none"
+                            stroke={NEON.glowColour}
+                            strokeWidth={blur}
+                            filter="url(#cardGlow)"
+                        />
 
-                        <g clipPath="url(#cardClip)">
-                            <path d={cardShape} fill="none" stroke="#cc00cc" strokeWidth="4" filter="url(#cardGlow)" />
-                        </g>
-
-                        <path d={cardShape} fill="#930093" fillOpacity={0.35} stroke="#cc44cc" strokeWidth="1.5" strokeLinejoin="round" />
+                        <path
+                            d={cardShape}
+                            fill={NEON.fill}
+                            fillOpacity={NEON.fillOpacity}
+                            stroke={border}
+                            strokeWidth={NEON.borderWidth}
+                            strokeLinejoin="round"
+                        />
                     </svg>
                 </div>
             </Tilt>
