@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllMods, addToFavourites, deleteFromFavourites } from '../../services';
-import { ModCard } from '../../components';
 import type { Mod } from '../../types';
+import { ModCard, Dropdown } from '../../components';
 
 const CATEGORIES = ['ALL', 'VEHICLE', 'ENVIRONMENT', 'UI', 'PACK', 'MISC'];
 const PAGE_SIZE = 16;
@@ -118,23 +118,16 @@ const Mods = () => {
                     placeholder="Search by title or creator..."
                     className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
                 />
-                <select
+                <Dropdown
                     value={category}
-                    onChange={handleFilterChange(setCategory)}
-                    className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
-                >
-                    {CATEGORIES.map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                    ))}
-                </select>
-                <select
-                    value={order}
-                    onChange={handleFilterChange(setOrder)}
-                    className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
-                >
-                    <option value="newest">Newest first</option>
-                    <option value="oldest">Oldest first</option>
-                </select>
+                    options={CATEGORIES}
+                    onChange={(v) => { setCategory(v); setPage(1); }}
+                />
+                <Dropdown
+                    value={order === 'newest' ? 'Newest first' : 'Oldest first'}
+                    options={['Newest first', 'Oldest first']}
+                    onChange={(v) => { setOrder(v === 'Newest first' ? 'newest' : 'oldest'); setPage(1); }}
+                />
                 <button
                     onClick={handleReset}
                     className="px-4 py-2 text-sm font-medium border border-gray-200 rounded hover:bg-gray-50"
@@ -178,8 +171,8 @@ const Mods = () => {
                             key={p}
                             onClick={() => setPage(p)}
                             className={`px-3 py-1.5 text-sm border rounded ${page === p
-                                    ? 'border-gray-900 bg-gray-900 text-white'
-                                    : 'border-gray-200 hover:bg-gray-50'
+                                ? 'border-gray-900 bg-gray-900 text-white'
+                                : 'border-gray-200 hover:bg-gray-50'
                                 }`}
                         >
                             {p}

@@ -1,9 +1,9 @@
-interface RollingTextProps {
+interface SlotMachineTextProps {
     text: string;
     stagger?: number;
 }
 
-const SlotMachineText = ({ text, stagger = 20 }: RollingTextProps) => {
+const SlotMachineText = ({ text, stagger = 20 }: SlotMachineTextProps) => {
     return (
         <span className="group inline-flex leading-none" aria-label={text}>
             {text.split('').map((char, i) => (
