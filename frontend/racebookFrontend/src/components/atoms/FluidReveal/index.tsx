@@ -5,11 +5,12 @@ interface FluidRevealProps {
     revealSrc: string;
     baseSrc: string;
     depthSrc: string;
+    parallax: number;
 }
 
-const FluidReveal = ({ revealSrc, baseSrc, depthSrc }: FluidRevealProps) => {
+const FluidReveal = ({ revealSrc, baseSrc, depthSrc,  parallax = 0.03 }: FluidRevealProps) => {
     useEffect(() => {
-        fluidCursor(baseSrc, revealSrc, depthSrc);
+        fluidCursor(baseSrc, revealSrc, depthSrc, parallax);
     }, [baseSrc, revealSrc]);
 
     return (

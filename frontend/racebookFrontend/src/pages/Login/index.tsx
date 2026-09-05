@@ -21,7 +21,7 @@ const Login = () => {
             setIsLoading(false);
         }
     };
-
+  
     return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4">
             <div className="flex flex-col gap-6 w-full max-w-sm p-8 border border-gray-200 rounded-lg">

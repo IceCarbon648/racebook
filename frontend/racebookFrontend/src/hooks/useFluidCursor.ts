@@ -1,5 +1,5 @@
 // @ts-nocheck
-const useFluidCursor = (baseSrc, revealSrc, depthSrc) => {
+const useFluidCursor = (baseSrc, revealSrc, depthSrc, parallax) => {
   const canvas = document.getElementById('fluid');
   resizeCanvas();
 
@@ -410,13 +410,15 @@ const useFluidCursor = (baseSrc, revealSrc, depthSrc) => {
            c *= diffuse;
        #endif
    
-           float density = clamp(max(c.r, max(c.g, c.b)), 0.0, 1.0);
+        float density = clamp(max(c.r, max(c.g, c.b)), 0.0, 1.0);
 
-                  vec2 imgUv = vec2(vUv.x, 1.0 - vUv.y);
+        vec2 imgUv = vec2(vUv.x, 1.0 - vUv.y);
+        vec2 zoomUv = (imgUv - 0.5) * (1.0 - uParallax * 2.0) + 0.5;
 
-        float depth = texture2D(uDepth, imgUv).r;
-        vec2 offset = uMouse * (depth - 0.5) * uParallax;
-        vec2 parallaxUv = imgUv + offset;
+        float depth = texture2D(uDepth, zoomUv).r;
+        vec2 offset = uMouse * min(depth, 0.5) * uParallax;
+
+        vec2 parallaxUv = zoomUv + offset;
 
         vec3 baseColor = texture2D(uBase, parallaxUv).rgb;
         vec3 revealColor = texture2D(uReveal, parallaxUv).rgb;
@@ -879,8 +881,8 @@ const useFluidCursor = (baseSrc, revealSrc, depthSrc) => {
     gl.bindTexture(gl.TEXTURE_2D, texture); 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
@@ -1111,7 +1113,7 @@ const useFluidCursor = (baseSrc, revealSrc, depthSrc) => {
 
     gl.uniform1i(displayMaterial.uniforms.uDepth, depthTexture.attach(3));
     gl.uniform2f(displayMaterial.uniforms.uMouse, smoothMouse.x, smoothMouse.y);
-    gl.uniform1f(displayMaterial.uniforms.uParallax, 0.03);
+    gl.uniform1f(displayMaterial.uniforms.uParallax, parallax);
 
     blit(target);
   }

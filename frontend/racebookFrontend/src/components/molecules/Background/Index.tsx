@@ -25,7 +25,7 @@ const Background = ({ reveal = false, interval = 15000 }: BackgroundProps) => {
     const set = backgrounds[index];
 
     if (reveal) {
-        return <FluidReveal revealSrc={set.original} baseSrc={set.tinted} depthSrc={set.depthMap} />;
+        return <FluidReveal revealSrc={set.original} baseSrc={set.tinted} depthSrc={set.depthMap} parallax={0.03} />;
     }
 
     return (
