@@ -416,7 +416,7 @@ const useFluidCursor = (baseSrc, revealSrc, depthSrc, parallax) => {
         vec2 zoomUv = (imgUv - 0.5) * (1.0 - uParallax * 2.0) + 0.5;
 
         float depth = texture2D(uDepth, zoomUv).r;
-        vec2 offset = uMouse * min(depth, 0.5) * uParallax;
+        vec2 offset = uMouse * (depth - 0.5) * uParallax;
 
         vec2 parallaxUv = zoomUv + offset;
 
