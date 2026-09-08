@@ -24,7 +24,7 @@ namespace racebookApi.Controllers
         {
             if (!await _userService.RegisterUserAsync(dto))
             {
-                return Unauthorized(new { message = "Registration was not successful" });
+                return Conflict(new { message = "Registration was not successful" });
             }
 
             return Ok(new { message = "Registration successful" });

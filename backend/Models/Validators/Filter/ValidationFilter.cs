@@ -2,6 +2,7 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Models.Validators.Filter
 {
@@ -29,11 +30,18 @@ namespace Models.Validators.Filter
 
             if (!result.IsValid)
             {
-                context.Result = new BadRequestObjectResult(result.Errors.Select(e => new
+                ModelStateDictionary modelState = new ModelStateDictionary();
+
+                foreach (ValidationFailure failure in result.Errors)
                 {
-                    field = e.PropertyName,
-                    error = e.ErrorMessage
-                }));
+                    modelState.AddModelError(failure.PropertyName, failure.ErrorMessage);
+                }
+
+                context.Result = new BadRequestObjectResult(new ValidationProblemDetails(modelState)
+                {
+                    Title = "Validation failed",
+                    Detail = "One or more fields failed validation."
+                });
 
                 return;
             }
