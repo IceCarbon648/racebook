@@ -10,11 +10,13 @@ namespace Models.Validators
             RuleFor(x => x.Email)
                 .NotEmpty()
                 .EmailAddress()
+                .WithMessage("Please enter a valid email address")
                 .MaximumLength(320);
 
             RuleFor(x => x.Username)
                 .NotEmpty()
-                .MaximumLength(16);
+                .MaximumLength(16)
+                .WithMessage("Username cannot exceed 16 characters");
 
             RuleFor(x => x.Password)
                 .NotEmpty()

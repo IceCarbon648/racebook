@@ -8,37 +8,54 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const [errors, setErrors] = useState<Record<string, string[]>>({});
+    const [formError, setFormError] = useState<string | null>(null);
 
     const registerMutation = useMutation({
         mutationFn: register,
         onSuccess: () => navigate('/login'),
         onError: (err: any) => {
             const data = err?.response?.data;
-            const fieldErrors = data?.errors
-                ? Object.values(data.errors).flat().join(' ')
-                : null;
 
-            setError(
-                fieldErrors
-                ?? data?.message
-                ?? data?.detail
-                ?? 'Something went wrong, please try again'
-            );
+            if (data?.errors) {
+                setErrors(data.errors);
+            } else {
+                setFormError(
+                    data?.message
+                    ?? data?.detail
+                    ?? 'Something went wrong, please try again'
+                );
+            }
         },
     });
 
+    const clearFieldError = (field: string) => {
+        setErrors((prev) => {
+            if (!prev[field]) return prev;
+            const { [field]: _, ...rest } = prev;
+            return rest;
+        });
+    };
+
     const handleSubmit = () => {
-        setError(null);
+        setErrors({});
+        setFormError(null);
         registerMutation.mutate({ email, username, password });
     };
+
+    const fieldClass = (field: string) =>
+        `px-3 py-2 text-sm border rounded focus:outline-none ${
+            errors[field]
+                ? 'border-red-400 focus:border-red-500'
+                : 'border-gray-200 focus:border-gray-400'
+        }`;
 
     return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4">
             <div className="flex flex-col gap-6 w-full max-w-sm p-8 border border-gray-200 rounded-lg">
                 <h1 className="text-2xl font-bold text-gray-900">Register</h1>
-                {error && (
-                    <p className="text-sm text-red-500">{error}</p>
+                {formError && (
+                    <p className="text-sm text-red-500">{formError}</p>
                 )}
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
@@ -49,10 +66,14 @@ const Register = () => {
                             id="email"
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => { setEmail(e.target.value); clearFieldError('Email'); }}
                             placeholder="Enter your email"
-                            className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
+                            aria-invalid={!!errors.Email}
+                            className={fieldClass('Email')}
                         />
+                        {errors.Email?.map((msg) => (
+                            <p key={msg} className="text-xs text-red-500">{msg}</p>
+                        ))}
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="username" className="text-sm font-medium text-gray-700">
@@ -62,10 +83,14 @@ const Register = () => {
                             id="username"
                             type="text"
                             value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            onChange={(e) => { setUsername(e.target.value); clearFieldError('Username'); }}
                             placeholder="Enter your username"
-                            className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
+                            aria-invalid={!!errors.Username}
+                            className={fieldClass('Username')}
                         />
+                        {errors.Username?.map((msg) => (
+                            <p key={msg} className="text-xs text-red-500">{msg}</p>
+                        ))}
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="password" className="text-sm font-medium text-gray-700">
@@ -75,10 +100,14 @@ const Register = () => {
                             id="password"
                             type="password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => { setPassword(e.target.value); clearFieldError('Password'); }}
                             placeholder="Enter your password"
-                            className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
+                            aria-invalid={!!errors.Password}
+                            className={fieldClass('Password')}
                         />
+                        {errors.Password?.map((msg) => (
+                            <p key={msg} className="text-xs text-red-500">{msg}</p>
+                        ))}
                     </div>
                     <button
                         onClick={handleSubmit}

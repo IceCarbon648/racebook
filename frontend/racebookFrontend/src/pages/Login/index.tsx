@@ -21,14 +21,11 @@ const Login = () => {
             setIsLoading(false);
         }
     };
-  
+
     return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4">
             <div className="flex flex-col gap-6 w-full max-w-sm p-8 border border-gray-200 rounded-lg">
                 <h1 className="text-2xl font-bold text-gray-900">Login</h1>
-                {error && (
-                    <p className="text-sm text-red-500">{error}</p>
-                )}
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -56,6 +53,9 @@ const Login = () => {
                             className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
                         />
                     </div>
+                    {error && (
+                        <p className="text-sm text-red-500">{error}</p>
+                    )}
                     <button
                         onClick={handleSubmit}
                         disabled={isLoading}
