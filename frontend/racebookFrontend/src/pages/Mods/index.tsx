@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllMods, addToFavourites, deleteFromFavourites } from '../../services';
 import type { Mod } from '../../types';
 import { ModCard, Dropdown } from '../../components';
@@ -9,32 +10,29 @@ const PAGE_SIZE = 16;
 
 const Mods = () => {
     const navigate = useNavigate();
-    const [mods, setMods] = useState<Mod[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
     const [search, setSearch] = useState('');
-    const [category, setCategory] = useState('All');
+    const [category, setCategory] = useState('ALL');
     const [order, setOrder] = useState<'newest' | 'oldest'>('newest');
     const [page, setPage] = useState(1);
 
-    useEffect(() => {
-        const fetchMods = async () => {
-            try {
-                const data = await getAllMods();
-                setMods(data);
-            } catch {
-                setError('Failed to load mods');
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    const { data: mods = [], isLoading, isError } = useQuery({
+        queryKey: ['mods'],
+        queryFn: getAllMods,
+    });
 
-        fetchMods();
-    }, []);
+    const favouriteMutation = useMutation({
+        mutationFn: ({ modId, isFavourite }: { modId: string; isFavourite: boolean }) =>
+            isFavourite ? deleteFromFavourites(modId) : addToFavourites(modId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['mods'] });
+            queryClient.invalidateQueries({ queryKey: ['favourites'] });
+        },
+    });
 
     const handleReset = () => {
         setSearch('');
-        setCategory('All');
+        setCategory('ALL');
         setOrder('newest');
         setPage(1);
     };
@@ -51,7 +49,7 @@ const Mods = () => {
             );
         }
 
-        if (category !== 'All') {
+        if (category !== 'ALL') {
             result = result.filter((m) => m.type === category);
         }
 
@@ -71,38 +69,15 @@ const Mods = () => {
         navigate(`/mods/${mod.modId}`, { state: { mod } });
     };
 
-    const handleFilterChange = (setter: (v: any) => void) => (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-        setter(e.target.value);
-        setPage(1);
-    };
-
-    const handleFavouriteClick = async (modId: string, isFavourite: boolean) => {
-        try {
-            if (isFavourite) {
-                await deleteFromFavourites(modId);
-            } else {
-                await addToFavourites(modId);
-            }
-
-            setMods((prev) => prev.map((m) =>
-                m.modId === modId
-                    ? { ...m, isFavourite: !isFavourite }
-                    : m
-            ));
-        } catch {
-            setError('Failed to update favourites');
-        }
-    };
-
     if (isLoading) return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
             <p className="text-gray-500">Loading mods...</p>
         </div>
     );
 
-    if (error) return (
+    if (isError) return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-red-500">{error}</p>
+            <p className="text-red-500">Failed to load mods</p>
         </div>
     );
 
@@ -114,7 +89,7 @@ const Mods = () => {
                 <input
                     type="text"
                     value={search}
-                    onChange={handleFilterChange(setSearch)}
+                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                     placeholder="Search by title or creator..."
                     className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
                 />
@@ -137,7 +112,7 @@ const Mods = () => {
             </div>
 
             {paginated.length === 0 ? (
-                <div className="flex items-center justify-center min-h-[200px]">
+                <div className="flex items-center justify-center min-h-50">
                     <p className="text-gray-500">No mods found</p>
                 </div>
             ) : (
@@ -151,7 +126,7 @@ const Mods = () => {
                             creator={mod.creator}
                             isFavourite={mod.isFavourite ?? undefined}
                             onClick={() => handleModClick(mod)}
-                            onFavourite={() => handleFavouriteClick(mod.modId, mod.isFavourite!)}
+                            onFavourite={() => favouriteMutation.mutate({ modId: mod.modId, isFavourite: mod.isFavourite! })}
                         />
                     ))}
                 </div>

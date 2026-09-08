@@ -1,29 +1,16 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { getFavourites } from '../../services';
 import { ModCard } from '../../components';
 import type { Mod } from '../../types';
 
 const Favourites = () => {
     const navigate = useNavigate();
-    const [favourites, setFavourites] = useState<Mod[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchFavourites = async () => {
-            try {
-                const data = await getFavourites();
-                setFavourites(data);
-            } catch {
-                setError('Failed to load favourites');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchFavourites();
-    }, []);
+    const { data: favourites = [], isLoading, isError } = useQuery({
+        queryKey: ['favourites'],
+        queryFn: getFavourites,
+    });
 
     const handleModClick = (mod: Mod) => {
         navigate(`/mods/${mod.modId}`, { state: { mod } });
@@ -35,9 +22,9 @@ const Favourites = () => {
         </div>
     );
 
-    if (error) return (
+    if (isError) return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-red-500">{error}</p>
+            <p className="text-red-500">Failed to load favourites</p>
         </div>
     );
 
@@ -58,7 +45,6 @@ const Favourites = () => {
                         type={mod.type}
                         imageUrl={mod.previewImageUrl}
                         creator={mod.creator}
-                        isFavourite={mod.isFavourite ?? undefined}
                         onClick={() => handleModClick(mod)}
                     />
                 ))}

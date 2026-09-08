@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import { register } from '../../services';
 
 const Register = () => {
@@ -8,25 +9,28 @@ const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async () => {
+    const registerMutation = useMutation({
+        mutationFn: register,
+        onSuccess: () => navigate('/login'),
+        onError: (err: any) => {
+            const data = err?.response?.data;
+            const fieldErrors = data?.errors
+                ? Object.values(data.errors).flat().join(' ')
+                : null;
+
+            setError(
+                fieldErrors
+                ?? data?.message
+                ?? data?.detail
+                ?? 'Something went wrong, please try again'
+            );
+        },
+    });
+
+    const handleSubmit = () => {
         setError(null);
-        setIsLoading(true);
-
-        try {
-            const success = await register({ email, username, password });
-
-            if (success) {
-                navigate('/login');
-            } else {
-                setError('Email already in use');
-            }
-        } catch {
-            setError('Something went wrong, please try again');
-        } finally {
-            setIsLoading(false);
-        }
+        registerMutation.mutate({ email, username, password });
     };
 
     return (
@@ -78,10 +82,10 @@ const Register = () => {
                     </div>
                     <button
                         onClick={handleSubmit}
-                        disabled={isLoading}
+                        disabled={registerMutation.isPending}
                         className="mt-2 px-4 py-2 text-sm font-medium border border-gray-900 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isLoading ? 'Registering...' : 'Register'}
+                        {registerMutation.isPending ? 'Registering...' : 'Register'}
                     </button>
                 </div>
                 <p className="text-sm text-center text-gray-500">

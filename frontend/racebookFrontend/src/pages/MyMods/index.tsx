@@ -1,30 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { uploadMod, editMod, deleteMod, getMyMods } from '../../services';
 import { ModCard, ModModal } from '../../components';
 import type { MyMod } from '../../types';
 
 const MyMods = () => {
-    const [mods, setMods] = useState<MyMod[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'upload' | 'edit'>('upload');
     const [selectedMod, setSelectedMod] = useState<MyMod | null>(null);
 
-    useEffect(() => {
-        fetchMods();
-    }, []);
+    const { data: mods = [], isLoading, isError } = useQuery({
+        queryKey: ['myMods'],
+        queryFn: getMyMods,
+    });
 
-    const fetchMods = async () => {
-        try {
-            const data = await getMyMods();
-            setMods(data);
-        } catch {
-            setError('Failed to load mods');
-        } finally {
-            setIsLoading(false);
-        }
+    const invalidate = () => {
+        queryClient.invalidateQueries({ queryKey: ['myMods'] });
+        queryClient.invalidateQueries({ queryKey: ['mods'] });
     };
+
+    const uploadMutation = useMutation({
+        mutationFn: uploadMod,
+        onSuccess: invalidate,
+    });
+
+    const editMutation = useMutation({
+        mutationFn: ({ modId, formData }: { modId: string; formData: FormData }) =>
+            editMod(modId, formData),
+        onSuccess: invalidate,
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: deleteMod,
+        onSuccess: invalidate,
+    });
 
     const handleUploadClick = () => {
         setSelectedMod(null);
@@ -38,16 +48,11 @@ const MyMods = () => {
         setIsModalOpen(true);
     };
 
-    const handleDeleteClick = async (modId: string) => {
+    const handleDeleteClick = (modId: string) => {
         const confirmed = window.confirm('Are you sure you want to delete this mod?');
         if (!confirmed) return;
 
-        try {
-            await deleteMod(modId);
-            setMods((prev) => prev.filter((m) => m.modId !== modId));
-        } catch {
-            setError('Failed to delete mod');
-        }
+        deleteMutation.mutate(modId);
     };
 
     const handleModalClose = () => {
@@ -57,11 +62,9 @@ const MyMods = () => {
 
     const handleModalSubmit = async (formData: FormData) => {
         if (modalMode === 'upload') {
-            await uploadMod(formData);
-            await fetchMods();
+            await uploadMutation.mutateAsync(formData);
         } else if (selectedMod) {
-            await editMod(selectedMod.modId, formData);
-            await fetchMods();
+            await editMutation.mutateAsync({ modId: selectedMod.modId, formData });
         }
     };
 
@@ -71,9 +74,9 @@ const MyMods = () => {
         </div>
     );
 
-    if (error) return (
+    if (isError) return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-red-500">{error}</p>
+            <p className="text-red-500">Failed to load mods</p>
         </div>
     );
 
@@ -89,7 +92,7 @@ const MyMods = () => {
                 </button>
             </div>
             {mods.length === 0 ? (
-                <div className="flex items-center justify-center min-h-[200px]">
+                <div className="flex items-center justify-center min-h-50">
                     <p className="text-gray-500">You haven't uploaded any mods yet</p>
                 </div>
             ) : (
