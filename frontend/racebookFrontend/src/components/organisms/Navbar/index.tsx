@@ -7,13 +7,13 @@ const Navbar = () => {
     const { user, isAuthenticated, logout } = useAuth();
 
     return (
-        <nav className="flex flex-row items-center justify-around px-6 h-16 border-b border-gray-200">
-            <div className="flex flex-row">
+        <nav className="flex flex-row items-center justify-around px-6 h-16  border border-amber-400">
+            <div className="flex flex-row border border-amber-400">
                 <Link to="/">
                     <img src={racebookLogo} alt="Racebook logo" className="h-8 w-auto" />
                 </Link>
             </div>
-            <div className="flex flex-row gap-8">
+            <div className="flex gap-8 border border-amber-400">
                 <Link to="/" className="text-sm font-medium hover:text-gray-600">
                     Home
                 </Link>
@@ -21,17 +21,17 @@ const Navbar = () => {
                     Mods
                 </Link>
                 {isAuthenticated && (
-                    <div className="flex flex-row gap-8">
+                    <>
                         <Link to="/my-mods" className="text-sm font-medium hover:text-gray-600">
                             My Mods
                         </Link>
                         <Link to="/favourites" className="text-sm font-medium hover:text-gray-600">
                             <SlotMachineText text="Favourites" />
                         </Link>
-                    </ div>
+                    </>
                 )}
             </div>
-            <div className="flex flex-row gap-4">
+            <div className="flex gap-4  border border-amber-400">
                 {isAuthenticated ? (
                     <div className="relative group">
                         <span className="text-sm font-medium cursor-pointer">

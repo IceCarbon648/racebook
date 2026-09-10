@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllMods, addToFavourites, deleteFromFavourites } from '../../services';
 import type { Mod } from '../../types';
-import { ModCard, Dropdown } from '../../components';
+import { ModCard } from '../../components';
+import { ModFilters } from '../../components/molecules';
 
-const CATEGORIES = ['ALL', 'VEHICLE', 'ENVIRONMENT', 'UI', 'PACK', 'MISC'];
 const PAGE_SIZE = 16;
 
 const Mods = () => {
@@ -85,31 +85,15 @@ const Mods = () => {
         <div className="px-6 py-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Mods</h1>
 
-            <div className="flex items-center gap-3 mb-6">
-                <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                    placeholder="Search by title or creator..."
-                    className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
-                />
-                <Dropdown
-                    value={category}
-                    options={CATEGORIES}
-                    onChange={(v) => { setCategory(v); setPage(1); }}
-                />
-                <Dropdown
-                    value={order === 'newest' ? 'Newest first' : 'Oldest first'}
-                    options={['Newest first', 'Oldest first']}
-                    onChange={(v) => { setOrder(v === 'Newest first' ? 'newest' : 'oldest'); setPage(1); }}
-                />
-                <button
-                    onClick={handleReset}
-                    className="px-4 py-2 text-sm font-medium border border-gray-200 rounded hover:bg-gray-50"
-                >
-                    Reset
-                </button>
-            </div>
+            <ModFilters
+                search={search}
+                category={category}
+                order={order}
+                onSearchChange={(v) => { setSearch(v); setPage(1); }}
+                onCategoryChange={(v) => { setCategory(v); setPage(1); }}
+                onOrderChange={(v) => { setOrder(v); setPage(1); }}
+                onReset={handleReset}
+            />
 
             {paginated.length === 0 ? (
                 <div className="flex items-center justify-center min-h-50">
