@@ -7,13 +7,13 @@ const Navbar = () => {
     const { user, isAuthenticated, logout } = useAuth();
 
     return (
-        <nav className="flex flex-row items-center justify-around px-6 h-16  border border-amber-400">
-            <div className="flex flex-row border border-amber-400">
+        <nav className="flex flex-row items-center justify-around h-16">
+            <div className="flex items-center justify-center flex-row h-full w-1/3">
                 <Link to="/">
                     <img src={racebookLogo} alt="Racebook logo" className="h-8 w-auto" />
                 </Link>
             </div>
-            <div className="flex gap-8 border border-amber-400">
+            <div className="flex items-center justify-center gap-8 h-full w-1/3">
                 <Link to="/" className="text-sm font-medium hover:text-gray-600">
                     Home
                 </Link>
@@ -31,7 +31,7 @@ const Navbar = () => {
                     </>
                 )}
             </div>
-            <div className="flex gap-4  border border-amber-400">
+            <div className="flex items-center justify-center gap-4 h-full w-1/3">
                 {isAuthenticated ? (
                     <div className="relative group">
                         <span className="text-sm font-medium cursor-pointer">
