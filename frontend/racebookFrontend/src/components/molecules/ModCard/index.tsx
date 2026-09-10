@@ -1,27 +1,55 @@
-import { useState } from 'react';
 import { card_accent } from '../../../assets';
 import { NEON } from '../../../constants/theme';
 import type { ModCardProps } from './index.types';
-import { Tilt } from '@gfazioli/react-tilt';
+import { Tilt, useTiltContext } from '@gfazioli/react-tilt';
 
 const cardShape = "M 0,0 L 255,0 L 255,215 L 247,223 L 159,223 L 127,255 L 16,255 L 0,239 Z";
 const favouriteIconShape = "M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.7z";
+
+const CardGlow = () => {
+    const { isHovering } = useTiltContext();
+
+    const blur = isHovering ? NEON.glowBlurSelected : NEON.glowBlur;
+    const border = isHovering ? NEON.borderSelected : NEON.borderColour;
+
+    return (
+        <svg
+            className="pointer-events-none absolute -inset-6 h-[calc(100%+3rem)] w-[calc(100%+3rem)] -z-10"
+            viewBox="-24 -24 304 304"
+            preserveAspectRatio="none"
+        >
+            <defs>
+                <filter id="cardGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation={blur} />
+                </filter>
+            </defs>
+
+            <path
+                d={cardShape}
+                fill="none"
+                stroke={NEON.glowColour}
+                strokeWidth={blur}
+                filter="url(#cardGlow)"
+            />
+
+            <path
+                d={cardShape}
+                fill={NEON.fill}
+                fillOpacity={NEON.fillOpacity}
+                stroke={border}
+                strokeWidth={NEON.borderWidth}
+                strokeLinejoin="round"
+            />
+        </svg>
+    );
+};
 
 const ModCard = ({
     title, type, imageUrl, creator, isFavourite,
     onClick, onEdit, onDelete, onFavourite
 }: ModCardProps) => {
-    const [hovered, setHovered] = useState(false);
-
-    const blur = hovered ? NEON.glowBlurSelected : NEON.glowBlur;
-    const border = hovered ? NEON.borderSelected : NEON.borderColour;
-
     return (
-        <div
-            className="relative h-64 w-64 text-left"
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-        >
+        <div className="relative h-64 w-64 text-left">
             <Tilt threshold={15} hoverScale={1.08}>
                 <Tilt.Layer depth={-0.75}>
                     <img src={card_accent} alt="" className="absolute right-5 top-45 w-24 h-6 opacity-15" />
@@ -89,34 +117,7 @@ const ModCard = ({
                         </div>
                     )}
 
-                    <svg
-                        className="pointer-events-none absolute -inset-6 h-[calc(100%+3rem)] w-[calc(100%+3rem)] -z-10"
-                        viewBox="-24 -24 304 304"
-                        preserveAspectRatio="none"
-                    >
-                        <defs>
-                            <filter id="cardGlow" x="-50%" y="-50%" width="200%" height="200%">
-                                <feGaussianBlur stdDeviation={blur} />
-                            </filter>
-                        </defs>
-
-                        <path
-                            d={cardShape}
-                            fill="none"
-                            stroke={NEON.glowColour}
-                            strokeWidth={blur}
-                            filter="url(#cardGlow)"
-                        />
-
-                        <path
-                            d={cardShape}
-                            fill={NEON.fill}
-                            fillOpacity={NEON.fillOpacity}
-                            stroke={border}
-                            strokeWidth={NEON.borderWidth}
-                            strokeLinejoin="round"
-                        />
-                    </svg>
+                    <CardGlow />
                 </div>
             </Tilt>
         </div>
