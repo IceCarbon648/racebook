@@ -96,7 +96,7 @@ const MyMods = () => {
                     <p className="text-gray-500">You haven't uploaded any mods yet</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
+                <div className="grid grid-cols-4 gap-6">
                     {mods.map((mod) => (
                         <ModCard
                             key={mod.modId}
