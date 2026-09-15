@@ -4,9 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllMods, addToFavourites, deleteFromFavourites } from '../../services';
 import type { Mod } from '../../types';
 import { ModCard } from '../../components';
-import { ModFilters } from '../../components/molecules';
-
-const PAGE_SIZE = 16;
+import { ModFilters, Pagination } from '../../components/molecules';
+import { PAGE_SIZE } from '../../constants/pagination';
 
 const Mods = () => {
     const navigate = useNavigate();
@@ -65,6 +64,8 @@ const Mods = () => {
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
     const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
+    if (page > totalPages && totalPages > 0) setPage(totalPages);
+
     const handleModClick = (mod: Mod) => {
         navigate(`/mods/${mod.modId}`, { state: { mod } });
     };
@@ -116,36 +117,7 @@ const Mods = () => {
                 </div>
             )}
 
-            {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-8">
-                    <button
-                        onClick={() => setPage((p) => p - 1)}
-                        disabled={page === 1}
-                        className="px-3 py-1.5 text-sm border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Previous
-                    </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                        <button
-                            key={p}
-                            onClick={() => setPage(p)}
-                            className={`px-3 py-1.5 text-sm border rounded ${page === p
-                                ? 'border-gray-900 bg-gray-900 text-white'
-                                : 'border-gray-200 hover:bg-gray-50'
-                                }`}
-                        >
-                            {p}
-                        </button>
-                    ))}
-                    <button
-                        onClick={() => setPage((p) => p + 1)}
-                        disabled={page === totalPages}
-                        className="px-3 py-1.5 text-sm border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Next
-                    </button>
-                </div>
-            )}
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
     );
 };
