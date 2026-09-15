@@ -1,12 +1,6 @@
 import { useEffect } from 'react';
 import fluidCursor from '../../../hooks/useFluidCursor';
-
-interface FluidRevealProps {
-    revealSrc: string;
-    baseSrc: string;
-    depthSrc: string;
-    parallax: number;
-}
+import type { FluidRevealProps } from './index.types';
 
 const FluidReveal = ({ revealSrc, baseSrc, depthSrc,  parallax = 0.03 }: FluidRevealProps) => {
     useEffect(() => {

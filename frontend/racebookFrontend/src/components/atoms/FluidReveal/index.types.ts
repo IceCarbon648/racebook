@@ -1,4 +1,6 @@
-export interface FluidCursorProps {
-    revealImageSrc: string;
-    backgroundImageSrc: string;
+export interface FluidRevealProps {
+    revealSrc: string;
+    baseSrc: string;
+    depthSrc: string;
+    parallax: number;
 }

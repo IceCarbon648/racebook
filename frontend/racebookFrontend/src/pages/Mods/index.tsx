@@ -6,6 +6,7 @@ import type { Mod } from '../../types';
 import { ModCard } from '../../components';
 import { ModFilters, Pagination } from '../../components/molecules';
 import { PAGE_SIZE } from '../../constants/pagination';
+import Background from '../../components/molecules/Background/Index';
 
 const Mods = () => {
     const navigate = useNavigate();
@@ -84,6 +85,7 @@ const Mods = () => {
 
     return (
         <div className="px-6 py-8">
+            <Background reveal={false} />
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Mods</h1>
 
             <ModFilters
