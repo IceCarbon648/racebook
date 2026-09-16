@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts';
+import { FORM_SHAPE, FORM_ACCENT_TOP, FORM_ACCENT_BOTTOM } from '../../constants/customDivs';
+import { ACCENT } from '../../constants/theme';
+import Background from '../../components/molecules/Background/Index';
 
 const Login = () => {
     const { login } = useAuth();
@@ -23,12 +26,23 @@ const Login = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4">
-            <div className="flex flex-col gap-6 w-full max-w-sm p-8 border border-gray-200 rounded-lg">
-                <h1 className="text-2xl font-bold text-gray-900">Login</h1>
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4 border border-green-500">
+            <Background reveal={false}/>
+            <div className="relative flex flex-col gap-6 w-full max-w-sm p-10">
+                <svg
+                    className="pointer-events-none absolute inset-0 h-[683px] max-w-sm -z-10"
+                    viewBox="0 0 512 910"
+                    preserveAspectRatio="none"
+                >
+                    <path d={FORM_SHAPE} fill="#333333" fillOpacity={0.65} />
+                    <path d={FORM_ACCENT_TOP} fill={ACCENT} />
+                    <path d={FORM_ACCENT_BOTTOM} fill={ACCENT} />
+                </svg>
+
+                <h1 className="text-2xl font-bold text-white">Login</h1>
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
-                        <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                        <label htmlFor="email" className="text-sm font-medium text-gray-300">
                             Email
                         </label>
                         <input
@@ -41,7 +55,7 @@ const Login = () => {
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <label htmlFor="password" className="text-sm font-medium text-gray-700">
+                        <label htmlFor="password" className="text-sm font-medium text-gray-300">
                             Password
                         </label>
                         <input
@@ -64,9 +78,9 @@ const Login = () => {
                         {isLoading ? 'Logging in...' : 'Login'}
                     </button>
                 </div>
-                <p className="text-sm text-center text-gray-500">
+                <p className="text-sm text-center text-gray-400">
                     Don't have an account?{' '}
-                    <Link to="/register" className="font-medium text-gray-900 hover:underline">
+                    <Link to="/register" className="font-medium text-white hover:underline">
                         Register
                     </Link>
                 </p>

@@ -8,3 +8,5 @@ export const NEON = {
     borderSelected: '#cc33cc',
     glowBlurSelected: 4.5
 } as const;
+
+export const ACCENT = '#3196FE';

@@ -21,12 +21,12 @@ export const backgrounds: Background[] = [
         original: bgOneOriginal,
         tinted: bgOneTinted,
         depthMap: bgOneDepthMap
-    }/*,
+    },
     {
         original: bgTwoOriginal,
         tinted: bgTwoTinted,
         depthMap: bgTwoDepthMap
-    }*/
+    }
 ];
 
 export { racebookLogo, favourite, card_accent };

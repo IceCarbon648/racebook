@@ -2,8 +2,8 @@ import { card_accent } from '../../../assets';
 import { NEON } from '../../../constants/theme';
 import type { ModCardProps } from './index.types';
 import { Tilt, useTiltContext } from '@gfazioli/react-tilt';
+import { MOD_CARD } from '../../../constants/customDivs';
 
-const cardShape = "M 0,0 L 255,0 L 255,215 L 247,223 L 159,223 L 127,255 L 16,255 L 0,239 Z";
 const favouriteIconShape = "M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.7z";
 
 const CardGlow = () => {
@@ -25,7 +25,7 @@ const CardGlow = () => {
             </defs>
 
             <path
-                d={cardShape}
+                d={MOD_CARD}
                 fill="none"
                 stroke={NEON.glowColour}
                 strokeWidth={blur}
@@ -33,7 +33,7 @@ const CardGlow = () => {
             />
 
             <path
-                d={cardShape}
+                d={MOD_CARD}
                 fill={NEON.fill}
                 fillOpacity={NEON.fillOpacity}
                 stroke={border}
