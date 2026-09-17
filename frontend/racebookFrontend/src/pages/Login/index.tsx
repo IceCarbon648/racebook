@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts';
-import { FORM_SHAPE, FORM_ACCENT_TOP, FORM_ACCENT_BOTTOM } from '../../constants/customDivs';
-import { ACCENT } from '../../constants/theme';
 import Background from '../../components/molecules/Background/Index';
+import FormPanel from '../../components/molecules/FormPanel';
 
 const Login = () => {
     const { login } = useAuth();
@@ -26,23 +25,16 @@ const Login = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4 border border-green-500">
-            <Background reveal={false}/>
-            <div className="relative flex flex-col gap-6 w-full max-w-sm p-10">
-                <svg
-                    className="pointer-events-none absolute inset-0 h-[683px] max-w-sm -z-10"
-                    viewBox="0 0 512 910"
-                    preserveAspectRatio="none"
-                >
-                    <path d={FORM_SHAPE} fill="#333333" fillOpacity={0.65} />
-                    <path d={FORM_ACCENT_TOP} fill={ACCENT} />
-                    <path d={FORM_ACCENT_BOTTOM} fill={ACCENT} />
-                </svg>
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+            <Background reveal={true}/>
+            {/*<div className="relative flex flex-col gap-6 w-full h-150 max-w-sm p-10">*/}
+            <FormPanel>
+                <h1 className="flex justify-center text-[46px] font-bold text-white pt-12">Login</h1>
 
-                <h1 className="text-2xl font-bold text-white">Login</h1>
-                <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1.5">
-                        <label htmlFor="email" className="text-sm font-medium text-gray-300">
+                <div className="flex flex-col gap-18">
+                    <div className="flex flex-col gap-8">
+                        <div className="flex flex-col gap-1.5">
+                        <label htmlFor="email" className="flex justify-start font-medium text-white">
                             Email
                         </label>
                         <input
@@ -51,11 +43,11 @@ const Login = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Enter your email"
-                            className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
+                            className="px-3 py-2 bg-black/50 text-sm text-gray-300 border border-gray-400 rounded focus:outline-none focus:border-gray-200"
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <label htmlFor="password" className="text-sm font-medium text-gray-300">
+                        <label htmlFor="password" className="flex justify-start font-medium text-white">
                             Password
                         </label>
                         <input
@@ -64,27 +56,33 @@ const Login = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Enter your password"
-                            className="px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-400"
+                            className="px-3 py-2 bg-black/50 text-sm text-gray-300 border border-gray-400 rounded focus:outline-none focus:border-gray-200"
                         />
                     </div>
                     {error && (
                         <p className="text-sm text-red-500">{error}</p>
                     )}
-                    <button
-                        onClick={handleSubmit}
-                        disabled={isLoading}
-                        className="mt-2 px-4 py-2 text-sm font-medium border border-gray-900 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isLoading ? 'Logging in...' : 'Login'}
-                    </button>
+                    </div>
+                    <div>
+                        <button
+                            onClick={handleSubmit}
+                            disabled={isLoading}
+                            className="justify-center px-4 py-2 w-1/2 bg-[#930093] hover:bg-[#600060] text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isLoading ? 'LOGGING IN...' : 'LOGIN'}
+                        </button>
+                    </div>
                 </div>
-                <p className="text-sm text-center text-gray-400">
+                <div className="flex h-full pb-18">
+                    <p className="flex items-end justify-center w-full gap-4 text-sm text-center text-gray-400">
                     Don't have an account?{' '}
-                    <Link to="/register" className="font-medium text-white hover:underline">
+                    <Link to="/register" className="font-medium text-blue-400 underline cursor-pointer">
                         Register
                     </Link>
                 </p>
-            </div>
+                </div>
+            </FormPanel>
+            {/*</div>*/}
         </div>
     );
 };
