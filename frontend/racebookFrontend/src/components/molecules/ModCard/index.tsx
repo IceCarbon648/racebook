@@ -3,6 +3,7 @@ import { NEON } from '../../../constants/theme';
 import type { ModCardProps } from './index.types';
 import { Tilt, useTiltContext } from '@gfazioli/react-tilt';
 import { MOD_CARD } from '../../../constants/customDivs';
+import { useEffect, useState } from 'react';
 
 const favouriteIconShape = "M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.7z";
 
@@ -44,13 +45,35 @@ const CardGlow = () => {
     );
 };
 
+const HoverBridge = ({ onChange }: { onChange: (v: boolean) => void }) => {
+    const { isHovering } = useTiltContext();
+
+    useEffect(() => {
+        onChange(isHovering);
+    }, [isHovering, onChange]);
+
+    return null;
+};
+
 const ModCard = ({
     title, type, imageUrl, creator, isFavourite,
     onClick, onEdit, onDelete, onFavourite
 }: ModCardProps) => {
+    const [hovered, setHovered] = useState(false);
     return (
         <div className="relative h-64 w-64 text-left">
+
+            <div
+                className="pointer-events-none absolute inset-0 backdrop-blur-[3px] transition-transform duration-300"
+                style={{
+                    clipPath: `path('${MOD_CARD}')`,
+                    WebkitClipPath: `path('${MOD_CARD}')`,
+                    transform: hovered ? 'scale(1.08)' : 'scale(1)',
+                }}
+            />
+
             <Tilt threshold={15} hoverScale={1.08}>
+                <HoverBridge onChange={setHovered} />
                 <Tilt.Layer depth={0}>
                     <img src={card_accent} alt="" className="absolute right-5 top-42 w-24 h-6 opacity-7" />
                 </Tilt.Layer>
@@ -119,7 +142,7 @@ const ModCard = ({
                             </button>
                         </div>
                     )}
-
+                    
                     <CardGlow />
                 </div>
             </Tilt>
