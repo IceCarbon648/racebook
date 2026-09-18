@@ -4,7 +4,7 @@ import type { FormPanelProps } from './index.types';
 
 const FormPanel = ({ children, className = '' }: FormPanelProps) => {
     return (
-        <div className={`relative isolate w-[512px] max-w-sm ${className}`}>
+        <div className={`relative isolate w-[512px] max-w-sm h-150`}>
             <div
                 className="pointer-events-none absolute inset-0 -z-10 backdrop-blur-[3px]"
                 style={{
@@ -23,8 +23,8 @@ const FormPanel = ({ children, className = '' }: FormPanelProps) => {
                 <path d={FORM_ACCENT_BOTTOM} fill={ACCENT} />
             </svg>
 
-            <div className="relative w-full h-150 max-w-sm overflow-y-auto">
-                <div className="h-full w-full flex flex-col justify-start pl-10 pr-10 gap-12">
+            <div className="absolute inset-x-0 top-7 bottom-7 overflow-y-auto px-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className={`${className}`}>
                     {children}
                 </div>
             </div>

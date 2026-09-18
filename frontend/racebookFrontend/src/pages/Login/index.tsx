@@ -28,8 +28,8 @@ const Login = () => {
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
             <Background reveal={true}/>
             {/*<div className="relative flex flex-col gap-6 w-full h-150 max-w-sm p-10">*/}
-            <FormPanel>
-                <h1 className="flex justify-center text-[46px] font-bold text-white pt-12">Login</h1>
+            <FormPanel className="min-h-full w-full flex flex-col justify-start gap-12">
+                <h1 className="flex justify-center text-[46px] font-bold text-white pt-4">Login</h1>
 
                 <div className="flex flex-col gap-18">
                     <div className="flex flex-col gap-8">
