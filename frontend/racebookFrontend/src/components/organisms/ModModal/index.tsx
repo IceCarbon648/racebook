@@ -76,7 +76,7 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
             onClick={onClose}
         >
             <div onClick={(e) => e.stopPropagation()}>
-                <FormPanel className="min-h-full w-full flex flex-col justify-start gap-8">
+                <FormPanel className="min-h-full w-full flex flex-col justify-start gap-2">
                     <div className="flex justify-between pt-4">
                         <div className="flex w-1/4 "></div>
                         <h2 className="flex w-1/2 justify-center text-2xl font-bold text-white">
@@ -139,9 +139,9 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                             />
                         </div>
 
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-4">
                             <FilePicker
-                                className="w-1/3"
+                                className="w-1/2"
                                 id="modFile"
                                 label="Mod File"
                                 accept=".tpf"
@@ -150,7 +150,7 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                                 onChange={setModFile}
                             />
                             <FilePicker
-                                className="w-1/3"
+                                className="w-1/2"
                                 id="previewImage"
                                 label="Preview Image"
                                 accept=".png,.jpg,.jpeg"
@@ -161,17 +161,17 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                         </div>
                     </div>
 
-                    <div className="flex justify-center gap-4">
+                    <div className="flex justify-center gap-4 pt-10">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 text-sm font-medium border border-gray-400 text-gray-300 rounded hover:bg-white/10 cursor-pointer"
+                            className="w-1/2 px-4 py-2 text-sm font-medium border border-gray-400 text-gray-300 rounded hover:bg-white/10 cursor-pointer"
                         >
                             CANCEL
                         </button>
                         <button
                             onClick={handleSubmit}
                             disabled={isLoading}
-                            className="px-4 py-2 bg-[#930093] hover:bg-[#600060] text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            className="w-1/2 px-4 py-2 bg-[#930093] hover:bg-[#600060] text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                             {isLoading ? 'SAVING...' : mode === 'upload' ? 'UPLOAD' : 'SAVE CHANGES'}
                         </button>
