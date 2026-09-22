@@ -73,7 +73,7 @@ const Login = () => {
                         </button>
                     </div>
                 </div>
-                <div className="flex h-full pb-18">
+                <div className="flex h-full">
                     <p className="flex items-end justify-center w-full gap-4 text-sm text-center text-gray-400">
                     Don't have an account?{' '}
                     <Link to="/register" className="font-medium text-blue-400 underline cursor-pointer">

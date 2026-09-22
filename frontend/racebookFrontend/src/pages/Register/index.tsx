@@ -155,7 +155,7 @@ const Register = () => {
                     </div>
                 </div>
 
-                <div className="flex h-full pb-12">
+                <div className="flex h-full">
                     <p className="flex items-end justify-center w-full gap-4 text-sm text-center text-gray-400">
                         Already have an account?{' '}
                         <Link to="/login" className="font-medium text-blue-400 underline cursor-pointer">
