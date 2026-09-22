@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import FormPanel from '../../molecules/FormPanel';
 import { CATEGORIES } from '../../../constants/categories';
+import { FilePicker } from '../../atoms';
 import type { ModModalProps } from './index.types';
 
 const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
@@ -71,18 +72,19 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
 
     return (
         <div
-            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
             onClick={onClose}
         >
             <div onClick={(e) => e.stopPropagation()}>
-                <FormPanel>
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-bold text-white">
+                <FormPanel className="min-h-full w-full flex flex-col justify-start gap-8">
+                    <div className="flex justify-between pt-4">
+                        <div className="flex w-1/4 "></div>
+                        <h2 className="flex w-1/2 justify-center text-2xl font-bold text-white">
                             {mode === 'upload' ? 'Upload Mod' : 'Edit Mod'}
                         </h2>
                         <button
                             onClick={onClose}
-                            className="text-gray-400 hover:text-white text-xl cursor-pointer"
+                            className="flex w-1/4 justify-end items-center text-gray-400 hover:text-white text-xl cursor-pointer"
                             aria-label="Close"
                         >
                             ✕
@@ -137,40 +139,29 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                             />
                         </div>
 
-                        <div className="flex flex-col gap-1.5">
-                            <label htmlFor="modFile" className="flex justify-start font-medium text-white">
-                                Mod File{' '}
-                                {mode === 'edit' && (
-                                    <span className="text-xs text-gray-400 font-normal ml-1">(optional)</span>
-                                )}
-                            </label>
-                            <input
+                        <div className="flex justify-between">
+                            <FilePicker
+                                className="w-1/3"
                                 id="modFile"
-                                type="file"
+                                label="Mod File"
                                 accept=".tpf"
-                                onChange={(e) => setModFile(e.target.files?.[0] ?? null)}
-                                className="text-sm text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:border file:border-gray-400 file:rounded file:text-xs file:font-medium file:bg-black/50 file:text-gray-300 hover:file:bg-black/70"
+                                file={modFile}
+                                optional={mode === 'edit'}
+                                onChange={setModFile}
                             />
-                        </div>
-
-                        <div className="flex flex-col gap-1.5">
-                            <label htmlFor="previewImage" className="flex justify-start font-medium text-white">
-                                Preview Image{' '}
-                                {mode === 'edit' && (
-                                    <span className="text-xs text-gray-400 font-normal ml-1">(optional)</span>
-                                )}
-                            </label>
-                            <input
+                            <FilePicker
+                                className="w-1/3"
                                 id="previewImage"
-                                type="file"
+                                label="Preview Image"
                                 accept=".png,.jpg,.jpeg"
-                                onChange={(e) => setPreviewImage(e.target.files?.[0] ?? null)}
-                                className="text-sm text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:border file:border-gray-400 file:rounded file:text-xs file:font-medium file:bg-black/50 file:text-gray-300 hover:file:bg-black/70"
+                                file={previewImage}
+                                optional={mode === 'edit'}
+                                onChange={setPreviewImage}
                             />
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-3">
+                    <div className="flex justify-center gap-4">
                         <button
                             onClick={onClose}
                             className="px-4 py-2 text-sm font-medium border border-gray-400 text-gray-300 rounded hover:bg-white/10 cursor-pointer"
