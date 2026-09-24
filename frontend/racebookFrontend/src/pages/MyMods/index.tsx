@@ -4,6 +4,7 @@ import { uploadMod, editMod, deleteMod, getMyMods } from '../../services';
 import { ModCard, ModModal, Pagination } from '../../components';
 import type { MyMod } from '../../types';
 import { PAGE_SIZE } from '../../constants/pagination';
+import Background from '../../components/molecules/Background/Index';
 
 const MyMods = () => {
     const queryClient = useQueryClient();
@@ -91,6 +92,7 @@ const MyMods = () => {
 
     return (
         <div className="px-6 py-8">
+            <Background reveal={false} />
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold text-gray-900">My Mods</h1>
                 <button

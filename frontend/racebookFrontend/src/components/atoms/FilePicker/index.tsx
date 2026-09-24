@@ -13,9 +13,9 @@ const FilePicker = ({ className, id, label, accept, file, optional, onChange }: 
         <div className={`flex flex-col gap-1.5 ${className}`}>
             <span className="flex justify-start font-medium text-white">
                 {label}
-                {optional && (
+                {/*{optional && (
                     <span className="text-xs text-gray-400 font-normal ml-1 self-center">(optional)</span>
-                )}
+                )}*/}
             </span>
 
             <label
