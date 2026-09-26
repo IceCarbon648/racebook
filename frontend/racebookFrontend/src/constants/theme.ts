@@ -10,3 +10,5 @@ export const NEON = {
 } as const;
 
 export const ACCENT = '#3196FE';
+export const PRIMARY_BUTTON_COLOUR = '#930093';
+export const PRIMARY_BUTTON_HOVER_COLOUR = '#600060';

@@ -5,6 +5,7 @@ import { ModCard, ModModal, Pagination } from '../../components';
 import type { MyMod } from '../../types';
 import { PAGE_SIZE } from '../../constants/pagination';
 import Background from '../../components/molecules/Background/Index';
+import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 
 const MyMods = () => {
     const queryClient = useQueryClient();
@@ -97,7 +98,7 @@ const MyMods = () => {
                 <h1 className="text-2xl font-bold text-gray-900">My Mods</h1>
                 <button
                     onClick={handleUploadClick}
-                    className="px-4 py-2 text-sm font-medium border border-gray-900 rounded hover:bg-gray-50"
+                    className={`px-4 py-2 bg-[${PRIMARY_BUTTON_COLOUR}] hover:bg-[${PRIMARY_BUTTON_HOVER_COLOUR}] text-sm text-white rounded`}
                 >
                     Upload Mod
                 </button>

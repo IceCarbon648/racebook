@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { register } from '../../services';
 import Background from '../../components/molecules/Background/Index';
 import FormPanel from '../../components/molecules/FormPanel';
+import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -148,7 +149,7 @@ const Register = () => {
                         <button
                             onClick={handleSubmit}
                             disabled={registerMutation.isPending}
-                            className="justify-center px-4 py-2 w-1/2 bg-[#930093] hover:bg-[#600060] text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`justify-center px-4 py-2 w-1/2 bg-[${PRIMARY_BUTTON_COLOUR}] hover:bg-[${PRIMARY_BUTTON_HOVER_COLOUR}] text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed`}
                         >
                             {registerMutation.isPending ? 'REGISTERING...' : 'REGISTER'}
                         </button>

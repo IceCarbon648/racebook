@@ -3,6 +3,7 @@ import FormPanel from '../../molecules/FormPanel';
 import { CATEGORIES } from '../../../constants/categories';
 import { FilePicker } from '../../atoms';
 import type { ModModalProps } from './index.types';
+import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../../constants/theme';
 
 const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
     const [title, setTitle] = useState('');
@@ -171,7 +172,7 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                         <button
                             onClick={handleSubmit}
                             disabled={isLoading}
-                            className="w-1/2 px-4 py-2 bg-[#930093] hover:bg-[#600060] text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            className={`w-1/2 px-4 py-2 bg-[${PRIMARY_BUTTON_COLOUR}] hover:bg-[${PRIMARY_BUTTON_HOVER_COLOUR}] text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer`}
                         >
                             {isLoading ? 'SAVING...' : mode === 'upload' ? 'UPLOAD' : 'SAVE CHANGES'}
                         </button>

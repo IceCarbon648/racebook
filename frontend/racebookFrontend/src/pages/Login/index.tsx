@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts';
 import Background from '../../components/molecules/Background/Index';
 import FormPanel from '../../components/molecules/FormPanel';
+import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 
 const Login = () => {
     const { login } = useAuth();
@@ -67,7 +68,7 @@ const Login = () => {
                         <button
                             onClick={handleSubmit}
                             disabled={isLoading}
-                            className="justify-center px-4 py-2 w-1/2 bg-[#930093] hover:bg-[#600060] text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`justify-center px-4 py-2 w-1/2 bg-[${PRIMARY_BUTTON_COLOUR}] hover:bg-[${PRIMARY_BUTTON_HOVER_COLOUR}] text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed`}
                         >
                             {isLoading ? 'LOGGING IN...' : 'LOGIN'}
                         </button>
