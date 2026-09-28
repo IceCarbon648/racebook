@@ -14,19 +14,19 @@ const Navbar = () => {
                 </Link>
             </div>
             <div className="flex items-center justify-center gap-8 h-full w-1/3">
-                <Link to="/" className="text-sm font-medium hover:text-gray-600">
+                <Link to="/" className="text-sm text-white font-medium hover:text-gray-600">
                     Home
                 </Link>
-                <Link to="/mods" className="text-sm font-medium hover:text-gray-600">
+                <Link to="/mods" className="text-sm text-white font-medium hover:text-gray-600">
                     Mods
                 </Link>
                 {isAuthenticated && (
                     <>
-                        <Link to="/my-mods" className="text-sm font-medium hover:text-gray-600">
+                        <Link to="/my-mods" className="text-sm text-white font-medium hover:text-gray-600">
                             My Mods
                         </Link>
-                        <Link to="/favourites" className="text-sm font-medium hover:text-gray-600">
-                            <SlotMachineText text="Favourites" />
+                        <Link to="/favourites" className="text-sm text-white font-medium hover:text-gray-600">
+                            Favourites
                         </Link>
                     </>
                 )}
@@ -34,14 +34,14 @@ const Navbar = () => {
             <div className="flex items-center justify-center gap-4 h-full w-1/3">
                 {isAuthenticated ? (
                     <div className="relative group">
-                        <span className="text-sm font-medium cursor-pointer">
+                        <span className="text-sm text-white font-medium cursor-pointer">
                             {user?.username}
                         </span>
                         <div className="absolute right-0 top-full pt-2 w-36 hidden group-hover:block z-50">
-                            <div className="bg-white border border-gray-200 rounded shadow-md">
+                            <div className="bg-black/50 border border-gray-400 rounded shadow-md hover:bg-white/10">
                                 <button
                                     onClick={logout}
-                                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
+                                    className="w-full text-left px-4 py-2 text-sm text-gray-400 hover:text-gray-100"
                                 >
                                     Logout
                                 </button>
@@ -50,10 +50,10 @@ const Navbar = () => {
                     </div>
                 ) : (
                     <>
-                        <Link to="/register" className="text-sm font-medium hover:text-gray-600">
+                        <Link to="/register" className="text-sm text-white font-medium hover:text-gray-600">
                             Register
                         </Link>
-                        <Link to="/login" className="text-sm font-medium hover:text-gray-600">
+                        <Link to="/login" className="text-sm text-white font-medium hover:text-gray-600">
                             Login
                         </Link>
                     </>
