@@ -87,11 +87,11 @@ const ModCard = ({
 
                     <div className="flex flex-col gap-4">
                         <div className="">
-                            <Tilt.Layer depth={-0.2} className="text-2xl text-white whitespace-nowrap">
+                            <Tilt.Layer depth={-0.15} className="text-2xl text-white whitespace-nowrap">
                                 <p>{title}</p>
                             </Tilt.Layer>
 
-                                <Tilt.Layer depth={-0.2} className="text-sm text-[#d7d7d7]">
+                                <Tilt.Layer depth={-0.15} className="text-sm text-[#d7d7d7]">
                                     <p>{creator ? `@${creator}` : '\u00A0'}</p>
                                 </Tilt.Layer>
                         </div>
