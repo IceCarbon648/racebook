@@ -84,9 +84,9 @@ const Mods = () => {
     );
 
     return (
-        <div className="px-6 py-8">
+        <div className="flex flex-col gap-8 px-6 py-8">
             <Background reveal={false} />
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">Mods</h1>
+            <h1 className="text-[40px] font-bold text-white">Mods</h1>
 
             <ModFilters
                 search={search}
@@ -103,19 +103,21 @@ const Mods = () => {
                     <p className="text-gray-500">No mods found</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-4 gap-6">
-                    {paginated.map((mod) => (
-                        <ModCard
-                            key={mod.modId}
-                            title={mod.title}
-                            type={mod.type}
-                            imageUrl={mod.previewImageUrl}
-                            creator={mod.creator}
-                            isFavourite={mod.isFavourite ?? undefined}
-                            onClick={() => handleModClick(mod)}
-                            onFavourite={() => favouriteMutation.mutate({ modId: mod.modId, isFavourite: mod.isFavourite! })}
-                        />
-                    ))}
+                <div className="flex justify-center">
+                    <div className="grid grid-cols-[repeat(4,16rem)] justify-around gap-y-16 w-9/10">
+                        {paginated.map((mod) => (
+                            <ModCard
+                                key={mod.modId}
+                                title={mod.title}
+                                type={mod.type}
+                                imageUrl={mod.previewImageUrl}
+                                creator={mod.creator}
+                                isFavourite={mod.isFavourite ?? undefined}
+                                onClick={() => handleModClick(mod)}
+                                onFavourite={() => favouriteMutation.mutate({ modId: mod.modId, isFavourite: mod.isFavourite! })}
+                            />
+                        ))}
+                    </div>
                 </div>
             )}
 

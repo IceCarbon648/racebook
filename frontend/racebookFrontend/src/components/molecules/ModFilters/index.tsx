@@ -16,7 +16,7 @@ const ModFilters = ({
     onSearchChange, onCategoryChange, onOrderChange, onReset,
 }: ModFiltersProps) => {
     return (
-        <div className="flex justify-center gap-3 mb-6">
+        <div className="flex justify-center gap-8 mb-6">
             <input
                 type="text"
                 value={search}

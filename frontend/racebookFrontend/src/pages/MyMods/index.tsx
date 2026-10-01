@@ -13,7 +13,7 @@ const MyMods = () => {
     const [modalMode, setModalMode] = useState<'upload' | 'edit'>('upload');
     const [selectedMod, setSelectedMod] = useState<MyMod | null>(null);
 
-    
+
 
     const { data: mods = [], isLoading, isError } = useQuery({
         queryKey: ['myMods'],
@@ -76,7 +76,7 @@ const MyMods = () => {
     const [page, setPage] = useState(1);
     const totalPages = Math.ceil(mods.length / PAGE_SIZE);
     const paginated = mods.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-    
+
     if (page > totalPages && totalPages > 0) setPage(totalPages);
 
     if (isLoading) return (
@@ -95,7 +95,7 @@ const MyMods = () => {
         <div className="px-6 py-8">
             <Background reveal={false} />
             <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">My Mods</h1>
+                <h1 className="text-[40px] font-bold text-white">My Mods</h1>
                 <button
                     onClick={handleUploadClick}
                     className={`px-4 py-2 bg-[${PRIMARY_BUTTON_COLOUR}] hover:bg-[${PRIMARY_BUTTON_HOVER_COLOUR}] text-sm text-white rounded`}
@@ -104,26 +104,28 @@ const MyMods = () => {
                 </button>
             </div>
             {mods.length === 0 ? (
-    <div className="flex items-center justify-center min-h-50">
-        <p className="text-gray-500">You haven't uploaded any mods yet</p>
-    </div>
-) : (
-    <>
-        <div className="grid grid-cols-4 gap-6">
-            {paginated.map((mod) => (
-                <ModCard
-                    key={mod.modId}
-                    title={mod.title}
-                    type={mod.type}
-                    imageUrl={mod.imageUrl}
-                    onEdit={() => handleEditClick(mod)}
-                    onDelete={() => handleDeleteClick(mod.modId)}
-                />
-            ))}
-        </div>
-        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
-    </>
-)}
+                <div className="flex items-center justify-center min-h-50">
+                    <p className="text-gray-500">You haven't uploaded any mods yet</p>
+                </div>
+            ) : (
+                <>
+                    <div className="flex justify-center">
+                        <div className="grid grid-cols-[repeat(4,16rem)] justify-around gap-y-16 w-9/10">
+                            {paginated.map((mod) => (
+                                <ModCard
+                                    key={mod.modId}
+                                    title={mod.title}
+                                    type={mod.type}
+                                    imageUrl={mod.imageUrl}
+                                    onEdit={() => handleEditClick(mod)}
+                                    onDelete={() => handleDeleteClick(mod.modId)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                    <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+                </>
+            )}
             <ModModal
                 isOpen={isModalOpen}
                 mode={modalMode}

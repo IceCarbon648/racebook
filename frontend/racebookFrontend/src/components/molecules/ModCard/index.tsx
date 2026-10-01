@@ -87,20 +87,20 @@ const ModCard = ({
 
                     <div className="flex flex-col gap-4">
                         <div className="">
-                            <Tilt.Layer depth={-0.5} className="text-2xl text-white whitespace-nowrap">
+                            <Tilt.Layer depth={-0.2} className="text-2xl text-white whitespace-nowrap">
                                 <p>{title}</p>
                             </Tilt.Layer>
 
-                                <Tilt.Layer depth={-0.5} className="text-sm text-[#d7d7d7]">
+                                <Tilt.Layer depth={-0.2} className="text-sm text-[#d7d7d7]">
                                     <p>{creator ? `@${creator}` : '\u00A0'}</p>
                                 </Tilt.Layer>
                         </div>
 
-                        <div className="flex flex-row items-center justify-between w-1/2">
+                        <div className="flex flex-row items-center justify-between w-14/25">
 
 
                             {isFavourite !== undefined && onFavourite && (
-                                <Tilt.Layer depth={0} className="flex">
+                                <Tilt.Layer depth={0.2} className="flex">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); onFavourite(); }}
                                         aria-label={isFavourite ? 'Remove from favourites' : 'Add to favourites'}
@@ -123,7 +123,7 @@ const ModCard = ({
 
 
                             <Tilt.Layer
-                                depth={-0.2}
+                                depth={0.2}
                                 className="flex justify-center items-center w-13/20 h-5 text-center text-white text-[10px] font-bold rounded-full"
                                 style={{ backgroundColor: NEON.fill }}
                             >

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getFavourites } from '../../services';
 import { ModCard } from '../../components';
 import type { Mod } from '../../types';
+import Background from '../../components/molecules/Background/Index';
 
 const Favourites = () => {
     const navigate = useNavigate();
@@ -35,19 +36,23 @@ const Favourites = () => {
     );
 
     return (
-        <div className="px-6 py-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">Favourites</h1>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
-                {favourites.map((mod) => (
-                    <ModCard
-                        key={mod.modId}
-                        title={mod.title}
-                        type={mod.type}
-                        imageUrl={mod.previewImageUrl}
-                        creator={mod.creator}
-                        onClick={() => handleModClick(mod)}
-                    />
-                ))}
+        <div className="flex flex-col gap-8 px-6 py-8">
+            <Background reveal={false}/>
+            <h1 className="text-[40px] font-bold text-white">Favourites</h1>
+
+            <div className="flex justify-center">
+                <div className="grid grid-cols-[repeat(4,16rem)] justify-around gap-y-16 w-9/10">
+                    {favourites.map((mod) => (
+                        <ModCard
+                            key={mod.modId}
+                            title={mod.title}
+                            type={mod.type}
+                            imageUrl={mod.previewImageUrl}
+                            creator={mod.creator}
+                            onClick={() => handleModClick(mod)}
+                        />
+                    ))}
+                </div>
             </div>
         </div>
     );
