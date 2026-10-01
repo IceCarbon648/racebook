@@ -1,1 +1,1 @@
-export const CATEGORIES = ['ALL', 'VEHICLE', 'ENVIRONMENT', 'UI', 'PACK', 'MISC'];
+export const CATEGORIES = ['ALL TYPES', 'VEHICLE', 'ENVIRONMENT', 'UI', 'PACK', 'MISC'];

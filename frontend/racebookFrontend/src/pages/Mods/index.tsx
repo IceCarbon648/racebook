@@ -12,7 +12,7 @@ const Mods = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [search, setSearch] = useState('');
-    const [category, setCategory] = useState('ALL');
+    const [category, setCategory] = useState('ALL TYPES');
     const [order, setOrder] = useState<'newest' | 'oldest'>('newest');
     const [page, setPage] = useState(1);
 
@@ -32,7 +32,7 @@ const Mods = () => {
 
     const handleReset = () => {
         setSearch('');
-        setCategory('ALL');
+        setCategory('ALL TYPES');
         setOrder('newest');
         setPage(1);
     };
@@ -49,7 +49,7 @@ const Mods = () => {
             );
         }
 
-        if (category !== 'ALL') {
+        if (category !== 'ALL TYPES') {
             result = result.filter((m) => m.type === category);
         }
 

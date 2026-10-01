@@ -9,7 +9,7 @@ const SlotMachineText = ({ text, stagger = 20 }: SlotMachineTextProps) => {
             {text.split('').map((char, i) => (
                 <span key={i} className="inline-block overflow-hidden" aria-hidden="true">
                     <span
-                        className="relative block transition-transform duration-300 ease-out group-hover:-translate-y-full"
+                        className="relative block transition-transform duration-300 ease-out group-hover:-translate-y-full group-hover/roll:-translate-y-full"
                         style={{ transitionDelay: `${i * stagger}ms` }}
                     >
                         <span className="block">{char === ' ' ? '\u00A0' : char}</span>
