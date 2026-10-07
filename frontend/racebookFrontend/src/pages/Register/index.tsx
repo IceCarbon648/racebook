@@ -5,6 +5,7 @@ import { register } from '../../services';
 import Background from '../../components/molecules/Background/Index';
 import FormPanel from '../../components/molecules/FormPanel';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
+import { MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH } from '../../constants/inputLimits';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -80,6 +81,7 @@ const Register = () => {
                                 id="email"
                                 type="email"
                                 value={email}
+                                maxLength={MAX_EMAIL_LENGTH}
                                 onChange={(e) => { setEmail(e.target.value); clearFieldError('Email'); }}
                                 placeholder="Enter your email"
                                 aria-invalid={!!errors.Email}
@@ -98,6 +100,7 @@ const Register = () => {
                                 id="username"
                                 type="text"
                                 value={username}
+                                maxLength={MAX_USERNAME_LENGTH}
                                 onChange={(e) => { setUsername(e.target.value); clearFieldError('Username'); }}
                                 placeholder="Enter your username"
                                 aria-invalid={!!errors.Username}

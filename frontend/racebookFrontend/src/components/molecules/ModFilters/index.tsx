@@ -1,4 +1,5 @@
 import { CATEGORIES } from '../../../constants/categories';
+import { MAX_MOD_TITLE_LENGTH } from '../../../constants/inputLimits';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../../constants/theme';
 import Dropdown from '../Dropdown';
 import type { ModFiltersProps } from './index.types';
@@ -20,6 +21,7 @@ const ModFilters = ({
             <input
                 type="text"
                 value={search}
+                maxLength={MAX_MOD_TITLE_LENGTH}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder="Search by title or creator..."
                 className={`px-3 py-2 focus:outline-none w-1/3 focus:border-white ${baseClass}`}

@@ -4,6 +4,7 @@ import { CATEGORIES } from '../../../constants/categories';
 import { FilePicker } from '../../atoms';
 import type { ModModalProps } from './index.types';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../../constants/theme';
+import { MAX_MOD_TITLE_LENGTH, MAX_MOD_DESCRIPTION_LENGTH } from '../../../constants/inputLimits';
 
 const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
     const [title, setTitle] = useState('');
@@ -103,6 +104,7 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                                 id="title"
                                 type="text"
                                 value={title}
+                                maxLength={MAX_MOD_TITLE_LENGTH}
                                 onChange={(e) => setTitle(e.target.value)}
                                 placeholder="Enter mod title"
                                 className={inputClass}
@@ -133,6 +135,7 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                             <textarea
                                 id="description"
                                 value={description}
+                                maxLength={MAX_MOD_DESCRIPTION_LENGTH}
                                 onChange={(e) => setDescription(e.target.value)}
                                 placeholder="Enter mod description"
                                 rows={3}

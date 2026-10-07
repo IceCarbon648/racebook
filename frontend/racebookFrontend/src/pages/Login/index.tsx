@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts';
 import Background from '../../components/molecules/Background/Index';
 import FormPanel from '../../components/molecules/FormPanel';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
+import { MAX_EMAIL_LENGTH } from '../../constants/inputLimits';
 
 const Login = () => {
     const { login } = useAuth();
@@ -28,7 +29,6 @@ const Login = () => {
     return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
             <Background reveal={true}/>
-            {/*<div className="relative flex flex-col gap-6 w-full h-150 max-w-sm p-10">*/}
             <FormPanel className="min-h-full w-full flex flex-col justify-start gap-12">
                 <h1 className="flex justify-center text-[46px] font-bold text-white pt-4">Login</h1>
 
@@ -42,6 +42,7 @@ const Login = () => {
                             id="email"
                             type="email"
                             value={email}
+                            maxLength={MAX_EMAIL_LENGTH}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Enter your email"
                             className="px-3 py-2 bg-black/50 text-sm text-gray-300 border border-gray-400 rounded focus:outline-none focus:border-gray-200"
@@ -83,7 +84,6 @@ const Login = () => {
                 </p>
                 </div>
             </FormPanel>
-            {/*</div>*/}
         </div>
     );
 };
