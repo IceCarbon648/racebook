@@ -1,16 +1,25 @@
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { getFavourites } from '../../services';
 import { ModCard } from '../../components';
 import type { Mod } from '../../types';
 import Background from '../../components/molecules/Background/Index';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getFavourites, deleteFromFavourites } from '../../services';
 
 const Favourites = () => {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const { data: favourites = [], isLoading, isError } = useQuery({
         queryKey: ['favourites'],
         queryFn: getFavourites,
+    });
+
+    const unfavouriteMutation = useMutation({
+        mutationFn: deleteFromFavourites,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['favourites'] });
+            queryClient.invalidateQueries({ queryKey: ['mods'] });
+        },
     });
 
     const handleModClick = (mod: Mod) => {
@@ -37,7 +46,7 @@ const Favourites = () => {
 
     return (
         <div className="flex flex-col gap-8 px-6 py-8">
-            <Background reveal={false}/>
+            <Background reveal={false} />
             <h1 className="text-[40px] font-bold text-white">Favourites</h1>
 
             <div className="flex justify-center">
@@ -49,7 +58,9 @@ const Favourites = () => {
                             type={mod.type}
                             imageUrl={mod.previewImageUrl}
                             creator={mod.creator}
+                            isFavourite={true}
                             onClick={() => handleModClick(mod)}
+                            onFavourite={() => unfavouriteMutation.mutate(mod.modId)}
                         />
                     ))}
                 </div>

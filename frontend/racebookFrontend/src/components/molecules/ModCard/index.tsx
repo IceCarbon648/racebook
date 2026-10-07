@@ -97,8 +97,6 @@ const ModCard = ({
                         </div>
 
                         <div className="flex flex-row items-center justify-between w-14/25">
-
-
                             {isFavourite !== undefined && onFavourite && (
                                 <Tilt.Layer depth={0.2} className="flex">
                                     <button
@@ -120,7 +118,6 @@ const ModCard = ({
                                     </button>
                                 </Tilt.Layer>
                             )}
-
 
                             <Tilt.Layer
                                 depth={0.2}
