@@ -11,5 +11,6 @@ namespace Business.Interfaces
         Task EditMod(string modId, ModEditDto dto);
         Task<List<GetModDto>> GetAllMods(string? uid);
         Task<List<Mod>> GetMyMods(string uid);
+        Task<bool> IsOwner(string modId, string uid);
     }
 }

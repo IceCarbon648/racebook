@@ -12,5 +12,6 @@ namespace Infrastructure.Interfaces
         Task EditMod(Mod mod, string? title, string? type, string? description);
         Task<List<GetModDto>> GetAllMods(string? uid);
         Task<List<Mod>> GetMyMods(string uid);
+        Task<bool> IsOwner(string modId, string uid);
     }
 }

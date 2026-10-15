@@ -292,6 +292,7 @@ public class ModServiceTests
         [
             new GetModDto
             {
+                ModId = Guid.NewGuid(),
                 Creator = "User1",
                 Title = "Mod 1",
                 Type = "Type",
@@ -303,6 +304,7 @@ public class ModServiceTests
             },
             new GetModDto
             {
+                ModId = Guid.NewGuid(),
                 Creator = "User2",
                 Title = "Mod 2",
                 Type = "Type",

@@ -8,7 +8,7 @@ interface FilePickerProps {
     onChange: (file: File | null) => void;
 }
 
-const FilePicker = ({ className, id, label, accept, file, optional, onChange }: FilePickerProps) => {
+const FilePicker = ({ className, id, label, accept, file, onChange }: FilePickerProps) => {
     return (
         <div className={`flex flex-col gap-1.5 ${className}`}>
             <span className="flex justify-start font-medium text-white">

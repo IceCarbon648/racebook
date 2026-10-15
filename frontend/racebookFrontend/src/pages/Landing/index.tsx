@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts';
 import Background from '../../components/molecules/Background/Index';
-import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 
 const Landing = () => {
     const { isAuthenticated } = useAuth();

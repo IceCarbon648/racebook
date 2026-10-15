@@ -129,5 +129,15 @@ namespace Infrastructure
 
             return queryResult.ToList();
         }
+
+        public async Task<bool> IsOwner(string modId, string uid)
+        {
+            string sql = @"SELECT COUNT(1)
+                   FROM Mod
+                   WHERE Uid = @uid
+                     AND ModId = @modId";
+
+            return await _dbConnection.ExecuteScalarAsync<int>(sql, new { uid, modId }) > 0;
+        }
     }
 }

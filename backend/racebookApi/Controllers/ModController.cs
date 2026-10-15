@@ -1,11 +1,10 @@
 ﻿using Business.Interfaces;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Request;
 using Models.Validators.Filter;
 using System.Security.Claims;
+using Models.Constants;
 
 namespace racebookApi.Controllers
 {
@@ -36,6 +35,13 @@ namespace racebookApi.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteMod([FromRoute] string modId)
         {
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+
+            if (!await _modService.IsOwner(modId, uid))
+            {
+                return Unauthorized(new { message = Constants.NotOwnerMessage });
+            }
+
             await _modService.DeleteMod(modId);
 
             return Ok();
@@ -46,6 +52,13 @@ namespace racebookApi.Controllers
         [ServiceFilter(typeof(ValidationFilter<ModEditDto>))]
         public async Task<IActionResult> EditMod([FromRoute] string modId, [FromForm] ModEditDto dto)
         {
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+
+            if (!await _modService.IsOwner(modId, uid))
+            {
+                return Unauthorized(new { message = Constants.NotOwnerMessage });
+            }
+
             await _modService.EditMod(modId, dto);
 
             return Ok();

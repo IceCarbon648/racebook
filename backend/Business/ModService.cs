@@ -2,6 +2,7 @@
 using Business.Interfaces;
 using Infrastructure.Constants;
 using Infrastructure.Interfaces;
+using MagicBytesValidator.Formats;
 using Microsoft.Extensions.Logging;
 using Models;
 using Models.DTOs.Request;
@@ -135,6 +136,17 @@ namespace Business
             }
 
             return mods;
+        }
+
+        public async Task<bool> IsOwner(string modId, string uid)
+        {
+            _logger.LogInformation("Checking if user {Uid} is the owner of mod {ModId}", uid, modId);
+
+            bool isOwner = await _modRepository.IsOwner(modId, uid);
+
+            _logger.LogInformation("User {Uid} owns mod {ModId}: {IsOwner}", uid, modId, isOwner);
+
+            return isOwner;
         }
     }
 }
