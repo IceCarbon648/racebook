@@ -1,18 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { getAllMods } from '../../services';
 import { NEON, PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import Background from '../../components/molecules/Background/Index';
+import { useMods } from '../../hooks/useMods';
 
 const ModDetail = () => {
     const { modId } = useParams<{ modId: string }>();
     const navigate = useNavigate();
 
-    const { data: mods = [], isLoading, isError } = useQuery({
-        queryKey: ['mods'],
-        queryFn: getAllMods,
-    });
-
+    const { mods, isLoading, isError } = useMods();
     const mod = mods.find((m) => m.modId === modId);
 
     if (isLoading) return (

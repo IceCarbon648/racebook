@@ -1,45 +1,17 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { uploadMod, editMod, deleteMod, getMyMods } from '../../services';
 import { ModCard, ModModal, Pagination } from '../../components';
 import type { MyMod } from '../../types';
-import { PAGE_SIZE } from '../../constants/pagination';
 import Background from '../../components/molecules/Background/Index';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
+import { useMyMods } from '../../hooks/useMyMods';
+import { usePagination } from '../../hooks/usePagination';
 
 const MyMods = () => {
-    const queryClient = useQueryClient();
+    const { mods, isLoading, isError, uploadMod, editMod, deleteMod } = useMyMods();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'upload' | 'edit'>('upload');
     const [selectedMod, setSelectedMod] = useState<MyMod | null>(null);
-
-
-
-    const { data: mods = [], isLoading, isError } = useQuery({
-        queryKey: ['myMods'],
-        queryFn: getMyMods,
-    });
-
-    const invalidate = () => {
-        queryClient.invalidateQueries({ queryKey: ['myMods'] });
-        queryClient.invalidateQueries({ queryKey: ['mods'] });
-    };
-
-    const uploadMutation = useMutation({
-        mutationFn: uploadMod,
-        onSuccess: invalidate,
-    });
-
-    const editMutation = useMutation({
-        mutationFn: ({ modId, formData }: { modId: string; formData: FormData }) =>
-            editMod(modId, formData),
-        onSuccess: invalidate,
-    });
-
-    const deleteMutation = useMutation({
-        mutationFn: deleteMod,
-        onSuccess: invalidate,
-    });
+    const { page, setPage, totalPages, paginated } = usePagination(mods);
 
     const handleUploadClick = () => {
         setSelectedMod(null);
@@ -53,13 +25,6 @@ const MyMods = () => {
         setIsModalOpen(true);
     };
 
-    const handleDeleteClick = (modId: string) => {
-        const confirmed = window.confirm('Are you sure you want to delete this mod?');
-        if (!confirmed) return;
-
-        deleteMutation.mutate(modId);
-    };
-
     const handleModalClose = () => {
         setIsModalOpen(false);
         setSelectedMod(null);
@@ -67,15 +32,18 @@ const MyMods = () => {
 
     const handleModalSubmit = async (formData: FormData) => {
         if (modalMode === 'upload') {
-            await uploadMutation.mutateAsync(formData);
+            await uploadMod(formData);
         } else if (selectedMod) {
-            await editMutation.mutateAsync({ modId: selectedMod.modId, formData });
+            await editMod(selectedMod.modId, formData);
         }
     };
 
-    const [page, setPage] = useState(1);
-    const totalPages = Math.ceil(mods.length / PAGE_SIZE);
-    const paginated = mods.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    const handleDeleteClick = (modId: string) => {
+        const confirmed = window.confirm('Are you sure you want to delete this mod?');
+        if (!confirmed) return;
+
+        deleteMod(modId);
+    };
 
     if (page > totalPages && totalPages > 0) setPage(totalPages);
 
@@ -105,7 +73,7 @@ const MyMods = () => {
             </div>
             {mods.length === 0 ? (
                 <div className="flex items-center justify-center min-h-50">
-                    <p className="text-gray-500">You haven't uploaded any mods yet</p>
+                    <p className="text-white">You haven't uploaded any mods yet</p>
                 </div>
             ) : (
                 <>

@@ -2,25 +2,17 @@ import { useNavigate } from 'react-router-dom';
 import { ModCard } from '../../components';
 import type { Mod } from '../../types';
 import Background from '../../components/molecules/Background/Index';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getFavourites, deleteFromFavourites } from '../../services';
+import { Pagination } from '../../components/molecules';
+import { useFavouriteMod } from '../../hooks/useFavouriteMod';
+import { useFavourites } from '../../hooks/useFavourites';
+import { usePagination } from '../../hooks/usePagination';
 
 const Favourites = () => {
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
 
-    const { data: favourites = [], isLoading, isError } = useQuery({
-        queryKey: ['favourites'],
-        queryFn: getFavourites,
-    });
-
-    const unfavouriteMutation = useMutation({
-        mutationFn: deleteFromFavourites,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['favourites'] });
-            queryClient.invalidateQueries({ queryKey: ['mods'] });
-        },
-    });
+    const { favourites, isLoading, isError } = useFavourites();
+    const { toggleFavourite } = useFavouriteMod();
+    const { page, setPage, totalPages, paginated } = usePagination(favourites);
 
     const handleModClick = (mod: Mod) => {
         navigate(`/mods/${mod.modId}`, { state: { mod } });
@@ -40,7 +32,7 @@ const Favourites = () => {
 
     if (favourites.length === 0) return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-gray-500">You have no favourites yet</p>
+            <p className="text-white">You have no favourites yet</p>
         </div>
     );
 
@@ -51,7 +43,7 @@ const Favourites = () => {
 
             <div className="flex justify-center">
                 <div className="grid grid-cols-[repeat(4,16rem)] justify-around gap-y-16 w-9/10">
-                    {favourites.map((mod) => (
+                    {paginated.map((mod) => (
                         <ModCard
                             key={mod.modId}
                             title={mod.title}
@@ -60,11 +52,13 @@ const Favourites = () => {
                             creator={mod.creator}
                             isFavourite={true}
                             onClick={() => handleModClick(mod)}
-                            onFavourite={() => unfavouriteMutation.mutate(mod.modId)}
+                            onFavourite={() => toggleFavourite(mod.modId, true)}
                         />
                     ))}
                 </div>
             </div>
+
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
     );
 };

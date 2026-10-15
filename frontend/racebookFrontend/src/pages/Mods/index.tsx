@@ -1,34 +1,21 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAllMods, addToFavourites, deleteFromFavourites } from '../../services';
 import type { Mod } from '../../types';
 import { ModCard } from '../../components';
 import { ModFilters, Pagination } from '../../components/molecules';
-import { PAGE_SIZE } from '../../constants/pagination';
 import Background from '../../components/molecules/Background/Index';
+import { useMods } from '../../hooks/useMods';
+import { useFavouriteMod } from '../../hooks/useFavouriteMod';
+import { usePagination } from '../../hooks/usePagination';
 
 const Mods = () => {
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('ALL TYPES');
     const [order, setOrder] = useState<'newest' | 'oldest'>('newest');
-    const [page, setPage] = useState(1);
 
-    const { data: mods = [], isLoading, isError } = useQuery({
-        queryKey: ['mods'],
-        queryFn: getAllMods,
-    });
-
-    const favouriteMutation = useMutation({
-        mutationFn: ({ modId, isFavourite }: { modId: string; isFavourite: boolean }) =>
-            isFavourite ? deleteFromFavourites(modId) : addToFavourites(modId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['mods'] });
-            queryClient.invalidateQueries({ queryKey: ['favourites'] });
-        },
-    });
+    const { mods, isLoading, isError } = useMods();
+    const { toggleFavourite } = useFavouriteMod();
 
     const handleReset = () => {
         setSearch('');
@@ -62,8 +49,7 @@ const Mods = () => {
         return result;
     }, [mods, search, category, order]);
 
-    const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-    const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    const { page, setPage, totalPages, paginated } = usePagination(filtered);
 
     if (page > totalPages && totalPages > 0) setPage(totalPages);
 
@@ -114,7 +100,7 @@ const Mods = () => {
                                 creator={mod.creator}
                                 isFavourite={mod.isFavourite ?? undefined}
                                 onClick={() => handleModClick(mod)}
-                                onFavourite={() => favouriteMutation.mutate({ modId: mod.modId, isFavourite: mod.isFavourite! })}
+                                onFavourite={() => toggleFavourite(mod.modId, mod.isFavourite!)}
                             />
                         ))}
                     </div>
