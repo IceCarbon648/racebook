@@ -6,9 +6,9 @@ namespace Business.Interfaces
 {
     public interface IModService
     {
-        Task UploadMod(string uid, ModDto dto);
+        Task<Guid?> UploadMod(string uid, ModDto dto);
         Task DeleteMod(string modId);
-        Task EditMod(string modId, ModEditDto dto);
+        Task<bool> EditMod(string modId, ModEditDto dto);
         Task<List<GetModDto>> GetAllMods(string? uid);
         Task<List<Mod>> GetMyMods(string uid);
         Task<bool> IsOwner(string modId, string uid);

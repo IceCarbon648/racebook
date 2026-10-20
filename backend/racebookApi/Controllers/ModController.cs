@@ -26,9 +26,15 @@ namespace racebookApi.Controllers
         {
             string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
 
-            await _modService.UploadMod(uid, dto);
+            Guid? modId = await _modService.UploadMod(uid, dto);
 
-            return Ok();
+            if (modId is null)
+            {
+                return StatusCode(StatusCodes.Status502BadGateway,
+                    new { message = "Upload service is unavailable, please try again" });
+            }
+
+            return Created($"/api/mod/{modId}", new { modId });
         }
 
         [HttpDelete("{modId}")]

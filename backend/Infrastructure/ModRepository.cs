@@ -70,7 +70,7 @@ namespace Infrastructure
             return await _dbConnection.QueryFirstOrDefaultAsync<Mod>(sql, new { modId });
         }
 
-        public async Task EditMod(Mod mod, string? title, string? type, string? description)
+        public async Task<int> EditMod(Mod mod, string? title, string? type, string? description)
         {
             string sql = @"UPDATE Mod
                            SET 
@@ -82,7 +82,7 @@ namespace Infrastructure
                                EditDate = @editDate
                            WHERE ModId = @modId";
 
-            await _dbConnection.ExecuteAsync(sql, new {
+            return await _dbConnection.ExecuteAsync(sql, new {
                 modId = mod.ModId,
                 title,
                 type,
