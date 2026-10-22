@@ -78,9 +78,6 @@ namespace Business
         {
             _logger.LogInformation("Deleting mod {ModId}", modId);
 
-            await _favouriteModRepository.DeleteFavouriteModReference(modId);
-            _logger.LogDebug("Favourite references removed for mod {ModId}", modId);
-
             Mod? mod = await _modRepository.DeleteMod(modId);
             Guard.Against.Null(mod, nameof(mod), $"Mod {modId} not found");
             _logger.LogDebug("Mod {ModId} deleted from database", modId);
