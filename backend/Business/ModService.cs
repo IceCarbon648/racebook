@@ -3,12 +3,10 @@ using Business.Interfaces;
 using CloudinaryDotNet.Actions;
 using Infrastructure.Constants;
 using Infrastructure.Interfaces;
-using MagicBytesValidator.Formats;
 using Microsoft.Extensions.Logging;
 using Models;
 using Models.DTOs.Request;
 using Models.DTOs.Response;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 
 namespace Business
@@ -17,17 +15,15 @@ namespace Business
     {
         private readonly ICloudinaryRepository _cloudinaryRepository;
         private readonly IModRepository _modRepository;
-        private readonly IFavouriteModRepository _favouriteModRepository;
         private readonly ILogger<ModService> _logger;
 
         const string PreviewImagesPublicIdStart = "PreviewImages";
         const string ModPublicIdStart = "Mods";
 
-        public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository, IFavouriteModRepository favouriteModRepository, ILogger<ModService> logger)
+        public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository, ILogger<ModService> logger)
         {
             _cloudinaryRepository = cloudinaryRepository;
             _modRepository = modRepository;
-            _favouriteModRepository = favouriteModRepository;
             _logger = logger;
         }
 
@@ -133,7 +129,6 @@ namespace Business
 
                 oldFiles.Add((modDetails.ModFileUrl, ModPublicIdStart));
                 newFiles.Add((result.SecureUrl.ToString(), ModPublicIdStart));
-
                 modDetails.ModFileUrl = result.SecureUrl.ToString();
 
                 _logger.LogDebug("New mod file uploaded for mod {ModId}: {Url}", modId, modDetails.ModFileUrl);

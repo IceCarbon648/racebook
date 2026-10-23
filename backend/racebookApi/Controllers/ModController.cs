@@ -45,7 +45,7 @@ namespace racebookApi.Controllers
 
             if (!await _modService.IsOwner(modId, uid))
             {
-                return Unauthorized(new { message = Constants.NotOwnerMessage });
+                return Forbid(Constants.NotOwnerMessage);
             }
 
             await _modService.DeleteMod(modId);
@@ -62,7 +62,7 @@ namespace racebookApi.Controllers
 
             if (!await _modService.IsOwner(modId, uid))
             {
-                return Unauthorized(new { message = Constants.NotOwnerMessage });
+                return Forbid(Constants.NotOwnerMessage);
             }
 
             await _modService.EditMod(modId, dto);
