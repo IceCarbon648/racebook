@@ -27,7 +27,7 @@ namespace racebookApi.Controllers
                 return Conflict(new { message = "Registration was not successful" });
             }
 
-            return Ok(new { message = "Registration successful" });
+            return StatusCode(StatusCodes.Status201Created, new { message = "Registration successful" });
         }
 
         [HttpGet("@me")]
