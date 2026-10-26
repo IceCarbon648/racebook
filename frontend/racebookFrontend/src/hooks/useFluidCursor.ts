@@ -5,11 +5,14 @@ const useFluidCursor = (baseSrc, revealSrc, depthSrc, parallax) => {
 
   let smoothMouse = { x: 0, y: 0 };
   let targetMouse = { x: 0, y: 0 };
+  let animationFrameId;
 
-  window.addEventListener('mousemove', (e) => {
+  const handleMouseMove = (e) => {
     targetMouse.x = (e.clientX / window.innerWidth - 0.5) * 2;
     targetMouse.y = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
+  };
+
+  window.addEventListener('mousemove', handleMouseMove);
   //try to adjust settings
 
   let config = {
@@ -1365,6 +1368,13 @@ gl_FragColor = vec4(mix(baseColor, revealColor, density), 1.0);
     }
     return hash;
   }
+
+    update();
+
+  return () => {
+    cancelAnimationFrame(animationFrameId);
+    window.removeEventListener('mousemove', handleMouseMove);
+  };
 };
 
 export default useFluidCursor;
