@@ -413,17 +413,20 @@ const useFluidCursor = (baseSrc, revealSrc, depthSrc, parallax) => {
         float density = clamp(max(c.r, max(c.g, c.b)), 0.0, 1.0);
 
         vec2 imgUv = vec2(vUv.x, 1.0 - vUv.y);
-        vec2 zoomUv = (imgUv - 0.5) * (1.0 - uParallax * 2.0) + 0.5;
+vec2 zoomUv = (imgUv - 0.5) * (1.0 - uParallax * 2.0) + 0.5;
 
-        float depth = texture2D(uDepth, zoomUv).r;
-        vec2 offset = uMouse * (depth - 0.5) * uParallax;
+vec2 parallaxUv = zoomUv;
 
-        vec2 parallaxUv = zoomUv + offset;
+for (int i = 0; i < 4; i++)
+{
+    float d = texture2D(uDepth, parallaxUv).r;
+    parallaxUv = zoomUv + uMouse * (d - 0.5) * uParallax;
+}
 
-        vec3 baseColor = texture2D(uBase, parallaxUv).rgb;
-        vec3 revealColor = texture2D(uReveal, parallaxUv).rgb;
+vec3 baseColor = texture2D(uBase, parallaxUv).rgb;
+vec3 revealColor = texture2D(uReveal, parallaxUv).rgb;
 
-          gl_FragColor = vec4(mix(baseColor, revealColor, density), 1.0);
+gl_FragColor = vec4(mix(baseColor, revealColor, density), 1.0);
        }
    `;
 
