@@ -42,7 +42,7 @@ namespace Infrastructure
             return await _dbConnection.ExecuteScalarAsync<Guid>(sql, new { uid, title, type, description, uploadDate, editDate, modFileUrl, previewImageUrl });
         }
 
-        public async Task<Mod> DeleteMod(string modId)
+        public async Task<Mod?> DeleteMod(string modId)
         {
             string sql = @"DELETE 
                            FROM Mod
@@ -61,16 +61,16 @@ namespace Infrastructure
             return await _dbConnection.ExecuteScalarAsync<string>(sql, new { modId });
         }
 
-        public async Task<Mod> GetModById(string modId)
+        public async Task<Mod?> GetModById(string modId)
         {
             string sql = @"SELECT *
                            FROM Mod
                            WHERE ModId = @modId";
 
-            return await _dbConnection.QueryFirstAsync<Mod>(sql, new { modId });
+            return await _dbConnection.QueryFirstOrDefaultAsync<Mod>(sql, new { modId });
         }
 
-        public async Task EditMod(Mod mod, string? title, string? type, string? description)
+        public async Task<int> EditMod(Mod mod, string? title, string? type, string? description)
         {
             string sql = @"UPDATE Mod
                            SET 
@@ -82,7 +82,7 @@ namespace Infrastructure
                                EditDate = @editDate
                            WHERE ModId = @modId";
 
-            await _dbConnection.ExecuteAsync(sql, new {
+            return await _dbConnection.ExecuteAsync(sql, new {
                 modId = mod.ModId,
                 title,
                 type,
@@ -93,23 +93,28 @@ namespace Infrastructure
             });
         }
 
-        public async Task<List<GetModDto>> GetAllMods()
+        public async Task<List<GetModDto>> GetAllMods(string? uid)
         {
-            string sql = @"SELECT 
-                               u.Username
-                                   AS 'Creator',
-                               m.Title,
-                               m.Type,
-                               m.Description,
-                               m.UploadDate,
-                               m.EditDate,
-                               m.ModFileUrl,
-                               m.ImageUrl
-                                   AS 'PreviewImageUrl'
-                           FROM Mod m
-                           INNER JOIN [User] u ON m.Uid = u.Uid";
+            string sql = @"SELECT
+                             m.ModId,
+                             u.Username AS Creator,
+                             m.Title,
+                             m.Type,
+                             m.Description,
+                             m.UploadDate,
+                             m.EditDate,
+                             m.ModFileUrl,
+                             m.ImageUrl AS PreviewImageUrl,
+                         CASE 
+                             WHEN @uid IS NULL THEN NULL
+                             WHEN f.FavouriteId IS NOT NULL THEN CAST(1 AS BIT)
+                             ELSE CAST(0 AS BIT)
+                         END AS IsFavourite
+                         FROM Mod m
+                         INNER JOIN [User] u ON m.Uid = u.Uid
+                         LEFT JOIN FavouriteMod f ON f.ModId = m.ModId AND f.Uid = @uid";
 
-            IEnumerable<GetModDto> queryResult = await _dbConnection.QueryAsync<GetModDto>(sql);
+            IEnumerable<GetModDto> queryResult = await _dbConnection.QueryAsync<GetModDto>(sql, new { uid });
 
             return queryResult.ToList();
         }
@@ -123,6 +128,16 @@ namespace Infrastructure
             IEnumerable<Mod> queryResult = await _dbConnection.QueryAsync<Mod>(sql, new { uid });
 
             return queryResult.ToList();
+        }
+
+        public async Task<bool> IsOwner(string modId, string uid)
+        {
+            string sql = @"SELECT COUNT(1)
+                   FROM Mod
+                   WHERE Uid = @uid
+                     AND ModId = @modId";
+
+            return await _dbConnection.ExecuteScalarAsync<int>(sql, new { uid, modId }) > 0;
         }
     }
 }

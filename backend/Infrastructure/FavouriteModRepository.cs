@@ -16,14 +16,11 @@ namespace Infrastructure
 
         public async Task AddToFavourites(string uid, string modId)
         {
-            string sql = @"INSERT INTO FavouriteMod (
-                               Uid,
-                               ModId
-                           )
-                           VALUES (
-                               @uid,
-                               @modId
-                           )";
+            string sql = @"INSERT INTO FavouriteMod (Uid, ModId)
+                             SELECT @uid, @modId
+                             WHERE NOT EXISTS (
+                               SELECT 1 FROM FavouriteMod WHERE Uid = @uid AND ModId = @modId
+                             );";
 
             await _dbConnection.ExecuteAsync(sql, new { uid, modId });
         }
@@ -31,6 +28,7 @@ namespace Infrastructure
         public async Task<List<GetModDto>> GetFavourites(string uid)
         {
             string sql = @"SELECT
+                               m.ModId,
                                u.Username
                                    AS 'Creator',
                                m.Title,
@@ -62,14 +60,6 @@ namespace Infrastructure
                                ModId = @modId";
 
             await _dbConnection.ExecuteAsync(sql, new { uid, modId });
-        }
-
-        public async Task DeleteFavouriteModReference(string modId)
-        {
-            string sql = @"DELETE FROM FavouriteMod
-                           WHERE ModId = @modId";
-
-            await _dbConnection.ExecuteAsync(sql, new { modId });
         }
     }
 }

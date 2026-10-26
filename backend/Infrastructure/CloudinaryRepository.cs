@@ -3,6 +3,7 @@ using CloudinaryDotNet.Actions;
 using Infrastructure.Constants;
 using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure
 {
@@ -21,7 +22,7 @@ namespace Infrastructure
             _cloudinary = cloudinary;
         }
 
-        public async Task<string> UploadAsync(IFormFile file, FileType fileType)
+        public async Task<RawUploadResult> UploadAsync(IFormFile file, FileType fileType)
         {
             using Stream stream = file.OpenReadStream();
 
@@ -31,9 +32,7 @@ namespace Infrastructure
                 Folder = _folders[fileType]
             };
 
-            RawUploadResult result = await _cloudinary.UploadAsync(uploadParams);
-
-            return result.SecureUrl.ToString();
+            return await _cloudinary.UploadAsync(uploadParams);
         }
 
         private string GetPublicIdFromUrl(string cloudniaryUrl, string publicIdStart)

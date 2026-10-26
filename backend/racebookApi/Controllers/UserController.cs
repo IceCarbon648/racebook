@@ -1,7 +1,9 @@
 ﻿using Business.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Request;
 using Models.Validators.Filter;
-using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace racebookApi.Controllers
 {
@@ -22,10 +24,21 @@ namespace racebookApi.Controllers
         {
             if (!await _userService.RegisterUserAsync(dto))
             {
-                return Unauthorized(new { message = "Registration was not successful" });
+                return Conflict(new { message = "Registration was not successful" });
             }
 
-            return Ok(new { message = "Registration successful" });
+            return StatusCode(StatusCodes.Status201Created, new { message = "Registration successful" });
+        }
+
+        [HttpGet("@me")]
+        [Authorize]
+        public async Task<IActionResult> GetTokenClaims()
+        {
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? username = User.FindFirst(ClaimTypes.Name)?.Value;
+            string? amaxUsername = User.FindFirst(ClaimTypes.GivenName)?.Value;
+
+            return Ok(new { uid, username, amaxUsername });
         }
     }
 }

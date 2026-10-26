@@ -35,7 +35,7 @@ namespace racebookApi.Controllers
                 Expires = DateTimeOffset.UtcNow.AddMinutes(30)
             });
 
-            return Ok(new {message = "Login successful"});
+            return Ok(new { message = "Login successful" });
 		}
 
 		[HttpPost("logout")]

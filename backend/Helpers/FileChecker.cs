@@ -21,7 +21,7 @@ namespace Helpers
 
             if (fileType is null) return false;
 
-            using var stream = file.OpenReadStream();
+            using Stream stream = file.OpenReadStream();
             return await _validator.IsValidAsync(stream, fileType, CancellationToken.None);
         }
 

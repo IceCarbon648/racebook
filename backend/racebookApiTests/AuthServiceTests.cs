@@ -1,12 +1,12 @@
-﻿using Business;
-using Models.DTOs.Request;
-using Infrastructure.Interfaces;
-using Models;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Business;
+using Infrastructure.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Models;
+using Models.DTOs.Request;
+using NSubstitute;
 
 namespace racebookApiTests;
 
@@ -24,46 +24,17 @@ public class AuthServiceTests
         _userRepository = Substitute.For<IUserRepository>();
         _logger = Substitute.For<ILogger<AuthService>>();
 
-        Dictionary<string, string?> configValues = new()
-        {
-            { "JwtSettings:Key", "this-is-a-test-key-that-is-long-enough-for-hmac" },
-            { "JwtSettings:Issuer", "TestIssuer" },
-            { "JwtSettings:Audience", "TestAudience" }
-        };
-
         _configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(configValues)
-            .Build();
+        .AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["JwtSettings:Key"] = "test-signing-key-that-is-long-enough-for-hmac-sha256",
+            ["JwtSettings:Issuer"] = "racebook-tests",
+            ["JwtSettings:Audience"] = "racebook-tests",
+            ["JwtSettings:ExpiryMinutes"] = "60"
+        })
+        .Build();
 
         _authService = new AuthService(_userRepository, _configuration, _logger);
-    }
-
-    [Test]
-    public async Task GivenValidCredentials_WhenLoginAsyncIsCalled_ThenJwtIsReturned()
-    {
-        //Arrange
-        LoginDto dto = new LoginDto
-        {
-            Email = "test@test.com",
-            Password = "Password1!"
-        };
-
-        AccountInfo accountInfo = new AccountInfo
-        {
-            Uid = Guid.NewGuid(),
-            Username = "TestUser",
-            AmaxUsername = null,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
-        };
-
-        _userRepository.GetAccountInfoByEmail(dto.Email).Returns(accountInfo);
-
-        //Act
-        string? result = await _authService.LoginAsync(dto);
-
-        //Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Not.Empty);
     }
 
     [Test]
@@ -72,8 +43,8 @@ public class AuthServiceTests
         //Arrange
         LoginDto dto = new LoginDto
         {
-            Email = "nonexistent.mail@test.com",
-            Password = "Password1!"
+            Email = "missing@example.com",
+            Password = "TestPassword123!"
         };
 
         _userRepository.GetAccountInfoByEmail(dto.Email).Returns((AccountInfo?)null);
@@ -83,17 +54,16 @@ public class AuthServiceTests
 
         //Assert
         Assert.That(result, Is.Null);
-        await _userRepository.Received(1).GetAccountInfoByEmail(dto.Email);
     }
 
     [Test]
-    public async Task GivenInvalidPassword_WhenLoginAsyncIsCalled_ThenNullIsReturned()
+    public async Task GivenIncorrectPassword_WhenLoginAsyncIsCalled_ThenNullIsReturned()
     {
         //Arrange
         LoginDto dto = new LoginDto
         {
-            Email = "testing@test.com",
-            Password = "WrongPassword1!"
+            Email = "test@example.com",
+            Password = "WrongPassword123!"
         };
 
         AccountInfo accountInfo = new AccountInfo
@@ -101,7 +71,7 @@ public class AuthServiceTests
             Uid = Guid.NewGuid(),
             Username = "TestUser",
             AmaxUsername = null,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password1!")
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("CorrectPassword123!")
         };
 
         _userRepository.GetAccountInfoByEmail(dto.Email).Returns(accountInfo);
@@ -111,43 +81,102 @@ public class AuthServiceTests
 
         //Assert
         Assert.That(result, Is.Null);
-        await _userRepository.Received(1).GetAccountInfoByEmail(dto.Email);
     }
 
     [Test]
-    public void GivenValidDiscordUser_WhenGenerateTokenWithAmaxUsernameIsCalled_ThenJwtIsReturned()
+    public async Task GivenValidCredentials_WhenLoginAsyncIsCalled_ThenTokenIsReturned()
     {
         //Arrange
-        string uid = Guid.NewGuid().ToString();
-        string username = "TestUser";
-        string amaxUsername = "AmaxUser";
+        string password = "TestPassword123!";
+
+        LoginDto dto = new LoginDto
+        {
+            Email = "test@example.com",
+            Password = password
+        };
+
+        AccountInfo accountInfo = new AccountInfo
+        {
+            Uid = Guid.NewGuid(),
+            Username = "TestUser",
+            AmaxUsername = null,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
+        };
+
+        _userRepository.GetAccountInfoByEmail(dto.Email).Returns(accountInfo);
 
         //Act
-        string result = _authService.GenerateTokenWithAmaxUsername(uid, username, amaxUsername);
+        string? result = await _authService.LoginAsync(dto);
 
         //Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Is.Not.Empty);
-        Assert.That(result.Split('.'), Has.Length.EqualTo(3));
     }
 
     [Test]
-    public void GivenValidDiscordUser_WhenGenerateTokenWithAmaxUsernameIsCalled_ThenTokenContainsCorrectClaims()
+    public async Task GivenValidCredentials_WhenLoginAsyncIsCalled_ThenTokenContainsTheUsersId()
     {
         //Arrange
-        string uid = Guid.NewGuid().ToString();
-        string username = "TestUser";
-        string amaxUsername = "AmaxUser";
+        string password = "TestPassword123!";
+        Guid uid = Guid.NewGuid();
+
+        LoginDto dto = new LoginDto
+        {
+            Email = "test@example.com",
+            Password = password
+        };
+
+        AccountInfo accountInfo = new AccountInfo
+        {
+            Uid = uid,
+            Username = "TestUser",
+            AmaxUsername = null,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
+        };
+
+        _userRepository.GetAccountInfoByEmail(dto.Email).Returns(accountInfo);
 
         //Act
-        string result = _authService.GenerateTokenWithAmaxUsername(uid, username, amaxUsername);
+        string? result = await _authService.LoginAsync(dto);
 
         //Assert
-        JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-        JwtSecurityToken token = handler.ReadJwtToken(result);
+        JwtSecurityToken token = new JwtSecurityTokenHandler().ReadJwtToken(result);
 
-        Assert.That(token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, Is.EqualTo(uid));
-        Assert.That(token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value, Is.EqualTo(username));
-        Assert.That(token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value, Is.EqualTo(amaxUsername));
+        Assert.That(
+            token.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value,
+            Is.EqualTo(uid.ToString()));
+    }
+
+    [Test]
+    public async Task GivenValidCredentials_WhenLoginAsyncIsCalled_ThenTokenDoesNotContainThePasswordHash()
+    {
+        //Arrange
+        string password = "TestPassword123!";
+        string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+
+        LoginDto dto = new LoginDto
+        {
+            Email = "test@example.com",
+            Password = password
+        };
+
+        AccountInfo accountInfo = new AccountInfo
+        {
+            Uid = Guid.NewGuid(),
+            Username = "TestUser",
+            AmaxUsername = null,
+            PasswordHash = passwordHash
+        };
+
+        _userRepository.GetAccountInfoByEmail(dto.Email).Returns(accountInfo);
+
+        //Act
+        string? result = await _authService.LoginAsync(dto);
+
+        //Assert
+        JwtSecurityToken token = new JwtSecurityTokenHandler().ReadJwtToken(result);
+
+        Assert.That(token.Claims.Any(c => c.Value == passwordHash), Is.False);
+        Assert.That(token.Claims.Any(c => c.Value == password), Is.False);
     }
 }

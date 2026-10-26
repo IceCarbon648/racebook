@@ -1,9 +1,10 @@
 ﻿using Business.Interfaces;
-using Models.DTOs.Request;
-using Models.Validators.Filter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models.DTOs.Request;
+using Models.Validators.Filter;
 using System.Security.Claims;
+using Models.Constants;
 
 namespace racebookApi.Controllers
 {
@@ -25,15 +26,28 @@ namespace racebookApi.Controllers
         {
             string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
 
-            await _modService.UploadMod(uid, dto);
+            Guid? modId = await _modService.UploadMod(uid, dto);
 
-            return Ok();
+            if (modId is null)
+            {
+                return StatusCode(StatusCodes.Status502BadGateway,
+                    new { message = "Upload service is unavailable, please try again" });
+            }
+
+            return Created($"/api/mod/{modId}", new { modId });
         }
 
         [HttpDelete("{modId}")]
         [Authorize]
         public async Task<IActionResult> DeleteMod([FromRoute] string modId)
         {
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+
+            if (!await _modService.IsOwner(modId, uid))
+            {
+                return Forbid(Constants.NotOwnerMessage);
+            }
+
             await _modService.DeleteMod(modId);
 
             return Ok();
@@ -44,6 +58,13 @@ namespace racebookApi.Controllers
         [ServiceFilter(typeof(ValidationFilter<ModEditDto>))]
         public async Task<IActionResult> EditMod([FromRoute] string modId, [FromForm] ModEditDto dto)
         {
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+
+            if (!await _modService.IsOwner(modId, uid))
+            {
+                return Forbid(Constants.NotOwnerMessage);
+            }
+
             await _modService.EditMod(modId, dto);
 
             return Ok();
@@ -52,7 +73,9 @@ namespace racebookApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllMods()
         {
-            return Ok(await _modService.GetAllMods());
+            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+
+            return Ok(await _modService.GetAllMods(uid));
         }
 
         [HttpGet("my-mods")]

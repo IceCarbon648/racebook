@@ -1,7 +1,8 @@
-﻿using Models.DTOs.Request;
-using Infrastructure.Interfaces;
+﻿using Ardalis.GuardClauses;
 using Business.Interfaces;
+using Infrastructure.Interfaces;
 using Microsoft.Extensions.Logging;
+using Models.DTOs.Request;
 
 namespace Business
 {
@@ -36,8 +37,9 @@ namespace Business
             return registeredSuccessfully;
         }
 
-        public async Task setAmaxUsername(string uid, string playerName)
+        public async Task SetAmaxUsername(string uid, string playerName)
         {
+            Guard.Against.NullOrWhiteSpace(playerName, nameof(playerName));
             await _userRepository.UpdateAmaxUsername(uid, playerName);
         }
     }
