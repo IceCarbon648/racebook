@@ -2,20 +2,29 @@
 using FluentValidation;
 using Models.DTOs.Request;
 using static Models.Constants.Constants;
+using Business.Interfaces;
 
-namespace Models.Validators
+namespace Validation
 {
     public class ModEditDtoValidator : AbstractValidator<ModEditDto>
     {
-        public ModEditDtoValidator(IFileChecker fileChecker)
+        private readonly ICategoryService _categoryService;
+
+        public ModEditDtoValidator(IFileChecker fileChecker, ICategoryService categoryService)
         {
+            _categoryService = categoryService;
+
             RuleFor(x => x.Title)
                 .MaximumLength(32)
                 .When(x => x.Title != null);
 
             RuleFor(x => x.Type)
                 .MaximumLength(16)
-                .Must(x => Types.Contains(x))
+                .MustAsync(async (type, cancellation) =>
+                {
+                    List<string> categories = await _categoryService.GetCategories();
+                    return categories.Contains(type);
+                })
                 .When(x => x.Type != null);
 
             RuleFor(x => x.Description)

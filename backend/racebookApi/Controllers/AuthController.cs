@@ -2,7 +2,7 @@ using Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Request;
-using Models.Validators.Filter;
+using Validation.Filter;
 
 namespace racebookApi.Controllers
 {

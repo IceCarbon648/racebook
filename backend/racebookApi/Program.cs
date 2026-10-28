@@ -17,8 +17,9 @@ using Scalar.AspNetCore;
 using Serilog;
 using System.Data;
 using System.Text;
-using Models.Validators.Filter;
+using Validation.Filter;
 using Helpers;
+using Validation.Startup;
 
 Env.Load();
 
@@ -51,6 +52,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddBusiness();
 builder.Services.AddInfrastructure();
+builder.Services.AddFluentValidation();
 builder.Services.AddScoped(typeof(ValidationFilter<>));
 ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Continue;
 

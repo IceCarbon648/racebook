@@ -4,5 +4,6 @@
   <Project Path="../Infrastructure/Infrastructure.csproj" Id="66eff8e6-e1d4-4ba5-851e-4a4b7735bd5b" />
   <Project Path="../Models/Models.csproj" Id="02cf3585-2a77-4b82-96b8-13cab660b164" />
   <Project Path="../racebookApiTests/racebookApiTests.csproj" Id="98e6ba0e-ba3d-4c8d-ac3e-f14e41d4b6a2" />
+  <Project Path="../Validation/Validation.csproj" Id="55027f6c-3f37-4ae1-8fe6-53ccd08c73d8" />
   <Project Path="racebookApi.csproj" />
 </Solution>

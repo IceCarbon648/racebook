@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Request;
-using Models.Validators.Filter;
+using Validation.Filter;
 using System.Security.Claims;
 
 namespace racebookApi.Controllers

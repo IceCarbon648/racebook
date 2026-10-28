@@ -11,6 +11,7 @@ namespace Infrastructure.Startup
             services.AddScoped<IModRepository, ModRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IFavouriteModRepository, FavouriteModRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             return services;
         }
