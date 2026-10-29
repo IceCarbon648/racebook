@@ -1,6 +1,7 @@
-import { CATEGORIES } from '../../../constants/categories';
+import { ALL_CATEGORIES } from '../../../constants/categories';
 import { MAX_MOD_TITLE_LENGTH } from '../../../constants/inputLimits';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../../constants/theme';
+import { useCategories } from '../../../hooks/useCategories';
 import Dropdown from '../Dropdown';
 import type { ModFiltersProps } from './index.types';
 
@@ -16,6 +17,8 @@ const ModFilters = ({
     search, category, order,
     onSearchChange, onCategoryChange, onOrderChange, onReset,
 }: ModFiltersProps) => {
+    const { categories } = useCategories();
+
     return (
         <div className="flex justify-center gap-8 mb-6">
             <input
@@ -29,7 +32,7 @@ const ModFilters = ({
 
             <Dropdown
                 value={category}
-                options={CATEGORIES}
+                options={[ALL_CATEGORIES, ...categories]}
                 label="Filter by category"
                 onChange={onCategoryChange}
                 className="w-32"

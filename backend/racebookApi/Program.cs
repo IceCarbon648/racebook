@@ -122,15 +122,6 @@ if (app.Environment.IsDevelopment())
     );
 }
 
-app.Use(async (context, next) =>
-{
-    var token = context.Request.Cookies["access_token"];
-    if (!string.IsNullOrEmpty(token))
-        context.Request.Headers.Authorization = $"Bearer {token}";
-
-    await next();
-});
-
 app.UseExceptionHandler(_ => { });
 app.UseCors("AllowOrigin");
 
@@ -138,9 +129,10 @@ app.UseHttpsRedirection();
 
 app.Use(async (context, next) =>
 {
-    var token = context.Request.Cookies["access_token"];
+    string? token = context.Request.Cookies["access_token"];
     if (!string.IsNullOrEmpty(token))
         context.Request.Headers.Authorization = $"Bearer {token}";
+
     await next();
 });
 

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import FormPanel from '../../molecules/FormPanel';
-import { CATEGORIES } from '../../../constants/categories';
+import Dropdown from '../../molecules/Dropdown';
 import { FilePicker } from '../../atoms';
 import type { ModModalProps } from './index.types';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../../constants/theme';
 import { MAX_MOD_TITLE_LENGTH, MAX_MOD_DESCRIPTION_LENGTH } from '../../../constants/inputLimits';
+import { useCategories } from '../../../hooks/useCategories';
 
 const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
     const [title, setTitle] = useState('');
@@ -14,6 +15,12 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
     const [previewImage, setPreviewImage] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const {
+        categories,
+        isLoading: isLoadingCategories,
+        isError: isCategoriesError,
+    } = useCategories();
 
     useEffect(() => {
         if (mode === 'edit' && mod) {
@@ -96,6 +103,12 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                     <div className="flex flex-col gap-4">
                         {error && <p className="text-sm text-red-400">{error}</p>}
 
+                        {isCategoriesError && (
+                            <p className="text-sm text-red-400">
+                                Could not load categories, please refresh and try again
+                            </p>
+                        )}
+
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="title" className="flex justify-start font-medium text-white">
                                 Title
@@ -112,20 +125,16 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label htmlFor="type" className="flex justify-start font-medium text-white">
+                            <span className="flex justify-start font-medium text-white">
                                 Category
-                            </label>
-                            <select
-                                id="type"
+                            </span>
+                            <Dropdown
                                 value={type}
-                                onChange={(e) => setType(e.target.value)}
-                                className={inputClass}
-                            >
-                                <option value="">Select a category</option>
-                                {CATEGORIES.filter((c) => c !== 'ALL').map((c) => (
-                                    <option key={c} value={c}>{c}</option>
-                                ))}
-                            </select>
+                                options={categories}
+                                label={isLoadingCategories ? 'Loading categories...' : 'Select a category'}
+                                onChange={setType}
+                                className="w-full"
+                            />
                         </div>
 
                         <div className="flex flex-col gap-1.5">
@@ -174,7 +183,7 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                         </button>
                         <button
                             onClick={handleSubmit}
-                            disabled={isLoading}
+                            disabled={isLoading || isLoadingCategories || isCategoriesError}
                             className={`w-1/2 px-4 py-2 bg-[${PRIMARY_BUTTON_COLOUR}] hover:bg-[${PRIMARY_BUTTON_HOVER_COLOUR}] text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer`}
                         >
                             {isLoading ? 'SAVING...' : mode === 'upload' ? 'UPLOAD' : 'SAVE CHANGES'}

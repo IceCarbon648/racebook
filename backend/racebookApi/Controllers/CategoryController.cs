@@ -17,8 +17,6 @@ namespace racebookApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
-            Response.Cookies.Delete("access_token");
-
             return Ok(await _categoryService.GetCategories());
         }
     }

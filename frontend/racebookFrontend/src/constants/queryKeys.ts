@@ -3,4 +3,5 @@ export const queryKeys = {
     mods: ['mods'] as const,
     myMods: ['myMods'] as const,
     favourites: ['favourites'] as const,
+    categories: ['categories'] as const
 };
