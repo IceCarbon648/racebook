@@ -5,16 +5,24 @@ import Background from '../../components/molecules/Background/Index';
 import FormPanel from '../../components/molecules/FormPanel';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import { MAX_EMAIL_LENGTH } from '../../constants/inputLimits';
+import { loginSchema, validate } from '../../validation';
 
 const Login = () => {
     const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async () => {
         setError(null);
+
+        const errors = await validate(loginSchema, { email, password });
+        setFieldErrors(errors ?? {});
+
+        if (errors) return;
+
         setIsLoading(true);
 
         try {
@@ -47,6 +55,9 @@ const Login = () => {
                             placeholder="Enter your email"
                             className="px-3 py-2 bg-black/50 text-sm text-gray-300 border border-gray-400 rounded focus:outline-none focus:border-gray-200"
                         />
+                        {fieldErrors.email && (
+                            <p className="text-xs text-left text-red-400">{fieldErrors.email}</p>
+                        )}
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="password" className="flex justify-start font-medium text-white">
@@ -60,6 +71,9 @@ const Login = () => {
                             placeholder="Enter your password"
                             className="px-3 py-2 bg-black/50 text-sm text-gray-300 border border-gray-400 rounded focus:outline-none focus:border-gray-200"
                         />
+                        {fieldErrors.password && (
+                            <p className="text-xs text-left text-red-400">{fieldErrors.password}</p>
+                        )}
                     </div>
                     {error && (
                         <p className="text-sm text-red-500">{error}</p>
