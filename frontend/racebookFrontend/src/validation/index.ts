@@ -112,7 +112,7 @@ export const registerSchema = yup.object({
         .trim()
         .required('Username is required')
         .min(3, 'Username must be at least 3 characters')
-        .max(32, 'Username must be 32 characters or fewer'),
+        .max(16, 'Username must be 16 characters or fewer'),
 
     password: yup
         .string()

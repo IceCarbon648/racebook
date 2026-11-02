@@ -6,6 +6,7 @@ import Background from '../../components/molecules/Background/Index';
 import FormPanel from '../../components/molecules/FormPanel';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import { MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH } from '../../constants/inputLimits';
+import { registerSchema, validate } from '../../validation';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -42,12 +43,25 @@ const Register = () => {
         });
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         setErrors({});
         setFormError(null);
 
-        if (password !== confirmPassword) {
-            setErrors({ ConfirmPassword: ['Passwords do not match'] });
+        const validationErrors = await validate(registerSchema, {
+            Email: email,
+            Username: username,
+            Password: password,
+            ConfirmPassword: confirmPassword,
+        });
+
+        console.log(validationErrors);
+
+        if (validationErrors) {
+            setErrors(
+                Object.fromEntries(
+                    Object.entries(validationErrors).map(([field, message]) => [field, [message]])
+                )
+            );
             return;
         }
 
@@ -84,10 +98,10 @@ const Register = () => {
                                 maxLength={MAX_EMAIL_LENGTH}
                                 onChange={(e) => { setEmail(e.target.value); clearFieldError('Email'); }}
                                 placeholder="Enter your email"
-                                aria-invalid={!!errors.Email}
+                                aria-invalid={!!errors.email}
                                 className={fieldClass('Email')}
                             />
-                            {errors.Email?.map((msg) => (
+                            {errors.email?.map((msg) => (
                                 <p key={msg} className="text-xs text-red-400">{msg}</p>
                             ))}
                         </div>
@@ -103,10 +117,10 @@ const Register = () => {
                                 maxLength={MAX_USERNAME_LENGTH}
                                 onChange={(e) => { setUsername(e.target.value); clearFieldError('Username'); }}
                                 placeholder="Enter your username"
-                                aria-invalid={!!errors.Username}
+                                aria-invalid={!!errors.username}
                                 className={fieldClass('Username')}
                             />
-                            {errors.Username?.map((msg) => (
+                            {errors.username?.map((msg) => (
                                 <p key={msg} className="text-xs text-red-400">{msg}</p>
                             ))}
                         </div>
@@ -121,10 +135,10 @@ const Register = () => {
                                 value={password}
                                 onChange={(e) => { setPassword(e.target.value); clearFieldError('Password'); }}
                                 placeholder="Enter your password"
-                                aria-invalid={!!errors.Password}
+                                aria-invalid={!!errors.password}
                                 className={fieldClass('Password')}
                             />
-                            {errors.Password?.map((msg) => (
+                            {errors.password?.map((msg) => (
                                 <p key={msg} className="text-xs text-red-400">{msg}</p>
                             ))}
                         </div>
@@ -139,10 +153,10 @@ const Register = () => {
                                 value={confirmPassword}
                                 onChange={(e) => { setConfirmPassword(e.target.value); clearFieldError('ConfirmPassword'); }}
                                 placeholder="Re-enter your password"
-                                aria-invalid={!!errors.ConfirmPassword}
+                                aria-invalid={!!errors.confirmPassword}
                                 className={fieldClass('ConfirmPassword')}
                             />
-                            {errors.ConfirmPassword?.map((msg) => (
+                            {errors.confirmPassword?.map((msg) => (
                                 <p key={msg} className="text-xs text-red-400">{msg}</p>
                             ))}
                         </div>
