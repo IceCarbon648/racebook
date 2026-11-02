@@ -6,6 +6,7 @@ import type { ModModalProps } from './index.types';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../../constants/theme';
 import { MAX_MOD_TITLE_LENGTH, MAX_MOD_DESCRIPTION_LENGTH } from '../../../constants/inputLimits';
 import { useCategories } from '../../../hooks/useCategories';
+import { getFileNameFromUrl } from '../../../helpers/getFileNameFromUrl';
 
 const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
     const [title, setTitle] = useState('');
@@ -159,6 +160,7 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                                 label="Mod File"
                                 accept=".tpf"
                                 file={modFile}
+                                existingFileName={mode === 'edit' && mod ? getFileNameFromUrl(mod.modFileUrl) : null}
                                 optional={mode === 'edit'}
                                 onChange={setModFile}
                             />
@@ -168,6 +170,7 @@ const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
                                 label="Preview Image"
                                 accept=".png,.jpg,.jpeg"
                                 file={previewImage}
+                                existingFileName={mode === 'edit' && mod ? getFileNameFromUrl(mod.imageUrl) : null}
                                 optional={mode === 'edit'}
                                 onChange={setPreviewImage}
                             />
