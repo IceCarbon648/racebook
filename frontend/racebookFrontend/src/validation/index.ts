@@ -1,8 +1,5 @@
 import * as yup from 'yup';
-import {
-    MAX_MOD_TITLE_LENGTH,
-    MAX_MOD_DESCRIPTION_LENGTH,
-} from '../constants/inputLimits';
+import { MAX_MOD_TITLE_LENGTH, MAX_MOD_DESCRIPTION_LENGTH, } from '../constants/inputLimits';
 
 const MAX_MOD_FILE_BYTES = 10 * 1024 * 1024;
 const MAX_PREVIEW_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -31,7 +28,7 @@ export const validate = async <T extends object>(
     }
 };
 
-const modFile = yup
+const modFileRules = yup
     .mixed<File>()
     .test(
         'extension',
@@ -40,11 +37,11 @@ const modFile = yup
     )
     .test(
         'size',
-        'Mod file must be smaller than 50MB',
+        'Mod file must be smaller than 10MB',
         (file) => !file || file.size <= MAX_MOD_FILE_BYTES
     );
 
-const previewImage = yup
+const previewImageRules = yup
     .mixed<File>()
     .test(
         'extension',
@@ -57,37 +54,39 @@ const previewImage = yup
         (file) => !file || file.size <= MAX_PREVIEW_IMAGE_BYTES
     );
 
-export const createModSchema = (categories: string[], mode: 'upload' | 'edit') =>
+const titleRules = yup
+    .string()
+    .trim()
+    .max(MAX_MOD_TITLE_LENGTH, `Title must be ${MAX_MOD_TITLE_LENGTH} characters or fewer`);
+
+const descriptionRules = yup
+    .string()
+    .trim()
+    .max(
+        MAX_MOD_DESCRIPTION_LENGTH,
+        `Description must be ${MAX_MOD_DESCRIPTION_LENGTH} characters or fewer`
+    );
+
+const typeRules = (categories: string[]) =>
+    yup.string().oneOf(categories, 'Select a category from the list');
+
+const modDetailsSchema = (categories: string[]) =>
     yup.object({
-        title: yup
-            .string()
-            .trim()
-            .required('Title is required')
-            .max(MAX_MOD_TITLE_LENGTH, `Title must be ${MAX_MOD_TITLE_LENGTH} characters or fewer`),
+        title: titleRules.required('Title is required'),
+        type: typeRules(categories).required('Category is required'),
+        description: descriptionRules.required('Description is required'),
+    });
 
-        type: yup
-            .string()
-            .required('Category is required')
-            .oneOf(categories, 'Select a category from the list'),
+export const modUploadSchema = (categories: string[]) =>
+    modDetailsSchema(categories).shape({
+        modFile: modFileRules.required('Mod file is required'),
+        previewImage: previewImageRules.required('Preview image is required'),
+    });
 
-        description: yup
-            .string()
-            .trim()
-            .required('Description is required')
-            .max(
-                MAX_MOD_DESCRIPTION_LENGTH,
-                `Description must be ${MAX_MOD_DESCRIPTION_LENGTH} characters or fewer`
-            ),
-
-        modFile:
-            mode === 'upload'
-                ? modFile.required('Mod file is required')
-                : modFile.nullable(),
-
-        previewImage:
-            mode === 'upload'
-                ? previewImage.required('Preview image is required')
-                : previewImage.nullable(),
+export const modEditSchema = (categories: string[]) =>
+    modDetailsSchema(categories).shape({
+        modFile: modFileRules.nullable(),
+        previewImage: previewImageRules.nullable(),
     });
 
 export const loginSchema = yup.object({
