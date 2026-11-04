@@ -100,26 +100,30 @@ export const loginSchema = yup.object({
 });
 
 export const registerSchema = yup.object({
-    email: yup
+    Email: yup
         .string()
         .trim()
         .required('Email is required')
         .email('Enter a valid email address'),
 
-    username: yup
+    Username: yup
         .string()
         .trim()
         .required('Username is required')
         .min(3, 'Username must be at least 3 characters')
         .max(16, 'Username must be 16 characters or fewer'),
 
-    password: yup
+    Password: yup
         .string()
         .required('Password is required')
-        .min(8, 'Password must be at least 8 characters'),
+        .min(8, 'Password must be at least 8 characters')
+        .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+        .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+        .matches(/[0-9]/, 'Password must contain at least one number')
+        .matches(/[^a-zA-Z0-9]/, 'Password must contain at least one special character'),
 
-    confirmPassword: yup
+    ConfirmPassword: yup
         .string()
         .required('Please confirm your password')
-        .oneOf([yup.ref('password')], 'Passwords do not match'),
+        .oneOf([yup.ref('Password')], 'Passwords do not match'),
 });

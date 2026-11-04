@@ -7,6 +7,8 @@ import FormPanel from '../../components/molecules/FormPanel';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import { MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH } from '../../constants/inputLimits';
 import { registerSchema, validate } from '../../validation';
+import { toast } from 'react-toastify';
+import { getResponseMessage } from '../../utils/getResponseMessage';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -18,22 +20,21 @@ const Register = () => {
     const [formError, setFormError] = useState<string | null>(null);
 
     const registerMutation = useMutation({
-        mutationFn: register,
-        onSuccess: () => navigate('/login'),
-        onError: (err: any) => {
-            const data = err?.response?.data;
+    mutationFn: register,
+    onSuccess: () => {
+        toast.success('Account created, you can now log in');
+        navigate('/login');
+    },
+    onError: (err: any) => {
+        const data = err?.response?.data;
 
-            if (data?.errors) {
-                setErrors(data.errors);
-            } else {
-                setFormError(
-                    data?.message
-                    ?? data?.detail
-                    ?? 'Something went wrong, please try again'
-                );
-            }
-        },
-    });
+        if (data?.errors) {
+            setErrors(data.errors);
+        } else {
+            setFormError(getResponseMessage(err));
+        }
+    },
+});
 
     const clearFieldError = (field: string) => {
         setErrors((prev) => {
@@ -88,20 +89,20 @@ const Register = () => {
                         )}
 
                         <div className="flex flex-col gap-1.5">
-                            <label htmlFor="email" className="flex justify-start font-medium text-white">
+                            <label htmlFor="Email" className="flex justify-start font-medium text-white">
                                 Email
                             </label>
                             <input
-                                id="email"
+                                id="Email"
                                 type="email"
                                 value={email}
                                 maxLength={MAX_EMAIL_LENGTH}
                                 onChange={(e) => { setEmail(e.target.value); clearFieldError('Email'); }}
                                 placeholder="Enter your email"
-                                aria-invalid={!!errors.email}
+                                aria-invalid={!!errors.Email}
                                 className={fieldClass('Email')}
                             />
-                            {errors.email?.map((msg) => (
+                            {errors.Email?.map((msg) => (
                                 <p key={msg} className="text-xs text-red-400">{msg}</p>
                             ))}
                         </div>
@@ -120,7 +121,7 @@ const Register = () => {
                                 aria-invalid={!!errors.username}
                                 className={fieldClass('Username')}
                             />
-                            {errors.username?.map((msg) => (
+                            {errors.Username?.map((msg) => (
                                 <p key={msg} className="text-xs text-red-400">{msg}</p>
                             ))}
                         </div>
@@ -138,7 +139,7 @@ const Register = () => {
                                 aria-invalid={!!errors.password}
                                 className={fieldClass('Password')}
                             />
-                            {errors.password?.map((msg) => (
+                            {errors.Password?.map((msg) => (
                                 <p key={msg} className="text-xs text-red-400">{msg}</p>
                             ))}
                         </div>
@@ -156,7 +157,7 @@ const Register = () => {
                                 aria-invalid={!!errors.confirmPassword}
                                 className={fieldClass('ConfirmPassword')}
                             />
-                            {errors.confirmPassword?.map((msg) => (
+                            {errors.ConfirmPassword?.map((msg) => (
                                 <p key={msg} className="text-xs text-red-400">{msg}</p>
                             ))}
                         </div>
