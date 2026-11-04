@@ -5,6 +5,8 @@ import Background from '../../components/molecules/Background/Index';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import { useMyMods } from '../../hooks/useMyMods';
 import { usePagination } from '../../hooks/usePagination';
+import { toast } from 'react-toastify';
+import { getResponseMessage } from '../../utils/getResponseMessage';
 
 const MyMods = () => {
     const { mods, isLoading, isError, uploadMod, editMod, deleteMod } = useMyMods();
@@ -38,11 +40,15 @@ const MyMods = () => {
         }
     };
 
-    const handleDeleteClick = (modId: string) => {
-        const confirmed = window.confirm('Are you sure you want to delete this mod?');
-        if (!confirmed) return;
+    const handleDeleteClick = async (modId: string) => {
+        if (!window.confirm('Are you sure you want to delete this mod?')) return;
 
-        deleteMod(modId);
+        try {
+            await deleteMod(modId);
+            toast.success('Mod deleted');
+        } catch (err) {
+            toast.error(getResponseMessage(err, 'Could not delete the mod, please try again'));
+        }
     };
 
     if (page > totalPages && totalPages > 0) setPage(totalPages);
