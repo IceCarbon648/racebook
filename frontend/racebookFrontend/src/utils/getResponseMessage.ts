@@ -16,3 +16,6 @@ export const getResponseMessage = (
 
     return fallback;
 };
+
+export const getResponseStatus = (error: unknown): number | undefined =>
+    axios.isAxiosError(error) ? error.response?.status : undefined;

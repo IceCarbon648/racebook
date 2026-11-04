@@ -55,8 +55,6 @@ const Register = () => {
             ConfirmPassword: confirmPassword,
         });
 
-        console.log(validationErrors);
-
         if (validationErrors) {
             setErrors(
                 Object.fromEntries(
