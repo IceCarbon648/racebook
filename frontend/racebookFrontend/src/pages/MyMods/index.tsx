@@ -5,8 +5,7 @@ import Background from '../../components/molecules/Background/Index';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import { useMyMods } from '../../hooks/useMyMods';
 import { usePagination } from '../../hooks/usePagination';
-import { toast } from 'react-toastify';
-import { getResponseMessage } from '../../utils/getResponseMessage';
+import { notify } from '../../utils/notify';
 
 const MyMods = () => {
     const { mods, isLoading, isError, uploadMod, editMod, deleteMod } = useMyMods();
@@ -45,9 +44,9 @@ const MyMods = () => {
 
         try {
             await deleteMod(modId);
-            toast.success('Mod deleted');
+            notify.success('Mod deleted');
         } catch (err) {
-            toast.error(getResponseMessage(err, 'Could not delete the mod, please try again'));
+            notify.apiError(err, 'Could not delete the mod, please try again');
         }
     };
 

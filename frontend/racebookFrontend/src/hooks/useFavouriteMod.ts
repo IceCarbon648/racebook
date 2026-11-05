@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addToFavourites, deleteFromFavourites } from '../services';
 import { queryKeys } from '../constants/queryKeys';
-import { toast } from 'react-toastify';
-import { getResponseMessage } from '../utils/getResponseMessage';
+import { notify } from '../utils/notify';
 
 
 export const useFavouriteMod = () => {
@@ -21,13 +20,9 @@ export const useFavouriteMod = () => {
         try {
             await mutation.mutateAsync({ modId, isFavourite });
 
-            toast.success(
-                isFavourite ? 'Removed from favourites' : 'Added to favourites'
-            );
+            notify.success(isFavourite ? 'Removed from favourites' : 'Added to favourites');
         } catch (err) {
-            toast.error(
-                getResponseMessage(err, 'Could not update your favourites, please try again')
-            );
+            notify.apiError(err, 'Could not update your favourites, please try again');
         }
     };
 

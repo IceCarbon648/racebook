@@ -7,8 +7,7 @@ import FormPanel from '../../components/molecules/FormPanel';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import { MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH } from '../../constants/inputLimits';
 import { registerSchema, validate } from '../../validation';
-import { toast } from 'react-toastify';
-import { getResponseMessage } from '../../utils/getResponseMessage';
+import { notify } from '../../utils/notify';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -17,24 +16,23 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errors, setErrors] = useState<Record<string, string[]>>({});
-    const [formError, setFormError] = useState<string | null>(null);
 
     const registerMutation = useMutation({
-    mutationFn: register,
-    onSuccess: () => {
-        toast.success('Account created, you can now log in');
-        navigate('/login');
-    },
-    onError: (err: any) => {
-        const data = err?.response?.data;
+        mutationFn: register,
+        onSuccess: () => {
+            notify.success('Account created, you can now log in');
+            navigate('/login');
+        },
+        onError: (err: any) => {
+            const data = err?.response?.data;
 
-        if (data?.errors) {
-            setErrors(data.errors);
-        } else {
-            setFormError(getResponseMessage(err));
-        }
-    },
-});
+            if (data?.errors) {
+                setErrors(data.errors);
+            } else {
+                notify.apiError(err);
+            }
+        },
+    });
 
     const clearFieldError = (field: string) => {
         setErrors((prev) => {
@@ -46,7 +44,6 @@ const Register = () => {
 
     const handleSubmit = async () => {
         setErrors({});
-        setFormError(null);
 
         const validationErrors = await validate(registerSchema, {
             Email: email,
@@ -68,10 +65,9 @@ const Register = () => {
     };
 
     const fieldClass = (field: string) =>
-        `px-3 py-2 bg-black/50 text-sm text-gray-300 rounded focus:outline-none border ${
-            errors[field]
-                ? 'border-red-400 focus:border-red-300'
-                : 'border-gray-400 focus:border-gray-200'
+        `px-3 py-2 bg-black/50 text-sm text-gray-300 rounded focus:outline-none border ${errors[field]
+            ? 'border-red-400 focus:border-red-300'
+            : 'border-gray-400 focus:border-gray-200'
         }`;
 
     return (
@@ -82,10 +78,6 @@ const Register = () => {
 
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col gap-4">
-                        {formError && (
-                            <p className="text-sm text-red-400">{formError}</p>
-                        )}
-
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="Email" className="flex justify-start font-medium text-white">
                                 Email

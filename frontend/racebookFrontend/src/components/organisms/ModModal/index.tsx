@@ -8,8 +8,8 @@ import { MAX_MOD_TITLE_LENGTH, MAX_MOD_DESCRIPTION_LENGTH } from '../../../const
 import { useCategories } from '../../../hooks/useCategories';
 import { getFileNameFromUrl } from '../../../helpers/getFileNameFromUrl';
 import { modUploadSchema, modEditSchema, validate } from '../../../validation';
+import { notify } from '../../../utils/notify';
 import { getResponseMessage } from '../../../utils/getResponseMessage';
-import { toast } from 'react-toastify';
 
 const ModModal = ({ isOpen, mode, mod, onClose, onSubmit }: ModModalProps) => {
     const [title, setTitle] = useState('');
@@ -64,7 +64,7 @@ const handleSubmit = async () => {
     setIsLoading(true);
     try {
         await onSubmit(formData);
-        toast.success(mode === 'upload' ? 'Mod uploaded' : 'Changes saved');
+        notify.success(mode === 'upload' ? 'Mod uploaded' : 'Changes saved');
         onClose();
     } catch (err) {
         setError(getResponseMessage(err));

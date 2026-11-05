@@ -6,8 +6,9 @@ import FormPanel from '../../components/molecules/FormPanel';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import { MAX_EMAIL_LENGTH } from '../../constants/inputLimits';
 import { loginSchema, validate } from '../../validation';
-import { toast } from 'react-toastify';
-import { getResponseMessage, getResponseStatus } from '../../utils/getResponseMessage';
+//import { getResponseMessage, getResponseStatus } from '../../utils/getResponseMessage';
+import { notify } from '../../utils/notify';
+import { getResponseStatus } from '../../utils/getResponseMessage';
 
 const Login = () => {
     const { login } = useAuth();
@@ -29,12 +30,12 @@ const Login = () => {
 
         try {
             await login(email, password);
-            toast.success('Logged in successfully');
+            notify.success('Logged in successfully');
         } catch (err) {
             if (getResponseStatus(err) === 401) {
                 setError('Invalid email or password');
             } else {
-                toast.error(getResponseMessage(err, 'Could not reach the server, please try again'));
+                notify.apiError(err, 'Could not reach the server, please try again');
             }
         } finally {
             setIsLoading(false);
