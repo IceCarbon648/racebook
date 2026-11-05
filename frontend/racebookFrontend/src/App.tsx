@@ -12,10 +12,11 @@ const App = () => {
                 <Navbar />
                 <AppRoutes />
                 <ToastContainer
-                    position="top-center"
+                    position="top-right"
                     theme="dark"
-                    autoClose={3000}
+                    autoClose={2250}
                     newestOnTop
+                    limit={1}
                 />
             </AuthProvider>
         </BrowserRouter>
