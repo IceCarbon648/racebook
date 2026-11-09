@@ -17,8 +17,9 @@ using Scalar.AspNetCore;
 using Serilog;
 using System.Data;
 using System.Text;
-using Models.Validators.Filter;
+using Validation.Filter;
 using Helpers;
+using Validation.Startup;
 
 Env.Load();
 
@@ -51,6 +52,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddBusiness();
 builder.Services.AddInfrastructure();
+builder.Services.AddFluentValidation();
 builder.Services.AddScoped(typeof(ValidationFilter<>));
 ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Continue;
 
@@ -120,15 +122,6 @@ if (app.Environment.IsDevelopment())
     );
 }
 
-app.Use(async (context, next) =>
-{
-    var token = context.Request.Cookies["access_token"];
-    if (!string.IsNullOrEmpty(token))
-        context.Request.Headers.Authorization = $"Bearer {token}";
-
-    await next();
-});
-
 app.UseExceptionHandler(_ => { });
 app.UseCors("AllowOrigin");
 
@@ -136,9 +129,10 @@ app.UseHttpsRedirection();
 
 app.Use(async (context, next) =>
 {
-    var token = context.Request.Cookies["access_token"];
+    string? token = context.Request.Cookies["access_token"];
     if (!string.IsNullOrEmpty(token))
         context.Request.Headers.Authorization = $"Bearer {token}";
+
     await next();
 });
 

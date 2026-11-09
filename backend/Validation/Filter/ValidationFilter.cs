@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Models.Validators.Filter
+namespace Validation.Filter
 {
     public class ValidationFilter<T> : IAsyncActionFilter where T : class
     {

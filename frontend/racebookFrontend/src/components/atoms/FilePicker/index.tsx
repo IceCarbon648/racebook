@@ -4,18 +4,18 @@ interface FilePickerProps {
     label: string;
     accept: string;
     file: File | null;
+    existingFileName: string | null;
     optional?: boolean;
     onChange: (file: File | null) => void;
 }
 
-const FilePicker = ({ className, id, label, accept, file, onChange }: FilePickerProps) => {
+const FilePicker = ({ className, id, label, accept, existingFileName, file, onChange }: FilePickerProps) => {
+    const displayName = file?.name ?? existingFileName ?? 'No file chosen';
+
     return (
         <div className={`flex flex-col gap-1.5 ${className}`}>
             <span className="flex justify-start font-medium text-white">
                 {label}
-                {/*{optional && (
-                    <span className="text-xs text-gray-400 font-normal ml-1 self-center">(optional)</span>
-                )}*/}
             </span>
 
             <label
@@ -32,8 +32,8 @@ const FilePicker = ({ className, id, label, accept, file, onChange }: FilePicker
                 />
             </label>
 
-            <p className="truncate text-xs text-gray-400" title={file?.name}>
-                {file?.name ?? 'No file chosen'}
+            <p className="truncate text-xs text-gray-400" title={displayName}>
+                {displayName}
             </p>
         </div>
     );

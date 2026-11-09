@@ -5,22 +5,38 @@ import Background from '../../components/molecules/Background/Index';
 import FormPanel from '../../components/molecules/FormPanel';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import { MAX_EMAIL_LENGTH } from '../../constants/inputLimits';
+import { loginSchema, validate } from '../../validation';
+//import { getResponseMessage, getResponseStatus } from '../../utils/getResponseMessage';
+import { notify } from '../../utils/notify';
+import { getResponseStatus } from '../../utils/getResponseMessage';
 
 const Login = () => {
     const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async () => {
         setError(null);
+
+        const errors = await validate(loginSchema, { email, password });
+        setFieldErrors(errors ?? {});
+
+        if (errors) return;
+
         setIsLoading(true);
 
         try {
             await login(email, password);
-        } catch {
-            setError('Invalid email or password');
+            notify.success('Logged in successfully');
+        } catch (err) {
+            if (getResponseStatus(err) === 401) {
+                setError('Invalid email or password');
+            } else {
+                notify.apiError(err, 'Could not reach the server, please try again');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -28,42 +44,48 @@ const Login = () => {
 
     return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <Background reveal={true}/>
+            <Background reveal={true} />
             <FormPanel className="min-h-full w-full flex flex-col justify-start gap-12">
                 <h1 className="flex justify-center text-[46px] font-bold text-white pt-4">Login</h1>
 
                 <div className="flex flex-col gap-18">
                     <div className="flex flex-col gap-8">
                         <div className="flex flex-col gap-1.5">
-                        <label htmlFor="email" className="flex justify-start font-medium text-white">
-                            Email
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            maxLength={MAX_EMAIL_LENGTH}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Enter your email"
-                            className="px-3 py-2 bg-black/50 text-sm text-gray-300 border border-gray-400 rounded focus:outline-none focus:border-gray-200"
-                        />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <label htmlFor="password" className="flex justify-start font-medium text-white">
-                            Password
-                        </label>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter your password"
-                            className="px-3 py-2 bg-black/50 text-sm text-gray-300 border border-gray-400 rounded focus:outline-none focus:border-gray-200"
-                        />
-                    </div>
-                    {error && (
-                        <p className="text-sm text-red-500">{error}</p>
-                    )}
+                            <label htmlFor="email" className="flex justify-start font-medium text-white">
+                                Email
+                            </label>
+                            <input
+                                id="email"
+                                type="email"
+                                value={email}
+                                maxLength={MAX_EMAIL_LENGTH}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Enter your email"
+                                className="px-3 py-2 bg-black/50 text-sm text-gray-300 border border-gray-400 rounded focus:outline-none focus:border-gray-200"
+                            />
+                            {fieldErrors.email && (
+                                <p className="text-xs text-left text-red-400">{fieldErrors.email}</p>
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label htmlFor="password" className="flex justify-start font-medium text-white">
+                                Password
+                            </label>
+                            <input
+                                id="password"
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="Enter your password"
+                                className="px-3 py-2 bg-black/50 text-sm text-gray-300 border border-gray-400 rounded focus:outline-none focus:border-gray-200"
+                            />
+                            {fieldErrors.password && (
+                                <p className="text-xs text-left text-red-400">{fieldErrors.password}</p>
+                            )}
+                        </div>
+                        {error && (
+                            <p className="text-sm text-red-500">{error}</p>
+                        )}
                     </div>
                     <div>
                         <button
@@ -77,11 +99,11 @@ const Login = () => {
                 </div>
                 <div className="flex h-full">
                     <p className="flex items-end justify-center w-full gap-4 text-sm text-center text-gray-400">
-                    Don't have an account?{' '}
-                    <Link to="/register" className="font-medium text-blue-400 underline cursor-pointer">
-                        Register
-                    </Link>
-                </p>
+                        Don't have an account?{' '}
+                        <Link to="/register" className="font-medium text-blue-400 underline cursor-pointer">
+                            Register
+                        </Link>
+                    </p>
                 </div>
             </FormPanel>
         </div>

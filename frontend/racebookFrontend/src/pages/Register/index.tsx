@@ -6,6 +6,8 @@ import Background from '../../components/molecules/Background/Index';
 import FormPanel from '../../components/molecules/FormPanel';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import { MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH } from '../../constants/inputLimits';
+import { registerSchema, validate } from '../../validation';
+import { notify } from '../../utils/notify';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -14,22 +16,20 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errors, setErrors] = useState<Record<string, string[]>>({});
-    const [formError, setFormError] = useState<string | null>(null);
 
     const registerMutation = useMutation({
         mutationFn: register,
-        onSuccess: () => navigate('/login'),
+        onSuccess: () => {
+            notify.success('Account created, you can now log in');
+            navigate('/login');
+        },
         onError: (err: any) => {
             const data = err?.response?.data;
 
             if (data?.errors) {
                 setErrors(data.errors);
             } else {
-                setFormError(
-                    data?.message
-                    ?? data?.detail
-                    ?? 'Something went wrong, please try again'
-                );
+                notify.apiError(err);
             }
         },
     });
@@ -42,12 +42,22 @@ const Register = () => {
         });
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         setErrors({});
-        setFormError(null);
 
-        if (password !== confirmPassword) {
-            setErrors({ ConfirmPassword: ['Passwords do not match'] });
+        const validationErrors = await validate(registerSchema, {
+            Email: email,
+            Username: username,
+            Password: password,
+            ConfirmPassword: confirmPassword,
+        });
+
+        if (validationErrors) {
+            setErrors(
+                Object.fromEntries(
+                    Object.entries(validationErrors).map(([field, message]) => [field, [message]])
+                )
+            );
             return;
         }
 
@@ -55,10 +65,9 @@ const Register = () => {
     };
 
     const fieldClass = (field: string) =>
-        `px-3 py-2 bg-black/50 text-sm text-gray-300 rounded focus:outline-none border ${
-            errors[field]
-                ? 'border-red-400 focus:border-red-300'
-                : 'border-gray-400 focus:border-gray-200'
+        `px-3 py-2 bg-black/50 text-sm text-gray-300 rounded focus:outline-none border ${errors[field]
+            ? 'border-red-400 focus:border-red-300'
+            : 'border-gray-400 focus:border-gray-200'
         }`;
 
     return (
@@ -69,16 +78,12 @@ const Register = () => {
 
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col gap-4">
-                        {formError && (
-                            <p className="text-sm text-red-400">{formError}</p>
-                        )}
-
                         <div className="flex flex-col gap-1.5">
-                            <label htmlFor="email" className="flex justify-start font-medium text-white">
+                            <label htmlFor="Email" className="flex justify-start font-medium text-white">
                                 Email
                             </label>
                             <input
-                                id="email"
+                                id="Email"
                                 type="email"
                                 value={email}
                                 maxLength={MAX_EMAIL_LENGTH}
@@ -103,7 +108,7 @@ const Register = () => {
                                 maxLength={MAX_USERNAME_LENGTH}
                                 onChange={(e) => { setUsername(e.target.value); clearFieldError('Username'); }}
                                 placeholder="Enter your username"
-                                aria-invalid={!!errors.Username}
+                                aria-invalid={!!errors.username}
                                 className={fieldClass('Username')}
                             />
                             {errors.Username?.map((msg) => (
@@ -121,7 +126,7 @@ const Register = () => {
                                 value={password}
                                 onChange={(e) => { setPassword(e.target.value); clearFieldError('Password'); }}
                                 placeholder="Enter your password"
-                                aria-invalid={!!errors.Password}
+                                aria-invalid={!!errors.password}
                                 className={fieldClass('Password')}
                             />
                             {errors.Password?.map((msg) => (
@@ -139,7 +144,7 @@ const Register = () => {
                                 value={confirmPassword}
                                 onChange={(e) => { setConfirmPassword(e.target.value); clearFieldError('ConfirmPassword'); }}
                                 placeholder="Re-enter your password"
-                                aria-invalid={!!errors.ConfirmPassword}
+                                aria-invalid={!!errors.confirmPassword}
                                 className={fieldClass('ConfirmPassword')}
                             />
                             {errors.ConfirmPassword?.map((msg) => (

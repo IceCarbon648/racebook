@@ -1,21 +1,30 @@
 ﻿using Helpers.Interfaces;
 using FluentValidation;
 using Models.DTOs.Request;
+using Business.Interfaces;
 using static Models.Constants.Constants;
 
-namespace Models.Validators
+namespace Validation
 {
     public class ModDtoValidator : AbstractValidator<ModDto>
     {
-        public ModDtoValidator(IFileChecker fileChecker)
+        private readonly ICategoryService _categoryService;
+
+        public ModDtoValidator(IFileChecker fileChecker, ICategoryService categoryService)
         {
+            _categoryService = categoryService;
+
             RuleFor(x => x.Title)
                 .NotEmpty()
                 .MaximumLength(32);
 
             RuleFor(x => x.Type)
                 .NotEmpty()
-                .Must(x => Types.Contains(x))
+                .MustAsync(async (type, cancellation) =>
+                {
+                    List<string> categories = await _categoryService.GetCategories();
+                    return categories.Contains(type);
+                })
                 .MaximumLength(16);
 
             RuleFor(x => x.Description)

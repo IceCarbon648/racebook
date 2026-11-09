@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs.Request;
-using Models.Validators.Filter;
+using Validation.Filter;
 using System.Security.Claims;
 
 namespace racebookApi.Controllers
@@ -24,7 +24,7 @@ namespace racebookApi.Controllers
         {
             if (!await _userService.RegisterUserAsync(dto))
             {
-                return Conflict(new { message = "Registration was not successful" });
+                return Conflict(new { message = "Registration failed. Check your details and try again" });
             }
 
             return StatusCode(StatusCodes.Status201Created, new { message = "Registration successful" });

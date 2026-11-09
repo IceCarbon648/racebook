@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addToFavourites, deleteFromFavourites } from '../services';
 import { queryKeys } from '../constants/queryKeys';
+import { notify } from '../utils/notify';
+
 
 export const useFavouriteMod = () => {
     const queryClient = useQueryClient();
@@ -14,8 +16,15 @@ export const useFavouriteMod = () => {
         },
     });
 
-    const toggleFavourite = (modId: string, isFavourite: boolean) =>
-        mutation.mutate({ modId, isFavourite });
+    const toggleFavourite = async (modId: string, isFavourite: boolean) => {
+        try {
+            await mutation.mutateAsync({ modId, isFavourite });
+
+            notify.success(isFavourite ? 'Removed from favourites' : 'Added to favourites');
+        } catch (err) {
+            notify.apiError(err, 'Could not update your favourites, please try again');
+        }
+    };
 
     return { toggleFavourite, isTogglingFavourite: mutation.isPending };
 };
