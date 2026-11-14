@@ -3,12 +3,18 @@ import { ModCard, ModModal, Pagination } from '../../components';
 import type { MyMod } from '../../types';
 import Background from '../../components/molecules/Background/Index';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
-import { useMyMods } from '../../hooks/useMyMods';
+import { useMyMods } from '../../hooks/myMods/useMyMods';
+import { useUploadMod } from '../../hooks/myMods/useUploadMods';
+import { useEditMod } from '../../hooks/myMods/useEditMod';
+import { useDeleteMod } from '../../hooks/myMods/useDeleteMod';
 import { usePagination } from '../../hooks/usePagination';
 import { notify } from '../../utils/notify';
 
 const MyMods = () => {
-    const { mods, isLoading, isError, uploadMod, editMod, deleteMod } = useMyMods();
+    const { mods, isLoading, isError } = useMyMods();
+    const { uploadMod } = useUploadMod();
+    const { editMod } = useEditMod();
+    const { deleteMod } = useDeleteMod();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'upload' | 'edit'>('upload');
     const [selectedMod, setSelectedMod] = useState<MyMod | null>(null);

@@ -15,7 +15,7 @@ const useFluidCursor = (baseSrc, revealSrc, depthSrc, parallax) => {
   window.addEventListener('mousemove', handleMouseMove);
   //try to adjust settings
 
-  let config = {
+  /*let config = {
     SIM_RESOLUTION: 128,
     DYE_RESOLUTION: 1440,
     CAPTURE_RESOLUTION: 512,
@@ -24,6 +24,24 @@ const useFluidCursor = (baseSrc, revealSrc, depthSrc, parallax) => {
     PRESSURE: 0.4,
     PRESSURE_ITERATIONS: 20,
     CURL: 8,
+    SPLAT_RADIUS: 0.2,
+    SPLAT_FORCE: 10000,
+    SHADING: true,
+    COLOR_UPDATE_SPEED: 10,
+    PAUSED: false,
+    BACK_COLOR: { r: 0.5, g: 0, b: 0 },
+    TRANSPARENT: false,
+  };*/
+
+  let config = {
+    SIM_RESOLUTION: 128,
+    DYE_RESOLUTION: 1440,
+    CAPTURE_RESOLUTION: 512,
+    DENSITY_DISSIPATION: 0.6,
+    VELOCITY_DISSIPATION: 0.8,
+    PRESSURE: 0.4,
+    PRESSURE_ITERATIONS: 50,
+    CURL: 0,
     SPLAT_RADIUS: 0.2,
     SPLAT_FORCE: 10000,
     SHADING: true,

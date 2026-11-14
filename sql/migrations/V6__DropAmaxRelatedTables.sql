@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS [Session];
+DROP TABLE IF EXISTS PlayerStatsSnapshot;
