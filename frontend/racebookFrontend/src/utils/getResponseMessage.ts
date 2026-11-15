@@ -8,7 +8,7 @@ export const getResponseMessage = (
         const data = error.response?.data as any;
 
         const fieldErrors = data?.errors
-            ? Object.values(data.errors).flat().join(' ')
+            ? Object.values(data.errors).flat().join(' ') || null
             : null;
 
         return fieldErrors ?? data?.message ?? data?.detail ?? fallback;
