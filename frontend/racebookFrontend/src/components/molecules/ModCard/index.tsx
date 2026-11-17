@@ -88,7 +88,7 @@ const ModCard = ({
                     <div className="flex flex-col gap-4">
                         <div className="">
                             <Tilt.Layer depth={-0.15} className="text-2xl text-white whitespace-nowrap">
-                                <p>{title}</p>
+                                <p className="truncate" title={title}>{title}</p>
                             </Tilt.Layer>
 
                                 <Tilt.Layer depth={-0.15} className="text-sm text-[#d7d7d7]">
