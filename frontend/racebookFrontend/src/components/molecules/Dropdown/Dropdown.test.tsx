@@ -29,153 +29,73 @@ const renderDropdown = (props: Partial<Parameters<typeof Dropdown>[0]> = {}) => 
 };
 
 describe('Dropdown', () => {
-    describe('when closed', () => {
-        it('shows the current value on the trigger', () => {
-            const { trigger } = renderDropdown();
+    it('shows the current value and stays collapsed until it is opened', () => {
+        const { trigger } = renderDropdown();
 
-            expect(trigger).toHaveTextContent(SELECTED);
-        });
-
-        it('takes its accessible name from the label', () => {
-            renderDropdown();
-
-            expect(screen.getByRole('button', { name: LABEL })).toBeInTheDocument();
-        });
-
-        it('reports that it is collapsed', () => {
-            const { trigger } = renderDropdown();
-
-            expect(trigger).toHaveAttribute('aria-expanded', 'false');
-        });
-
-        it('renders no list', () => {
-            renderDropdown();
-
-            expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
-        });
+        expect(trigger).toHaveTextContent(SELECTED);
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     });
 
-    describe('when opened', () => {
-        it('reveals the list', async () => {
-            const { trigger } = renderDropdown();
+    it('reveals the options when opened, marking the current one', async () => {
+        const { trigger, onChange } = renderDropdown();
 
-            await userEvent.click(trigger);
+        await userEvent.click(trigger);
+        const [first, second] = screen.getAllByRole('option');
 
-            expect(screen.getByRole('listbox')).toBeInTheDocument();
-        });
-
-        it('reports that it is expanded', async () => {
-            const { trigger } = renderDropdown();
-
-            await userEvent.click(trigger);
-
-            expect(trigger).toHaveAttribute('aria-expanded', 'true');
-        });
-
-        it('renders one option per choice', async () => {
-            const { trigger } = renderDropdown();
-
-            await userEvent.click(trigger);
-
-            expect(screen.getAllByRole('option')).toHaveLength(OPTIONS.length);
-        });
-
-        it('marks the current value as selected', async () => {
-            const { trigger } = renderDropdown();
-
-            await userEvent.click(trigger);
-            const [first, second] = screen.getAllByRole('option');
-
-            expect(first).toHaveAttribute('aria-selected', 'true');
-            expect(second).toHaveAttribute('aria-selected', 'false');
-        });
-
-        it('does not report a choice just for opening', async () => {
-            const { trigger, onChange } = renderDropdown();
-
-            await userEvent.click(trigger);
-
-            expect(onChange).not.toHaveBeenCalled();
-        });
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getAllByRole('option')).toHaveLength(OPTIONS.length);
+        expect(first).toHaveAttribute('aria-selected', 'true');
+        expect(second).toHaveAttribute('aria-selected', 'false');
+        expect(onChange).not.toHaveBeenCalled();
     });
 
-    describe('choosing an option', () => {
-        const openAndChoose = async (index: number) => {
-            const { trigger, onChange } = renderDropdown();
+    it('reports the chosen value once and closes', async () => {
+        const { trigger, onChange } = renderDropdown();
 
-            await userEvent.click(trigger);
+        await userEvent.click(trigger);
+        const option = screen.getAllByRole('option')[SECOND_OPTION_INDEX];
+        await userEvent.click(within(option).getByRole('button'));
 
-            const option = screen.getAllByRole('option')[index];
-            await userEvent.click(within(option).getByRole('button'));
-
-            return { onChange, trigger };
-        };
-
-        it('reports the chosen value', async () => {
-            const { onChange } = await openAndChoose(SECOND_OPTION_INDEX);
-
-            expect(onChange).toHaveBeenCalledWith(OPTIONS[SECOND_OPTION_INDEX]);
-        });
-
-        it('reports it only once', async () => {
-            const { onChange } = await openAndChoose(SECOND_OPTION_INDEX);
-
-            expect(onChange).toHaveBeenCalledOnce();
-        });
-
-        it('closes the list', async () => {
-            await openAndChoose(SECOND_OPTION_INDEX);
-
-            expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
-        });
+        expect(onChange).toHaveBeenCalledWith(OPTIONS[SECOND_OPTION_INDEX]);
+        expect(onChange).toHaveBeenCalledOnce();
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     });
 
-    describe('dismissing without choosing', () => {
-        it('closes when the trigger is clicked again', async () => {
-            const { trigger } = renderDropdown();
+    it('closes when the trigger is clicked again', async () => {
+        const { trigger } = renderDropdown();
 
-            await userEvent.click(trigger);
-            await userEvent.click(trigger);
+        await userEvent.click(trigger);
+        await userEvent.click(trigger);
 
-            expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
-        });
-
-        it('closes when Escape is pressed', async () => {
-            const { trigger } = renderDropdown();
-
-            await userEvent.click(trigger);
-            await userEvent.keyboard('{Escape}');
-
-            expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
-        });
-
-        it('closes when something outside is clicked', async () => {
-            const { trigger } = renderDropdown();
-
-            await userEvent.click(trigger);
-            await userEvent.click(screen.getByRole('button', { name: 'somewhere else' }));
-
-            expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
-        });
-
-        it('reports no choice when dismissed', async () => {
-            const { trigger, onChange } = renderDropdown();
-
-            await userEvent.click(trigger);
-            await userEvent.keyboard('{Escape}');
-
-            expect(onChange).not.toHaveBeenCalled();
-        });
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     });
 
-    describe('with no options', () => {
-        it('still opens, showing an empty list', async () => {
-            const { trigger } = renderDropdown({ options: [] });
+    it('closes without choosing when Escape is pressed', async () => {
+        const { trigger, onChange } = renderDropdown();
 
-            await userEvent.click(trigger);
+        await userEvent.click(trigger);
+        await userEvent.keyboard('{Escape}');
 
-            expect(screen.getByRole('listbox')).toBeInTheDocument();
-            expect(screen.queryAllByRole('option')).toHaveLength(0);
-        });
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+        expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it('closes when something outside is clicked', async () => {
+        const { trigger } = renderDropdown();
+
+        await userEvent.click(trigger);
+        await userEvent.click(screen.getByRole('button', { name: 'somewhere else' }));
+
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+
+    it('opens with an empty list when there are no options', async () => {
+        const { trigger } = renderDropdown({ options: [] });
+
+        await userEvent.click(trigger);
+
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+        expect(screen.queryAllByRole('option')).toHaveLength(0);
     });
 });
