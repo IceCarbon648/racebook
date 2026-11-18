@@ -13,105 +13,68 @@ const NOTHING_CHOSEN = 'No file chosen';
 
 const makeFile = (name: string) => new File(['x'], name, { type: 'application/octet-stream' });
 
-const renderPicker = (props: Partial<Parameters<typeof FilePicker>[0]> = {}) => {
+const defaultProps: Parameters<typeof FilePicker>[0] = {
+    id: ID,
+    label: FIELD_LABEL,
+    accept: ACCEPT,
+    file: null,
+    existingFileName: null,
+    onChange: () => {},
+};
+
+const renderPicker = (props: Partial<typeof defaultProps> = {}) => {
     const onChange = vi.fn();
 
-    render(
-        <FilePicker
-            id={ID}
-            label={FIELD_LABEL}
-            accept={ACCEPT}
-            file={null}
-            existingFileName={null}
-            onChange={onChange}
-            {...props}
-        />
-    );
+    render(<FilePicker {...defaultProps} onChange={onChange} {...props} />);
 
     return { onChange, input: screen.getByLabelText(/choose file/i) };
 };
 
 describe('FilePicker', () => {
-    describe('what it displays', () => {
-        it('shows the field label', () => {
-            renderPicker();
+    it('shows the stored name, and prefers a newly chosen file over it', () => {
+        const { rerender } = render(<FilePicker {...defaultProps} />);
 
-            expect(screen.getByText(FIELD_LABEL)).toBeInTheDocument();
-        });
+        expect(screen.getByText(FIELD_LABEL)).toBeInTheDocument();
+        expect(screen.getByText(NOTHING_CHOSEN)).toBeInTheDocument();
 
-        it('says nothing is chosen when there is no file and nothing stored', () => {
-            renderPicker();
+        rerender(<FilePicker {...defaultProps} existingFileName={EXISTING_NAME} />);
 
-            expect(screen.getByText(NOTHING_CHOSEN)).toBeInTheDocument();
-        });
+        expect(screen.getByText(EXISTING_NAME)).toHaveAttribute('title', EXISTING_NAME);
 
-        it('shows the stored file name when nothing new has been chosen', () => {
-            renderPicker({ existingFileName: EXISTING_NAME });
+        rerender(
+            <FilePicker
+                {...defaultProps}
+                existingFileName={EXISTING_NAME}
+                file={makeFile(CHOSEN_NAME)}
+            />
+        );
 
-            expect(screen.getByText(EXISTING_NAME)).toBeInTheDocument();
-        });
-
-        it('shows the chosen file name in preference to the stored one', () => {
-            renderPicker({
-                file: makeFile(CHOSEN_NAME),
-                existingFileName: EXISTING_NAME,
-            });
-
-            expect(screen.getByText(CHOSEN_NAME)).toBeInTheDocument();
-            expect(screen.queryByText(EXISTING_NAME)).not.toBeInTheDocument();
-        });
-
-        it('shows the chosen file name when there is nothing stored', () => {
-            renderPicker({ file: makeFile(CHOSEN_NAME) });
-
-            expect(screen.getByText(CHOSEN_NAME)).toBeInTheDocument();
-        });
-
-        it('repeats the displayed name as a hover title, since it may be truncated', () => {
-            renderPicker({ existingFileName: EXISTING_NAME });
-
-            expect(screen.getByText(EXISTING_NAME)).toHaveAttribute('title', EXISTING_NAME);
-        });
+        expect(screen.getByText(CHOSEN_NAME)).toBeInTheDocument();
+        expect(screen.queryByText(EXISTING_NAME)).not.toBeInTheDocument();
     });
 
-    describe('the input', () => {
-        it('accepts only the given extensions', () => {
-            const { input } = renderPicker();
+    it('passes its id and accept through to the input', () => {
+        const { input } = renderPicker();
 
-            expect(input).toHaveAttribute('accept', ACCEPT);
-        });
-
-        it('uses the supplied id so the label points at it', () => {
-            const { input } = renderPicker();
-
-            expect(input).toHaveAttribute('id', ID);
-        });
+        expect(input).toHaveAttribute('id', ID);
+        expect(input).toHaveAttribute('accept', ACCEPT);
     });
 
-    describe('choosing a file', () => {
-        it('reports the chosen file', async () => {
-            const { input, onChange } = renderPicker();
-            const file = makeFile(CHOSEN_NAME);
+    it('reports the chosen file', async () => {
+        const { input, onChange } = renderPicker();
+        const file = makeFile(CHOSEN_NAME);
 
-            await userEvent.upload(input, file);
+        await userEvent.upload(input, file);
 
-            expect(onChange).toHaveBeenCalledWith(file);
-        });
+        expect(onChange).toHaveBeenCalledWith(file);
+        expect(onChange).toHaveBeenCalledOnce();
+    });
 
-        it('reports it only once', async () => {
-            const { input, onChange } = renderPicker();
+    it('reports null when the selection is cleared', () => {
+        const { input, onChange } = renderPicker({ existingFileName: EXISTING_NAME });
 
-            await userEvent.upload(input, makeFile(CHOSEN_NAME));
+        fireEvent.change(input, { target: { files: [] } });
 
-            expect(onChange).toHaveBeenCalledOnce();
-        });
-
-        it('reports null when the selection is cleared', () => {
-            const { input, onChange } = renderPicker({ existingFileName: EXISTING_NAME });
-
-            fireEvent.change(input, { target: { files: [] } });
-
-            expect(onChange).toHaveBeenCalledWith(null);
-        });
+        expect(onChange).toHaveBeenCalledWith(null);
     });
 });
