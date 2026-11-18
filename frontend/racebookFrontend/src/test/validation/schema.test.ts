@@ -14,8 +14,9 @@ import {
 const CATEGORIES = ['VEHICLE', 'ENVIRONMENT', 'UI'];
 
 const ONE_KILOBYTE = 1024;
-const OVERSIZED_MOD_FILE_BYTES = 11 * ONE_KILOBYTE * ONE_KILOBYTE;
-const OVERSIZED_IMAGE_BYTES = 6 * 1024 * 1024;
+const ONE_MEGABYTE = ONE_KILOBYTE * ONE_KILOBYTE;
+const OVERSIZED_MOD_FILE_BYTES = 11 * ONE_MEGABYTE;
+const OVERSIZED_IMAGE_BYTES = 6 * ONE_MEGABYTE;
 
 const makeFile = (name: string, sizeInBytes: number = ONE_KILOBYTE) => {
     const file = new File(['x'], name);
@@ -54,10 +55,11 @@ describe('loginSchema', () => {
         expect(errors).toBeNull();
     });
 
-    it('requires an email', async () => {
-        const errors = await validate(loginSchema, { ...validLogin, email: '' });
+    it('requires both fields', async () => {
+        const errors = await validate(loginSchema, { email: '', password: '' });
 
         expect(errors?.email).toBe('Email is required');
+        expect(errors?.password).toBe('Password is required');
     });
 
     it('requires an email that looks like an address', async () => {
@@ -66,32 +68,16 @@ describe('loginSchema', () => {
         expect(errors?.email).toBe('Enter a valid email address');
     });
 
-    it('requires a password', async () => {
-        const errors = await validate(loginSchema, { ...validLogin, password: '' });
-
-        expect(errors?.password).toBe('Password is required');
-    });
-
-    it('reports every failing field at once', async () => {
-        const errors = await validate(loginSchema, { email: '', password: '' });
-
-        expect(errors?.email).toBeDefined();
-        expect(errors?.password).toBeDefined();
-    });
-
-    it('trims surrounding whitespace before validating', async () => {
-        const errors = await validate(loginSchema, {
+    it('trims the email before validating it', async () => {
+        const padded = await validate(loginSchema, {
             ...validLogin,
             email: '   racer@example.com   ',
         });
 
-        expect(errors).toBeNull();
-    });
+        const blank = await validate(loginSchema, { ...validLogin, email: '    ' });
 
-    it('treats a whitespace only email as missing', async () => {
-        const errors = await validate(loginSchema, { ...validLogin, email: '    ' });
-
-        expect(errors?.email).toBe('Email is required');
+        expect(padded).toBeNull();
+        expect(blank?.email).toBe('Email is required');
     });
 });
 
@@ -116,83 +102,72 @@ describe('registerSchema', () => {
         expect(errors).not.toHaveProperty('email');
     });
 
-    it('rejects a username below the minimum length', async () => {
-        const errors = await validate(registerSchema, { ...validRegistration, Username: 'ab' });
+    it('rejects a username outside the allowed length', async () => {
+        const tooShort = await validate(registerSchema, { ...validRegistration, Username: 'ab' });
 
-        expect(errors?.Username).toBe('Username must be at least 3 characters');
-    });
-
-    it('rejects a username above the maximum length', async () => {
-        const errors = await validate(registerSchema, {
+        const tooLong = await validate(registerSchema, {
             ...validRegistration,
             Username: 'a'.repeat(17),
         });
 
-        expect(errors?.Username).toBe('Username must be 16 characters or fewer');
+        expect(tooShort?.Username).toBe('Username must be at least 3 characters');
+        expect(tooLong?.Username).toBe('Username must be 16 characters or fewer');
     });
 
     it('rejects a password below the minimum length', async () => {
-        const errors = await validate(registerSchema, { ...validRegistration, Password: 'Pass1!' });
+        const errors = await validate(registerSchema, {
+            ...validRegistration,
+            Password: 'Pass1!',
+            ConfirmPassword: 'Pass1!',
+        });
 
         expect(errors?.Password).toBe('Password must be at least 8 characters');
     });
 
-    it('requires a lowercase letter in the password', async () => {
-        const errors = await validate(registerSchema, {
+    it('requires a mix of character types in the password', async () => {
+        const withoutLowercase = await validate(registerSchema, {
             ...validRegistration,
             Password: 'BANANA_12',
             ConfirmPassword: 'BANANA_12',
         });
 
-        expect(errors?.Password).toBe('Password must contain at least one lowercase letter');
-    });
-
-    it('requires an uppercase letter in the password', async () => {
-        const errors = await validate(registerSchema, {
+        const withoutUppercase = await validate(registerSchema, {
             ...validRegistration,
             Password: 'banana_12',
             ConfirmPassword: 'banana_12',
         });
 
-        expect(errors?.Password).toBe('Password must contain at least one uppercase letter');
-    });
-
-    it('requires a number in the password', async () => {
-        const errors = await validate(registerSchema, {
+        const withoutNumber = await validate(registerSchema, {
             ...validRegistration,
             Password: 'Banana__',
             ConfirmPassword: 'Banana__',
         });
 
-        expect(errors?.Password).toBe('Password must contain at least one number');
-    });
-
-    it('requires a special character in the password', async () => {
-        const errors = await validate(registerSchema, {
+        const withoutSymbol = await validate(registerSchema, {
             ...validRegistration,
             Password: 'Banana12',
             ConfirmPassword: 'Banana12',
         });
 
-        expect(errors?.Password).toBe('Password must contain at least one special character');
+        expect(withoutLowercase?.Password).toBe('Password must contain at least one lowercase letter');
+        expect(withoutUppercase?.Password).toBe('Password must contain at least one uppercase letter');
+        expect(withoutNumber?.Password).toBe('Password must contain at least one number');
+        expect(withoutSymbol?.Password).toBe('Password must contain at least one special character');
     });
 
-    it('requires the confirmation to match the password', async () => {
-        const errors = await validate(registerSchema, {
+    it('requires a confirmation that matches the password', async () => {
+        const mismatched = await validate(registerSchema, {
             ...validRegistration,
             ConfirmPassword: 'Password2!',
         });
 
-        expect(errors?.ConfirmPassword).toBe('Passwords do not match');
-    });
-
-    it('requires a confirmation to be supplied', async () => {
-        const errors = await validate(registerSchema, {
+        const missing = await validate(registerSchema, {
             ...validRegistration,
             ConfirmPassword: null,
         });
 
-        expect(errors?.ConfirmPassword).toBe('Please confirm your password');
+        expect(mismatched?.ConfirmPassword).toBe('Passwords do not match');
+        expect(missing?.ConfirmPassword).toBe('Please confirm your password');
     });
 });
 
@@ -205,29 +180,21 @@ describe('modUploadSchema', () => {
         expect(errors).toBeNull();
     });
 
-    it('requires a title', async () => {
-        const errors = await validate(schema, { ...validUpload, title: '   ' });
+    it('requires the text fields', async () => {
+        const errors = await validate(schema, { ...validUpload, title: '   ', description: '' });
 
         expect(errors?.title).toBe('Title is required');
+        expect(errors?.description).toBe('Description is required');
     });
 
-    it('rejects a title above the maximum length', async () => {
+    it('rejects text above the maximum length', async () => {
         const errors = await validate(schema, {
             ...validUpload,
             title: 'a'.repeat(MAX_MOD_TITLE_LENGTH + 1),
-        });
-
-        expect(errors?.title).toBe(
-            `Title must be ${MAX_MOD_TITLE_LENGTH} characters or fewer`
-        );
-    });
-
-    it('rejects a description above the maximum length', async () => {
-        const errors = await validate(schema, {
-            ...validUpload,
             description: 'a'.repeat(MAX_MOD_DESCRIPTION_LENGTH + 1),
         });
 
+        expect(errors?.title).toBe(`Title must be ${MAX_MOD_TITLE_LENGTH} characters or fewer`);
         expect(errors?.description).toBe(
             `Description must be ${MAX_MOD_DESCRIPTION_LENGTH} characters or fewer`
         );
@@ -239,69 +206,46 @@ describe('modUploadSchema', () => {
         expect(errors?.type).toBe('Select a category from the list');
     });
 
-    it('requires a mod file', async () => {
-        const errors = await validate(schema, { ...validUpload, modFile: null });
+    it('requires both files', async () => {
+        const errors = await validate(schema, {
+            ...validUpload,
+            modFile: null,
+            previewImage: null,
+        });
 
         expect(errors?.modFile).toBe('Mod file is required');
-    });
-
-    it('requires a preview image', async () => {
-        const errors = await validate(schema, { ...validUpload, previewImage: null });
-
         expect(errors?.previewImage).toBe('Preview image is required');
     });
 
-    it('rejects a mod file that is not a .tpf', async () => {
+    it('rejects files with the wrong extension', async () => {
         const errors = await validate(schema, {
             ...validUpload,
             modFile: makeFile('skyline.zip'),
-        });
-
-        expect(errors?.modFile).toBe('Mod file must be a .tpf file');
-    });
-
-    it('accepts a .tpf regardless of how it is capitalised', async () => {
-        const errors = await validate(schema, {
-            ...validUpload,
-            modFile: makeFile('SKYLINE.TPF'),
-        });
-
-        expect(errors).toBeNull();
-    });
-
-    it('rejects a mod file above the size limit', async () => {
-        const errors = await validate(schema, {
-            ...validUpload,
-            modFile: makeFile('skyline.tpf', OVERSIZED_MOD_FILE_BYTES),
-        });
-
-        expect(errors?.modFile).toBe('Mod file must be smaller than 10MB');
-    });
-
-    it('rejects a preview image that is not png, jpg or jpeg', async () => {
-        const errors = await validate(schema, {
-            ...validUpload,
             previewImage: makeFile('preview.gif'),
         });
 
+        expect(errors?.modFile).toBe('Mod file must be a .tpf file');
         expect(errors?.previewImage).toBe('Preview image must be a .png, .jpg or .jpeg file');
     });
 
-    it('accepts a jpeg preview image', async () => {
+    it('accepts the allowed extensions whatever the case', async () => {
         const errors = await validate(schema, {
             ...validUpload,
-            previewImage: makeFile('preview.jpeg'),
+            modFile: makeFile('SKYLINE.TPF'),
+            previewImage: makeFile('PREVIEW.JPEG'),
         });
 
         expect(errors).toBeNull();
     });
 
-    it('rejects a preview image above the size limit', async () => {
+    it('rejects files above the size limit', async () => {
         const errors = await validate(schema, {
             ...validUpload,
+            modFile: makeFile('skyline.tpf', OVERSIZED_MOD_FILE_BYTES),
             previewImage: makeFile('preview.png', OVERSIZED_IMAGE_BYTES),
         });
 
+        expect(errors?.modFile).toBe('Mod file must be smaller than 10MB');
         expect(errors?.previewImage).toBe('Preview image must be smaller than 5MB');
     });
 });
@@ -333,23 +277,14 @@ describe('modEditSchema', () => {
         expect(errors?.description).toBe('Description is required');
     });
 
-    it('still rejects a replacement file of the wrong type', async () => {
+    it('still applies the file rules when a file is supplied', async () => {
         const errors = await validate(schema, {
             ...validModDetails,
             modFile: makeFile('skyline.exe'),
-            previewImage: null,
-        });
-
-        expect(errors?.modFile).toBe('Mod file must be a .tpf file');
-    });
-
-    it('still rejects a replacement file above the size limit', async () => {
-        const errors = await validate(schema, {
-            ...validModDetails,
-            modFile: null,
             previewImage: makeFile('preview.png', OVERSIZED_IMAGE_BYTES),
         });
 
+        expect(errors?.modFile).toBe('Mod file must be a .tpf file');
         expect(errors?.previewImage).toBe('Preview image must be smaller than 5MB');
     });
 });
