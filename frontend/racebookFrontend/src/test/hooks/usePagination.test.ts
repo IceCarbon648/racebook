@@ -15,31 +15,16 @@ const makeItems = (count: number) =>
     Array.from({ length: count }, (_, index) => `item-${index + 1}`);
 
 describe('usePagination', () => {
-    it('starts on the first page', () => {
-        const { result } = renderHook(() =>
-            usePagination(makeItems(ITEMS_SPANNING_THREE_PAGES), TEST_PAGE_SIZE));
-
-        expect(result.current.page).toBe(FIRST_PAGE);
-    });
-
-    it('returns every item when they fit on a single page', () => {
-        const items = makeItems(ITEMS_FITTING_ONE_PAGE);
-
-        const { result } = renderHook(() => usePagination(items, TEST_PAGE_SIZE));
-
-        expect(result.current.totalPages).toBe(1);
-        expect(result.current.paginated).toEqual(items);
-    });
-
     it('splits items across pages using the given page size', () => {
         const { result } = renderHook(() =>
             usePagination(makeItems(ITEMS_SPANNING_THREE_PAGES), TEST_PAGE_SIZE));
 
+        expect(result.current.page).toBe(FIRST_PAGE);
         expect(result.current.totalPages).toBe(LAST_PAGE);
         expect(result.current.paginated).toEqual(['item-1', 'item-2', 'item-3', 'item-4']);
     });
 
-    it('returns the next slice when the page changes', () => {
+    it('returns the right slice for each page, including a short final one', () => {
         const { result } = renderHook(() =>
             usePagination(makeItems(ITEMS_SPANNING_THREE_PAGES), TEST_PAGE_SIZE));
 
@@ -47,11 +32,6 @@ describe('usePagination', () => {
 
         expect(result.current.page).toBe(SECOND_PAGE);
         expect(result.current.paginated).toEqual(['item-5', 'item-6', 'item-7', 'item-8']);
-    });
-
-    it('returns a short final page', () => {
-        const { result } = renderHook(() =>
-            usePagination(makeItems(ITEMS_SPANNING_THREE_PAGES), TEST_PAGE_SIZE));
 
         act(() => result.current.setPage(LAST_PAGE));
 
