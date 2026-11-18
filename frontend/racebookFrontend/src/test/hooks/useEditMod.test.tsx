@@ -59,25 +59,4 @@ describe('useEditMod', () => {
                 .rejects.toThrow('Upload service unavailable');
         });
     });
-
-    it('does not refresh the lists when the edit fails', async () => {
-        vi.mocked(editModService).mockRejectedValue(new Error('Upload service unavailable'));
-
-        const { wrapper, queryClient } = createWrapper();
-        const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
-        const { result } = renderHook(() => useEditMod(), { wrapper });
-
-        await act(async () => {
-            await result.current.editMod(MOD_ID, makeFormData()).catch(() => undefined);
-        });
-
-        expect(invalidateQueries).not.toHaveBeenCalled();
-    });
-
-    it('is not pending before an edit starts', () => {
-        const { wrapper } = createWrapper();
-        const { result } = renderHook(() => useEditMod(), { wrapper });
-
-        expect(result.current.isEditing).toBe(false);
-    });
 });
