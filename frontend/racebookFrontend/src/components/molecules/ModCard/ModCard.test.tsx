@@ -17,169 +17,90 @@ const baseProps = {
 };
 
 describe('ModCard', () => {
-    describe('what it displays', () => {
-        it('shows the title', () => {
-            render(<ModCard {...baseProps} />);
+    it("shows the mod's details", () => {
+        render(<ModCard {...baseProps} />);
 
-            expect(screen.getByText(TITLE)).toBeInTheDocument();
-        });
-
-        it('shows the category', () => {
-            render(<ModCard {...baseProps} />);
-
-            expect(screen.getByText(TYPE)).toBeInTheDocument();
-        });
-
-        it('shows the creator with an @ prefix', () => {
-            render(<ModCard {...baseProps} />);
-
-            expect(screen.getByText(`@${CREATOR}`)).toBeInTheDocument();
-        });
-
-        it('shows the preview image labelled with the title', () => {
-            render(<ModCard {...baseProps} />);
-
-            expect(screen.getByRole('img', { name: TITLE })).toHaveAttribute('src', IMAGE_URL);
-        });
-
-        it('shows no creator line when there is no creator', () => {
-            render(<ModCard {...baseProps} creator={undefined} />);
-
-            expect(screen.queryByText(`@${CREATOR}`)).not.toBeInTheDocument();
-        });
+        expect(screen.getByText(TITLE)).toBeInTheDocument();
+        expect(screen.getByText(TYPE)).toBeInTheDocument();
+        expect(screen.getByText(`@${CREATOR}`)).toBeInTheDocument();
+        expect(screen.getByRole('img', { name: TITLE })).toHaveAttribute('src', IMAGE_URL);
     });
 
-    describe('opening the mod', () => {
-        it('calls onClick when the card is clicked', async () => {
-            const onClick = vi.fn();
-            render(<ModCard {...baseProps} onClick={onClick} />);
+    it('omits the creator line when there is no creator', () => {
+        render(<ModCard {...baseProps} creator={undefined} />);
 
-            await userEvent.click(screen.getByText(TITLE));
-
-            expect(onClick).toHaveBeenCalledOnce();
-        });
+        expect(screen.queryByText(`@${CREATOR}`)).not.toBeInTheDocument();
     });
 
-    describe('the favourite control', () => {
-        it('is hidden when the mod has no favourite state', () => {
-            render(<ModCard {...baseProps} onFavourite={vi.fn()} />);
+    it('opens the mod when the card is clicked', async () => {
+        const onClick = vi.fn();
+        render(<ModCard {...baseProps} onClick={onClick} />);
 
-            expect(screen.queryByRole('button', { name: /favourites/i })).not.toBeInTheDocument();
-        });
+        await userEvent.click(screen.getByText(TITLE));
 
-        it('is hidden when there is no handler for it', () => {
-            render(<ModCard {...baseProps} isFavourite={false} />);
-
-            expect(screen.queryByRole('button', { name: /favourites/i })).not.toBeInTheDocument();
-        });
-
-        it('offers to add the mod when it is not favourited', () => {
-            render(<ModCard {...baseProps} isFavourite={false} onFavourite={vi.fn()} />);
-
-            expect(screen.getByRole('button', { name: 'Add to favourites' })).toBeInTheDocument();
-        });
-
-        it('offers to remove the mod when it is favourited', () => {
-            render(<ModCard {...baseProps} isFavourite onFavourite={vi.fn()} />);
-
-            expect(screen.getByRole('button', { name: 'Remove from favourites' })).toBeInTheDocument();
-        });
-
-        it('calls onFavourite when clicked', async () => {
-            const onFavourite = vi.fn();
-            render(<ModCard {...baseProps} isFavourite={false} onFavourite={onFavourite} />);
-
-            await userEvent.click(screen.getByRole('button', { name: 'Add to favourites' }));
-
-            expect(onFavourite).toHaveBeenCalledOnce();
-        });
-
-        it('does not open the mod when it is clicked', async () => {
-            const onClick = vi.fn();
-            render(
-                <ModCard
-                    {...baseProps}
-                    isFavourite={false}
-                    onFavourite={vi.fn()}
-                    onClick={onClick}
-                />
-            );
-
-            await userEvent.click(screen.getByRole('button', { name: 'Add to favourites' }));
-
-            expect(onClick).not.toHaveBeenCalled();
-        });
+        expect(onClick).toHaveBeenCalledOnce();
     });
 
-    describe('the owner controls', () => {
-        it('are hidden when neither handler is supplied', () => {
-            render(<ModCard {...baseProps} />);
+    it('hides the favourite control unless both a state and a handler are given', () => {
+        render(<ModCard {...baseProps} onFavourite={vi.fn()} />);
+        render(<ModCard {...baseProps} isFavourite={false} />);
 
-            expect(screen.queryByRole('button', { name: 'Edit mod' })).not.toBeInTheDocument();
-            expect(screen.queryByRole('button', { name: 'Delete mod' })).not.toBeInTheDocument();
-        });
+        expect(screen.queryByRole('button', { name: /favourites/i })).not.toBeInTheDocument();
+    });
 
-        it('are hidden when only one handler is supplied', () => {
-            render(<ModCard {...baseProps} onEdit={vi.fn()} />);
+    it('labels the favourite control for the action it will perform', () => {
+        const { rerender } = render(
+            <ModCard {...baseProps} isFavourite={false} onFavourite={vi.fn()} />
+        );
 
-            expect(screen.queryByRole('button', { name: 'Edit mod' })).not.toBeInTheDocument();
-        });
+        expect(screen.getByRole('button', { name: 'Add to favourites' })).toBeInTheDocument();
 
-        it('are shown when both handlers are supplied', () => {
-            render(<ModCard {...baseProps} onEdit={vi.fn()} onDelete={vi.fn()} />);
+        rerender(<ModCard {...baseProps} isFavourite onFavourite={vi.fn()} />);
 
-            expect(screen.getByRole('button', { name: 'Edit mod' })).toBeInTheDocument();
-            expect(screen.getByRole('button', { name: 'Delete mod' })).toBeInTheDocument();
-        });
+        expect(screen.getByRole('button', { name: 'Remove from favourites' })).toBeInTheDocument();
+    });
 
-        it('calls onEdit when edit is clicked', async () => {
-            const onEdit = vi.fn();
-            render(<ModCard {...baseProps} onEdit={onEdit} onDelete={vi.fn()} />);
+    it('favourites the mod without opening it', async () => {
+        const onClick = vi.fn();
+        const onFavourite = vi.fn();
+        render(
+            <ModCard {...baseProps} isFavourite={false} onFavourite={onFavourite} onClick={onClick} />
+        );
 
-            await userEvent.click(screen.getByRole('button', { name: 'Edit mod' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Add to favourites' }));
 
-            expect(onEdit).toHaveBeenCalledOnce();
-        });
+        expect(onFavourite).toHaveBeenCalledOnce();
+        expect(onClick).not.toHaveBeenCalled();
+    });
 
-        it('calls onDelete when delete is clicked', async () => {
-            const onDelete = vi.fn();
-            render(<ModCard {...baseProps} onEdit={vi.fn()} onDelete={onDelete} />);
+    it('shows the owner controls only when both handlers are given', () => {
+        const { rerender } = render(<ModCard {...baseProps} />);
 
-            await userEvent.click(screen.getByRole('button', { name: 'Delete mod' }));
+        expect(screen.queryByRole('button', { name: 'Edit mod' })).not.toBeInTheDocument();
 
-            expect(onDelete).toHaveBeenCalledOnce();
-        });
+        rerender(<ModCard {...baseProps} onEdit={vi.fn()} />);
 
-        it('does not open the mod when edit is clicked', async () => {
-            const onClick = vi.fn();
-            render(
-                <ModCard
-                    {...baseProps}
-                    onClick={onClick}
-                    onEdit={vi.fn()}
-                    onDelete={vi.fn()}
-                />
-            );
+        expect(screen.queryByRole('button', { name: 'Edit mod' })).not.toBeInTheDocument();
 
-            await userEvent.click(screen.getByRole('button', { name: 'Edit mod' }));
+        rerender(<ModCard {...baseProps} onEdit={vi.fn()} onDelete={vi.fn()} />);
 
-            expect(onClick).not.toHaveBeenCalled();
-        });
+        expect(screen.getByRole('button', { name: 'Edit mod' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Delete mod' })).toBeInTheDocument();
+    });
 
-        it('does not open the mod when delete is clicked', async () => {
-            const onClick = vi.fn();
-            render(
-                <ModCard
-                    {...baseProps}
-                    onClick={onClick}
-                    onEdit={vi.fn()}
-                    onDelete={vi.fn()}
-                />
-            );
+    it('runs the owner actions without opening the mod', async () => {
+        const onClick = vi.fn();
+        const onEdit = vi.fn();
+        const onDelete = vi.fn();
+        render(
+            <ModCard {...baseProps} onClick={onClick} onEdit={onEdit} onDelete={onDelete} />
+        );
 
-            await userEvent.click(screen.getByRole('button', { name: 'Delete mod' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Edit mod' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Delete mod' }));
 
-            expect(onClick).not.toHaveBeenCalled();
-        });
+        expect(onEdit).toHaveBeenCalledOnce();
+        expect(onDelete).toHaveBeenCalledOnce();
+        expect(onClick).not.toHaveBeenCalled();
     });
 });
