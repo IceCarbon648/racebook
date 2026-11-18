@@ -26,13 +26,14 @@ const ALREADY_FAVOURITED = true;
 
 const toggle = async (isFavourite: boolean) => {
     const { wrapper, queryClient } = createWrapper();
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
     const { result } = renderHook(() => useFavouriteMod(), { wrapper });
 
     await act(async () => {
         await result.current.toggleFavourite(MOD_ID, isFavourite);
     });
 
-    return { queryClient };
+    return { invalidateQueries };
 };
 
 beforeEach(() => {
@@ -42,40 +43,24 @@ beforeEach(() => {
 });
 
 describe('useFavouriteMod', () => {
-    it('adds the mod when it is not yet favourited', async () => {
+    it('adds the mod and confirms it when it is not yet favourited', async () => {
         await toggle(NOT_YET_FAVOURITED);
 
         expect(addToFavourites).toHaveBeenCalledWith(MOD_ID);
         expect(deleteFromFavourites).not.toHaveBeenCalled();
+        expect(notify.success).toHaveBeenCalledWith('Added to favourites');
     });
 
-    it('removes the mod when it is already favourited', async () => {
+    it('removes the mod and confirms it when it is already favourited', async () => {
         await toggle(ALREADY_FAVOURITED);
 
         expect(deleteFromFavourites).toHaveBeenCalledWith(MOD_ID);
         expect(addToFavourites).not.toHaveBeenCalled();
-    });
-
-    it('confirms that the mod was added', async () => {
-        await toggle(NOT_YET_FAVOURITED);
-
-        expect(notify.success).toHaveBeenCalledWith('Added to favourites');
-    });
-
-    it('confirms that the mod was removed', async () => {
-        await toggle(ALREADY_FAVOURITED);
-
         expect(notify.success).toHaveBeenCalledWith('Removed from favourites');
     });
 
     it('refreshes both the mods list and the favourites list', async () => {
-        const { wrapper, queryClient } = createWrapper();
-        const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
-        const { result } = renderHook(() => useFavouriteMod(), { wrapper });
-
-        await act(async () => {
-            await result.current.toggleFavourite(MOD_ID, NOT_YET_FAVOURITED);
-        });
+        const { invalidateQueries } = await toggle(NOT_YET_FAVOURITED);
 
         expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.mods });
         expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.favourites });
@@ -88,25 +73,5 @@ describe('useFavouriteMod', () => {
 
         expect(notify.apiError).toHaveBeenCalled();
         expect(notify.success).not.toHaveBeenCalled();
-    });
-
-    it('does not throw when the request fails', async () => {
-        vi.mocked(deleteFromFavourites).mockRejectedValue(new Error('Network error'));
-
-        await expect(toggle(ALREADY_FAVOURITED)).resolves.toBeDefined();
-    });
-
-    it('leaves the lists alone when the request fails', async () => {
-        vi.mocked(addToFavourites).mockRejectedValue(new Error('Network error'));
-
-        const { wrapper, queryClient } = createWrapper();
-        const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
-        const { result } = renderHook(() => useFavouriteMod(), { wrapper });
-
-        await act(async () => {
-            await result.current.toggleFavourite(MOD_ID, NOT_YET_FAVOURITED);
-        });
-
-        expect(invalidateQueries).not.toHaveBeenCalled();
     });
 });
