@@ -3,7 +3,7 @@ import { NEON } from '../../../constants/theme';
 import type { ModCardProps } from './index.types';
 import { Tilt, useTiltContext } from '@gfazioli/react-tilt';
 import { MOD_CARD } from '../../../constants/customDivs';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const favouriteIconShape = "M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.7z";
 const editIconShape = "M43.12,380.17l7.39,7.38l275.52-275.83l74.1,74.19L126.57,459.77l-101.1,27.04l27.73-103.94L43.12,380.17l7.39,7.38L43.12,380.17l-10.09-2.69L0.64,498.87c-0.96,3.6,0.07,7.44,2.71,10.08c2.64,2.64,6.48,3.67,10.08,2.7l121.25-32.42c1.76-0.47,3.4-1.42,4.69-2.71l282.91-283.23c4.08-4.08,4.08-10.68,0-14.76l-88.86-88.96c-1.97-1.97-4.6-3.06-7.39-3.06c-2.79,0-5.42,1.09-7.39,3.06L35.73,372.79c-1.29,1.29-2.23,2.92-2.7,4.69L43.12,380.17z M364.82,58.1l-7.39,7.38l81.49,81.58l-21.49,21.51l-74.1-74.19l28.87-28.91L364.82,58.1l-7.39,7.38L364.82,58.1l-7.39-7.38L321.19,87c-4.08,4.08-4.08,10.68,0,14.76l88.86,88.96c1.97,1.97,4.6,3.06,7.39,3.06c2.79,0,5.42-1.09,7.39-3.06l36.24-36.29c4.08-4.08,4.08-10.68,0-14.76l-88.86-88.96c-1.97-1.97-4.6-3.06-7.39-3.06c-2.79,0-5.42,1.09-7.39,3.06L364.82,58.1z M398.48,24.4l7.39,7.38c7.28-7.29,16.73-10.88,26.28-10.89c9.54,0.01,18.98,3.61,26.26,10.89l21.54,21.57c7.27,7.28,10.86,16.75,10.87,26.31c-0.01,9.58-3.62,19.05-10.87,26.32l-26.27,26.3l-74.1-74.19l26.29-26.32L398.48,24.4l-7.39-7.38l-33.66,33.7c-4.08,4.08-4.08,10.68,0,14.76l88.86,88.96c1.97,1.97,4.6,3.06,7.39,3.06c2.79,0,5.42-1.09,7.39-3.06l33.66-33.7c11.3-11.31,16.99-26.24,16.98-41.08c0.01-14.82-5.67-29.75-16.98-41.07l-21.55-21.57C461.89,5.7,446.97-0.01,432.15,0c-14.82-0.01-29.75,5.69-41.06,17.02L398.48,24.4z";
@@ -47,30 +47,16 @@ const CardGlow = () => {
     );
 };
 
-const HoverBridge = ({ onChange }: { onChange: (v: boolean) => void }) => {
-    const { isHovering } = useTiltContext();
-
-    useEffect(() => {
-        onChange(isHovering);
-    }, [isHovering, onChange]);
-
-    return null;
-};
-
 const ModCard = ({
     title, type, imageUrl, creator, isFavourite,
     onClick, onEdit, onDelete, onFavourite
 }: ModCardProps) => {
     const [hovered, setHovered] = useState(false);
-
-    const { isHovering } = useTiltContext();
-
-    useEffect(() => {
-        setHovered(isHovering);
-    }, [isHovering]);
-
     return (
-        <div className="relative h-64 w-64 text-left">
+        <div className="relative h-64 w-64 text-left"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+        >
 
             <div
                 className="pointer-events-none absolute inset-0 backdrop-blur-[3px] transition-transform duration-300"
@@ -82,7 +68,6 @@ const ModCard = ({
             />
 
             <Tilt threshold={15} hoverScale={1.08}>
-                <HoverBridge onChange={setHovered} />
                 <Tilt.Layer depth={0}>
                     <img src={card_accent} alt="" className="absolute right-5 top-42 w-24 h-6 opacity-7" />
                 </Tilt.Layer>
@@ -98,9 +83,9 @@ const ModCard = ({
                                 <p className="truncate" title={title}>{title}</p>
                             </Tilt.Layer>
 
-                                <Tilt.Layer depth={-0.15} className="text-sm text-[#d7d7d7]">
-                                    <p>{creator ? `@${creator}` : '\u00A0'}</p>
-                                </Tilt.Layer>
+                            <Tilt.Layer depth={-0.15} className="text-sm text-[#d7d7d7]">
+                                <p>{creator ? `@${creator}` : '\u00A0'}</p>
+                            </Tilt.Layer>
                         </div>
 
                         <div className="flex flex-row items-center justify-between w-14/25">
