@@ -67,21 +67,20 @@ public class ModServiceTests
 
         _cloudinaryRepository.UploadAsync(modFile, FileType.Raw).Returns(modFileUploadResult);
         _cloudinaryRepository.UploadAsync(previewImage, FileType.Image).Returns(previewImageUploadResult);
-        _modRepository.CreateMod(
-            uid, dto.Title, dto.Type, dto.Description,
-            Arg.Any<string>(), Arg.Any<string>(),
-            modFileUrl, previewImageUrl)
-            .Returns(modId);
+        _modRepository.CreateMod(Arg.Any<NewMod>()).Returns(modId);
 
         //Act
         Guid? result = await _modService.UploadMod(uid, dto);
 
         //Assert
         Assert.That(result, Is.EqualTo(modId));
-        await _modRepository.Received(1).CreateMod(
-            uid, dto.Title, dto.Type, dto.Description,
-            Arg.Any<string>(), Arg.Any<string>(),
-            modFileUrl, previewImageUrl);
+        await _modRepository.Received(1).CreateMod(Arg.Is<NewMod>(mod =>
+            mod.Uid == uid
+            && mod.Title == dto.Title
+            && mod.Type == dto.Type
+            && mod.Description == dto.Description
+            && mod.ModFileUrl == modFileUrl
+            && mod.ImageUrl == previewImageUrl));
     }
 
     [Test]
@@ -115,9 +114,7 @@ public class ModServiceTests
         //Assert
         Assert.That(result, Is.Null);
         await _cloudinaryRepository.DidNotReceive().UploadAsync(previewImage, FileType.Image);
-        await _modRepository.DidNotReceive().CreateMod(
-            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
-            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+        await _modRepository.DidNotReceive().CreateMod(Arg.Any<NewMod>());
     }
 
     [Test]
@@ -160,9 +157,7 @@ public class ModServiceTests
         //Assert
         Assert.That(result, Is.Null);
         await _cloudinaryRepository.Received(1).DeleteAsync(modFileUrl, ModPublicIdStart);
-        await _modRepository.DidNotReceive().CreateMod(
-            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
-            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+        await _modRepository.DidNotReceive().CreateMod(Arg.Any<NewMod>());
     }
 
     [Test]
