@@ -15,7 +15,7 @@ namespace Infrastructure
             _dbConnection = dbConnection;
         }
 
-        public async Task<Guid> CreateMod(string uid, string title, string type, string description, string uploadDate, string editDate, string modFileUrl, string previewImageUrl)
+        public async Task<Guid> CreateMod(NewMod newMod)
         {
             string sql = @"INSERT INTO Mod (
                                Uid,
@@ -39,7 +39,15 @@ namespace Infrastructure
                                @previewImageUrl
                            )";
 
-            return await _dbConnection.ExecuteScalarAsync<Guid>(sql, new { uid, title, type, description, uploadDate, editDate, modFileUrl, previewImageUrl });
+            return await _dbConnection.ExecuteScalarAsync<Guid>(sql, new { uid = newMod.Uid,
+                                                                           title = newMod.Title,
+                                                                           type = newMod.Type,
+                                                                           description = newMod.Description,
+                                                                           uploadDate = newMod.UploadDate,
+                                                                           editDate = newMod.EditDate,
+                                                                           modFileUrl = newMod.ModFileUrl,
+                                                                           previewImageUrl = newMod.ImageUrl
+                                                                         });
         }
 
         public async Task<Mod?> DeleteMod(string modId)
