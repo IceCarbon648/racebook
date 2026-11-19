@@ -1,4 +1,4 @@
-import axiosInstance from './axiosInstance';
+import axiosInstance from '../../lib/axiosInstance';
 import type { Mod, MyMod } from '../../types';
 
 export const getAllMods = async (): Promise<Mod[]> => {

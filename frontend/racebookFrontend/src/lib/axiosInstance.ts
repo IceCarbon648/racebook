@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { queryClient } from '../../queryClient';
+import { queryClient } from './queryClient';
 
 const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_URL ?? '/api',
