@@ -53,17 +53,21 @@ namespace Business
 
                 return null;
             }
+
             _logger.LogDebug("Preview image uploaded to Cloudinary for user {Uid}: {Url}", uid, previewImageUploadResult.SecureUrl);
 
-            Guid modId = await _modRepository.CreateMod(
-                uid,
-                dto.Title,
-                dto.Type,
-                dto.Description,
-                DateOnly.FromDateTime(DateTime.Now).ToString(),
-                DateOnly.FromDateTime(DateTime.Now).ToString(),
-                modFileUploadResult.SecureUrl.ToString(),
-                previewImageUploadResult.SecureUrl.ToString());
+            NewMod newMod = new NewMod {
+                                           Uid = uid,
+                                           Title = dto.Title,
+                                           Type = dto.Type,
+                                           Description = dto.Description,
+                                           UploadDate = DateOnly.FromDateTime(DateTime.Now).ToString(),
+                                           EditDate = DateOnly.FromDateTime(DateTime.Now).ToString(),
+                                           ModFileUrl = modFileUploadResult.SecureUrl.ToString(),
+                                           ImageUrl = previewImageUploadResult.SecureUrl.ToString()
+                                       };
+
+            Guid modId = await _modRepository.CreateMod(newMod);
 
             _logger.LogInformation("Mod {ModId} successfully created by user {Uid}", modId, uid);
 
@@ -158,6 +162,7 @@ namespace Business
             await DeleteFiles(oldFiles);
 
             _logger.LogInformation("Mod {ModId} successfully edited", modId);
+
             return true;
         }
 

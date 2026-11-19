@@ -37,7 +37,7 @@ const useFluidCursor = (baseSrc, revealSrc, depthSrc, parallax) => {
     SIM_RESOLUTION: 128,
     DYE_RESOLUTION: 1440,
     CAPTURE_RESOLUTION: 512,
-    DENSITY_DISSIPATION: 0.6,
+    DENSITY_DISSIPATION: 0.8,
     VELOCITY_DISSIPATION: 0.8,
     PRESSURE: 0.4,
     PRESSURE_ITERATIONS: 50,

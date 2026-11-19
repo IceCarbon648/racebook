@@ -40,6 +40,7 @@ namespace Business
         public async Task SetAmaxUsername(string uid, string playerName)
         {
             Guard.Against.NullOrWhiteSpace(playerName, nameof(playerName));
+
             await _userRepository.UpdateAmaxUsername(uid, playerName);
         }
     }

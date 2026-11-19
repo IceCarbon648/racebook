@@ -62,6 +62,13 @@ const ModCard = ({
     onClick, onEdit, onDelete, onFavourite
 }: ModCardProps) => {
     const [hovered, setHovered] = useState(false);
+
+    const { isHovering } = useTiltContext();
+
+    useEffect(() => {
+        setHovered(isHovering);
+    }, [isHovering]);
+
     return (
         <div className="relative h-64 w-64 text-left">
 
@@ -88,7 +95,7 @@ const ModCard = ({
                     <div className="flex flex-col gap-4">
                         <div className="">
                             <Tilt.Layer depth={-0.15} className="text-2xl text-white whitespace-nowrap">
-                                <p>{title}</p>
+                                <p className="truncate" title={title}>{title}</p>
                             </Tilt.Layer>
 
                                 <Tilt.Layer depth={-0.15} className="text-sm text-[#d7d7d7]">

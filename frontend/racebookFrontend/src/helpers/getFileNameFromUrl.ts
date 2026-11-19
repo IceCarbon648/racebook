@@ -1,5 +1,7 @@
 export const getFileNameFromUrl = (url: string | null | undefined): string | null => {
-    if (!url) return null;
+    if (!url){
+        return null;
+    }
 
     try {
         const { pathname } = new URL(url);
