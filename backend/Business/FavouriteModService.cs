@@ -19,12 +19,15 @@ namespace Business
         public async Task AddToFavourites(string uid, string modId)
         {
             _logger.LogInformation("User {Uid} adding mod {ModId} to favourites", uid, modId);
+
             await _favouriteModRepository.AddToFavourites(uid, modId);
+
             _logger.LogInformation("User {Uid} successfully added mod {ModId} to favourites", uid, modId);
         }
         public async Task<List<GetModDto>> GetFavourites(string uid)
         {
             _logger.LogInformation("Retrieving favourites for user {Uid}", uid);
+
             List<GetModDto> favourites = await _favouriteModRepository.GetFavourites(uid);
 
             if (favourites.Count == 0)
@@ -42,7 +45,9 @@ namespace Business
         public async Task DeleteFromFavourites(string uid, string modId)
         {
             _logger.LogInformation("User {Uid} removing mod {ModId} from favourites", uid, modId);
+
             await _favouriteModRepository.DeleteFromFavourites(uid, modId);
+
             _logger.LogInformation("User {Uid} successfully removed mod {ModId} from favourites", uid, modId);
         }
     }

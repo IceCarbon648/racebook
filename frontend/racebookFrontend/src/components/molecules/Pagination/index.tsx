@@ -1,7 +1,9 @@
 import type { PaginationProps } from './index.types';
 
 const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) => {
-    if (totalPages <= 1) return null;
+    if (totalPages <= 1){
+        return null;
+    }
 
     return (
         <div className="flex items-center justify-center gap-2 mt-8">

@@ -62,6 +62,13 @@ const ModCard = ({
     onClick, onEdit, onDelete, onFavourite
 }: ModCardProps) => {
     const [hovered, setHovered] = useState(false);
+
+    const { isHovering } = useTiltContext();
+
+    useEffect(() => {
+        setHovered(isHovering);
+    }, [isHovering]);
+
     return (
         <div className="relative h-64 w-64 text-left">
 
