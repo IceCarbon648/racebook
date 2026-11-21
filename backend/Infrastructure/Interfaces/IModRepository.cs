@@ -7,9 +7,8 @@ namespace Infrastructure.Interfaces
     {
         Task<Guid> CreateMod(NewMod newMod);
         Task<Mod?> DeleteMod(string modId);
-        Task<string> GetModFileUrl(string modId);
         Task<Mod?> GetModById(string modId);
-        Task<int> EditMod(Mod mod, string? title, string? type, string? description);
+        Task EditMod(Mod mod);
         Task<List<GetModDto>> GetAllMods(string? uid);
         Task<List<Mod>> GetMyMods(string uid);
         Task<bool> IsOwner(string modId, string uid);

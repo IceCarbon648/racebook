@@ -42,11 +42,12 @@ namespace Infrastructure
             return cloudniaryUrl.Substring(publicIdStartIndex);
         }
 
-        public async Task DeleteAsync(string fileUrl, string publicIdStart)
+        public async Task<DeletionResult> DeleteAsync(string fileUrl, string publicIdStart)
         {
             string filePublicId = GetPublicIdFromUrl(fileUrl, publicIdStart);
+            
 
-            await _cloudinary.DestroyAsync(new DeletionParams(filePublicId)
+            return await _cloudinary.DestroyAsync(new DeletionParams(filePublicId)
             {
                 ResourceType = ResourceType.Raw
             });

@@ -60,15 +60,6 @@ namespace Infrastructure
             return await _dbConnection.QueryFirstOrDefaultAsync<Mod>(sql, new { modId });
         }
 
-        public async Task<string> GetModFileUrl(string modId)
-        {
-            string sql = @"SELECT FilePath
-                           FROM Mod
-                           WHERE ModId = @modId";
-
-            return await _dbConnection.ExecuteScalarAsync<string>(sql, new { modId });
-        }
-
         public async Task<Mod?> GetModById(string modId)
         {
             string sql = @"SELECT *
@@ -78,7 +69,7 @@ namespace Infrastructure
             return await _dbConnection.QueryFirstOrDefaultAsync<Mod>(sql, new { modId });
         }
 
-        public async Task<int> EditMod(Mod mod, string? title, string? type, string? description)
+        public async Task EditMod(Mod mod)
         {
             string sql = @"UPDATE Mod
                            SET 
@@ -90,11 +81,11 @@ namespace Infrastructure
                                EditDate = @editDate
                            WHERE ModId = @modId";
 
-            return await _dbConnection.ExecuteAsync(sql, new {
+            await _dbConnection.ExecuteAsync(sql, new {
                 modId = mod.ModId,
-                title,
-                type,
-                description,
+                mod.Title,
+                mod.Type,
+                mod.Description,
                 editDate = mod.EditDate,
                 modFileUrl = mod.ModFileUrl,
                 imageUrl = mod.ImageUrl,
