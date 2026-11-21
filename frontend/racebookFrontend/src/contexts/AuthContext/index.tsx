@@ -17,8 +17,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const response = await meService();
             return {
                 uid: response.uid,
-                username: response.username,
-                amaxUsername: response.amaxUsername ?? undefined,
+                username: response.username
             };
         },
         retry: false,

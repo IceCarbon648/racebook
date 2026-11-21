@@ -83,7 +83,12 @@ namespace racebookApi.Controllers
         {
             string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
 
-            return Ok(await _modService.GetMyMods(uid!));
+            if (uid is null)
+            {
+                return Unauthorized();
+            }
+
+            return Ok(await _modService.GetMyMods(uid));
         }
     }
 }

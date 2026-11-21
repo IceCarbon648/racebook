@@ -1,7 +1,6 @@
 export interface User {
     uid: string;
     username: string;
-    amaxUsername?: string;
 }
 
 export interface Mod {
@@ -43,5 +42,4 @@ export interface RegisterRequest {
 export interface AuthResponse {
     uid: string;
     username: string;
-    amaxUsername?: string;
 }

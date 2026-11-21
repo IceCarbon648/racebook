@@ -50,31 +50,12 @@ namespace Business
             return GenerateToken(accountInfo);
         }
 
-        public string GenerateTokenWithAmaxUsername(string uid, string username, string amaxUsername)
-        {
-            Guard.Against.NullOrWhiteSpace(uid, nameof(uid));
-            Guard.Against.NullOrWhiteSpace(username, nameof(username));
-
-            _logger.LogInformation("Generating refreshed token for user: {Uid}", uid);
-
-            string dummyHash = "$2a$11$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
-
-            return GenerateToken(new AccountInfo
-            {
-                Uid = Guid.Parse(uid),
-                Username = username,
-                AmaxUsername = amaxUsername,
-                PasswordHash = dummyHash
-            });
-        }
-
         private string GenerateToken(AccountInfo accountInfo)
         {
             Claim[] claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, accountInfo.Uid.ToString()),
-                new Claim(ClaimTypes.Name, accountInfo.Username),
-                new Claim(ClaimTypes.GivenName, accountInfo.AmaxUsername ?? "")
+                new Claim(ClaimTypes.Name, accountInfo.Username)
             };
 
             SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
