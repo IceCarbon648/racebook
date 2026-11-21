@@ -104,18 +104,34 @@ namespace Infrastructure
                              m.EditDate,
                              m.ModFileUrl,
                              m.ImageUrl AS PreviewImageUrl,
-                         CASE 
+                           CASE 
                              WHEN @uid IS NULL THEN NULL
                              WHEN f.FavouriteId IS NOT NULL THEN CAST(1 AS BIT)
                              ELSE CAST(0 AS BIT)
-                         END AS IsFavourite
-                         FROM Mod m
-                         INNER JOIN [User] u ON m.Uid = u.Uid
-                         LEFT JOIN FavouriteMod f ON f.ModId = m.ModId AND f.Uid = @uid";
+                           END AS IsFavourite
+                           FROM Mod m
+                           INNER JOIN [User] u ON m.Uid = u.Uid
+                           LEFT JOIN FavouriteMod f ON f.ModId = m.ModId AND f.Uid = @uid";
 
             IEnumerable<GetModDto> queryResult = await _dbConnection.QueryAsync<GetModDto>(sql, new { uid });
 
             return queryResult.ToList();
+        }
+
+        public async Task<ModDetailsDto?> GetModDetails(string modId)
+        {
+            string sql = @"SELECT
+                             m.Title,
+                             m.Type,
+                             m.Description,
+                             u.Username AS Creator,
+                             m.ModFileUrl,
+                             m.ImageUrl AS PreviewImageUrl
+                           FROM Mod m
+                           INNER JOIN [User] u ON u.Uid = m.Uid
+                           WHERE m.ModId = @modId;";
+
+            return await _dbConnection.QueryFirstOrDefaultAsync<ModDetailsDto>(sql, new { modId });
         }
 
         public async Task<List<Mod>> GetMyMods(string uid)

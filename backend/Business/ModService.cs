@@ -165,6 +165,17 @@ namespace Business
             return mods;
         }
 
+        public async Task<ModDetailsDto> GetModDetails(string modId)
+        {
+            _logger.LogInformation("Retrieving mod {modId}", modId);
+
+            ModDetailsDto? modDetails = await _modRepository.GetModDetails(modId);
+
+            Guard.Against.Null(modDetails, nameof(modDetails), $"Mod {modId} not found");
+
+            return modDetails!;
+        }
+
         public async Task<List<Mod>> GetMyMods(string uid)
         {
             _logger.LogInformation("Retrieving mods for user {Uid}", uid);
