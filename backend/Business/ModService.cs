@@ -138,6 +138,7 @@ namespace Business
             modDetails.Title = dto.Title;
             modDetails.Type = dto.Type;
             modDetails.Description = dto.Description;
+            modDetails.EditDate = DateTime.Now;
             modDetails.ModFileUrl = latestModFileUrl;
             modDetails.ImageUrl = latestImageUrl;
 
