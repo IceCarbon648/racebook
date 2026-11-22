@@ -121,10 +121,12 @@ namespace Infrastructure
         public async Task<ModDetailsDto?> GetModDetails(string modId)
         {
             string sql = @"SELECT
+                             u.Username AS Creator,
                              m.Title,
                              m.Type,
                              m.Description,
-                             u.Username AS Creator,
+                             m.UploadDate,
+                             m.EditDate,
                              m.ModFileUrl,
                              m.ImageUrl AS PreviewImageUrl
                            FROM Mod m
