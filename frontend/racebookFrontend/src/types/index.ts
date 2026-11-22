@@ -16,6 +16,17 @@ export interface Mod {
     isFavourite?: boolean;
 }
 
+export interface ModDetails{
+    creator: string;
+    title: string;
+    type: string;
+    description: string;
+    uploadDate: string;
+    editDate: string;
+    modFileUrl: string;
+    previewImageUrl: string;
+}
+
 export interface MyMod {
     modId: string;
     uid: string;
