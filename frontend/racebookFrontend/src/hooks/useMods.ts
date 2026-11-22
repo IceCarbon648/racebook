@@ -5,7 +5,7 @@ import { queryKeys } from '../constants/queryKeys';
 export const useMods = () => {
     const { data: mods = [], isLoading, isError } = useQuery({
         queryKey: queryKeys.mods,
-        queryFn: getAllMods,
+        queryFn: getAllMods
     });
 
     return { mods, isLoading, isError };
