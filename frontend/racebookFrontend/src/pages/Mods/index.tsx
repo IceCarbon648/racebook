@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Mod } from '../../types';
 import { ModCard } from '../../components';
 import { ModFilters, Pagination } from '../../components/molecules';
 import Background from '../../components/molecules/Background/Index';
@@ -53,8 +52,8 @@ const Mods = () => {
 
     if (page > totalPages && totalPages > 0) setPage(totalPages);
 
-    const handleModClick = (mod: Mod) => {
-        navigate(`/mods/${mod.modId}`, { state: { mod } });
+    const handleModClick = (modId: string) => {
+        navigate(`/mods/${modId}`);
     };
 
     if (isLoading) return (
@@ -99,7 +98,7 @@ const Mods = () => {
                                 imageUrl={mod.previewImageUrl}
                                 creator={mod.creator}
                                 isFavourite={mod.isFavourite ?? undefined}
-                                onClick={() => handleModClick(mod)}
+                                onClick={() => handleModClick(mod.modId)}
                                 onFavourite={() => toggleFavourite(mod.modId, mod.isFavourite!)}
                             />
                         ))}
