@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useInvalidateMods } from '../../hooks/myMods/useInvalidateMods';
-import { queryKeys } from '../../constants/queryKeys';
-import { createWrapper } from '../helpers/queryWrapper';
+import { useInvalidateMods } from '../../../hooks/api/myMods/useInvalidateMods';
+import { queryKeys } from '../../../constants/queryKeys';
+import { createWrapper } from '../../helpers/queryWrapper';
 
 describe('useInvalidateMods', () => {
     it('invalidates both mod lists when called, and nothing before', () => {

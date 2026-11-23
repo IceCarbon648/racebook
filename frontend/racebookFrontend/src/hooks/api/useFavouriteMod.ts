@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addToFavourites, deleteFromFavourites } from '../services';
-import { queryKeys } from '../constants/queryKeys';
-import { notify } from '../utils/notify';
+import { addToFavourites, deleteFromFavourites } from '../../services';
+import { queryKeys } from '../../constants/queryKeys';
+import { notify } from '../../utils/notify';
 
 
 export const useFavouriteMod = () => {
@@ -26,5 +26,5 @@ export const useFavouriteMod = () => {
         }
     };
 
-    return { toggleFavourite, isTogglingFavourite: mutation.isPending };
+    return { toggleFavourite, mutation };
 };

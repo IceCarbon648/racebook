@@ -1,23 +1,20 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { NEON, PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import Background from '../../components/molecules/Background/Index';
-import { useMods } from '../../hooks/useMods';
 import { useModDetails } from '../../hooks/api/useModDetails';
 
 const ModDetail = () => {
     const { modId } = useParams<{ modId: string }>();
     const navigate = useNavigate();
+    const { data: mod, isPending } = useModDetails(modId ?? '');
 
-    const { isLoading, isError } = useMods();
-    const { data: mod } = useModDetails(modId ?? '');
-
-    if (isLoading) return (
+    if (isPending) return (
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
             <p className="text-gray-500">Loading mod...</p>
         </div>
     );
 
-    if (isError || !mod) return (
+    if (isPending || !mod) return (
         <div className="flex flex-col items-center justify-center gap-4 min-h-[calc(100vh-4rem)]">
             <p className="text-gray-500">Mod not found</p>
             <button

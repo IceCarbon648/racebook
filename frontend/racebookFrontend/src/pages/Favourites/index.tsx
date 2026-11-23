@@ -3,14 +3,14 @@ import { ModCard } from '../../components';
 import type { Mod } from '../../types';
 import Background from '../../components/molecules/Background/Index';
 import { Pagination } from '../../components/molecules';
-import { useFavouriteMod } from '../../hooks/useFavouriteMod';
-import { useFavourites } from '../../hooks/useFavourites';
+import { useFavouriteMod } from '../../hooks/api/useFavouriteMod';
+import { useFavourites } from '../../hooks/api/useFavourites';
 import { usePagination } from '../../hooks/usePagination';
 
 const Favourites = () => {
     const navigate = useNavigate();
 
-    const { favourites, isLoading, isError } = useFavourites();
+    const { data: favourites = [], isLoading, isError } = useFavourites();
     const { toggleFavourite } = useFavouriteMod();
     const { page, setPage, totalPages, paginated } = usePagination(favourites);
 

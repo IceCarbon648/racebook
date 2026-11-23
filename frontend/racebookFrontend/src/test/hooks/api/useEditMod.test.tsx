@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useEditMod } from '../../hooks/myMods/useEditMod';
-import { editMod as editModService } from '../../services';
-import { queryKeys } from '../../constants/queryKeys';
-import { createWrapper } from '../helpers/queryWrapper';
+import { useEditMod } from '../../../hooks/api/myMods/useEditMod';
+import { editMod as editModService } from '../../../services';
+import { queryKeys } from '../../../constants/queryKeys';
+import { createWrapper } from '../../helpers/queryWrapper';
 
 vi.mock('../../services', () => ({
     editMod: vi.fn(),

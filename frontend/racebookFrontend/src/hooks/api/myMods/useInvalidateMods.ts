@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '../../constants/queryKeys';
+import { queryKeys } from '../../../constants/queryKeys';
 
 export const useInvalidateMods = () => {
     const queryClient = useQueryClient();

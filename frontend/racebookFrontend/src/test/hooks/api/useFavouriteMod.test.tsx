@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useFavouriteMod } from '../../hooks/useFavouriteMod';
-import { addToFavourites, deleteFromFavourites } from '../../services';
-import { notify } from '../../utils/notify';
-import { queryKeys } from '../../constants/queryKeys';
-import { createWrapper } from '../helpers/queryWrapper';
+import { useFavouriteMod } from '../../../hooks/api/useFavouriteMod';
+import { addToFavourites, deleteFromFavourites } from '../../../services';
+import { notify } from '../../../utils/notify';
+import { queryKeys } from '../../../constants/queryKeys';
+import { createWrapper } from '../../helpers/queryWrapper';
 
 vi.mock('../../services', () => ({
     addToFavourites: vi.fn(),

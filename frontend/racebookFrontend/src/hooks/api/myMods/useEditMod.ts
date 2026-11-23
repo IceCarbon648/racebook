@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { editMod as editModService } from '../../services';
+import { editMod as editModService } from '../../../services';
 import { useInvalidateMods } from './useInvalidateMods';
 
 export const useEditMod = () => {

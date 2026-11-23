@@ -3,10 +3,10 @@ import { ModCard, ModModal, Pagination } from '../../components';
 import type { MyMod } from '../../types';
 import Background from '../../components/molecules/Background/Index';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
-import { useMyMods } from '../../hooks/myMods/useMyMods';
-import { useUploadMod } from '../../hooks/myMods/useUploadMods';
-import { useEditMod } from '../../hooks/myMods/useEditMod';
-import { useDeleteMod } from '../../hooks/myMods/useDeleteMod';
+import { useMyMods } from '../../hooks/api/myMods/useMyMods';
+import { useUploadMod } from '../../hooks/api/myMods/useUploadMods';
+import { useEditMod } from '../../hooks/api/myMods/useEditMod';
+import { useDeleteMod } from '../../hooks/api/myMods/useDeleteMod';
 import { usePagination } from '../../hooks/usePagination';
 import { notify } from '../../utils/notify';
 

@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ModCard } from '../../components';
 import { ModFilters, Pagination } from '../../components/molecules';
 import Background from '../../components/molecules/Background/Index';
-import { useMods } from '../../hooks/useMods';
-import { useFavouriteMod } from '../../hooks/useFavouriteMod';
+import { useMods } from '../../hooks/api/useMods';
+import { useFavouriteMod } from '../../hooks/api/useFavouriteMod';
 import { usePagination } from '../../hooks/usePagination';
 
 const Mods = () => {
@@ -13,7 +13,7 @@ const Mods = () => {
     const [category, setCategory] = useState('ALL TYPES');
     const [order, setOrder] = useState<'newest' | 'oldest'>('newest');
 
-    const { mods, isLoading, isError } = useMods();
+    const { data: mods = [], isLoading, isError } = useMods();
     const { toggleFavourite } = useFavouriteMod();
 
     const handleReset = () => {

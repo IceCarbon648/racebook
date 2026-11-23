@@ -5,7 +5,7 @@ import { FilePicker } from '../../atoms';
 import type { ModModalProps } from './index.types';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../../constants/theme';
 import { MAX_MOD_TITLE_LENGTH, MAX_MOD_DESCRIPTION_LENGTH } from '../../../constants/inputLimits';
-import { useCategories } from '../../../hooks/useCategories';
+import { useCategories } from '../../../hooks/api/useCategories';
 import { getFileNameFromUrl } from '../../../helpers/getFileNameFromUrl';
 import { modUploadSchema, modEditSchema, validate } from '../../../validation';
 import { notify } from '../../../utils/notify';
@@ -22,7 +22,7 @@ const [error, setError] = useState<string | null>(null);
 const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
 const {
-    categories,
+    data: categories = [],
     isLoading: isLoadingCategories,
     isError: isCategoriesError,
 } = useCategories();
