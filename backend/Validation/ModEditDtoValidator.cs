@@ -31,8 +31,8 @@ namespace Validation
                 .MaximumLength(128)
                 .When(x => x.Description != null);
 
-            RuleFor(x => x.ModFile)
-                .Must(f => f!.Length <= MaxModFileSize)
+            RuleFor(x => x.ModFile!)
+                .Must(f => f.Length <= MaxModFileSize)
                     .WithMessage("Mod file cannot be larger than 10MB")
                 .Must(f => fileChecker.HasSafeName(f))
                     .WithMessage("Mod file has an invalid file name")
@@ -40,8 +40,8 @@ namespace Validation
                     .WithMessage("Invalid mod file")
                 .When(x => x.ModFile != null);
 
-            RuleFor(x => x.PreviewImage)
-                .Must(f => f!.Length <= MaxImageSize)
+            RuleFor(x => x.PreviewImage!)
+                .Must(f => f.Length <= MaxImageSize)
                     .WithMessage("Preview image cannot be larger than 5MB")
                 .Must(f => fileChecker.HasSafeName(f))
                     .WithMessage("Preview image has an invalid file name")
