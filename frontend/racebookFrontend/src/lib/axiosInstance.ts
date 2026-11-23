@@ -1,5 +1,5 @@
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { queryClient } from './queryClient';
 
 const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_URL ?? '/api',
@@ -9,6 +9,8 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
+        const queryClient = useQueryClient();
+
         if (error?.response?.status === 401) {
             queryClient.setQueryData(['me'], null);
         }
