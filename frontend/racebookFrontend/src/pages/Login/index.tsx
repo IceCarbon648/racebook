@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../contexts';
+import { useAuth } from '../../hooks/useAuth';
 import Background from '../../components/molecules/Background/Index';
 import FormPanel from '../../components/molecules/FormPanel';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
