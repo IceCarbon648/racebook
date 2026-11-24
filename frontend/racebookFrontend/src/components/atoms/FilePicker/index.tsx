@@ -1,15 +1,18 @@
+import { useState } from 'react';
+
 interface FilePickerProps {
-    className?: string,
+    className?: string;
+    /** Doubles as the form field name. */
     id: string;
     label: string;
     accept: string;
-    file: File | null;
     existingFileName: string | null;
     optional?: boolean;
-    onChange: (file: File | null) => void;
 }
 
-const FilePicker = ({ className, id, label, accept, existingFileName, file, onChange }: FilePickerProps) => {
+const FilePicker = ({ className, id, label, accept, existingFileName }: FilePickerProps) => {
+    const [file, setFile] = useState<File | null>(null);
+
     const displayName = file?.name ?? existingFileName ?? 'No file chosen';
 
     return (
@@ -25,14 +28,18 @@ const FilePicker = ({ className, id, label, accept, existingFileName, file, onCh
                 CHOOSE FILE
                 <input
                     id={id}
+                    name={id}
                     type="file"
                     accept={accept}
-                    onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                     className="sr-only"
                 />
             </label>
 
-            <p className="truncate text-xs text-gray-400" title={displayName}>
+            <p
+                className={`truncate text-xs ${file ? 'text-gray-200' : 'text-gray-400'}`}
+                title={displayName}
+            >
                 {displayName}
             </p>
         </div>

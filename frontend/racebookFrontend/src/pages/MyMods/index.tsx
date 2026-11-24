@@ -105,13 +105,14 @@ const MyMods = () => {
                     <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
                 </>
             )}
-            <ModModal
-                isOpen={isModalOpen}
-                mode={modalMode}
-                mod={selectedMod ?? undefined}
-                onClose={handleModalClose}
-                onSubmit={handleModalSubmit}
-            />
+            {isModalOpen && (
+    <ModModal
+        mode={modalMode}
+        mod={selectedMod ?? undefined}
+        onClose={handleModalClose}
+        onSubmit={handleModalSubmit}
+    />
+)}
         </div>
     );
 };

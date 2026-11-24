@@ -28,8 +28,20 @@ export const validate = async <T extends object>(
     }
 };
 
-const modFileRules = yup
-    .mixed<File>()
+const isBlankFileInput = (value: unknown): boolean =>
+    value instanceof File && value.size === 0 && value.name === '';
+
+const fileRules = (label: string) =>
+    yup
+        .mixed<File>()
+        .transform((value) => (isBlankFileInput(value) ? undefined : value))
+        .test(
+            'notEmpty',
+            `${label} cannot be empty`,
+            (file) => !file || file.size > 0
+        );
+
+const modFileRules = fileRules('Mod file')
     .test(
         'extension',
         'Mod file must be a .tpf file',
@@ -41,8 +53,7 @@ const modFileRules = yup
         (file) => !file || file.size <= MAX_MOD_FILE_BYTES
     );
 
-const previewImageRules = yup
-    .mixed<File>()
+const previewImageRules = fileRules('Preview image')
     .test(
         'extension',
         'Preview image must be a .png, .jpg or .jpeg file',
