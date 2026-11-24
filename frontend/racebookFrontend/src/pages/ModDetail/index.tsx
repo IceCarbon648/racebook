@@ -27,7 +27,7 @@ const ModDetail = () => {
     );
 
     const handleDownload = () => {
-        window.open(mod.modFileUrl, '_blank');
+        window.open(mod.modFileUrl, '_blank', 'noopener,noreferrer');
     };
 
     return (
