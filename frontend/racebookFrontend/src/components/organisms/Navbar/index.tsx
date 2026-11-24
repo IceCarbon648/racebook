@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../../contexts';
+import { useAuth } from '../../../hooks/useAuth';
 import { racebookLogo } from '../../../assets/images';
 
 const Navbar = () => {
