@@ -4,8 +4,9 @@ import type { FluidRevealProps } from './index.types';
 
 const FluidReveal = ({ revealSrc, baseSrc, depthSrc,  parallax = 0.03 }: FluidRevealProps) => {
     useEffect(() => {
-        fluidCursor(baseSrc, revealSrc, depthSrc, parallax);
-    }, [baseSrc, revealSrc]);
+        const dispose = fluidCursor(baseSrc, revealSrc, depthSrc, parallax);
+        return dispose;
+    }, [baseSrc, revealSrc, depthSrc, parallax]);
 
     return (
         <div className="pointer-events-none fixed inset-0" style={{ zIndex: -2 }}>
