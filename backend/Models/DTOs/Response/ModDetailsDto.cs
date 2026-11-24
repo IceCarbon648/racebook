@@ -1,6 +1,6 @@
 ﻿namespace Models.DTOs.Response
 {
-    public class ModDetailsDto
+    public record ModDetailsDto
     {
         public required string Creator { get; set; }
         public required string Title { get; set; }

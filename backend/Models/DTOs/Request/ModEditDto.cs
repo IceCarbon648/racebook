@@ -2,7 +2,7 @@
 
 namespace Models.DTOs.Request
 {
-    public class ModEditDto
+    public record ModEditDto
     {
         public required string Title { get; set; }
         public required string Type { get; set; }
