@@ -72,7 +72,19 @@ const ModCard = ({
                     <img src={card_accent} alt="" className="absolute right-5 top-42 w-24 h-6 opacity-7" />
                 </Tilt.Layer>
 
-                <div className="flex h-64 flex-col pl-5 pt-5 pr-5 pb-3 cursor-pointer" onClick={onClick}>
+                <div
+                    className="flex h-64 flex-col pl-5 pt-5 pr-5 pb-3 cursor-pointer focus-visible:outline-2 focus-visible:outline-white"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View ${title}`}
+                    onClick={onClick}
+                    onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            onClick?.();
+                        }
+                    }}
+                >
                     <Tilt.Layer depth={-0.5}>
                         <img src={imageUrl} alt={title} className="w-full aspect-video object-cover rounded-sm" />
                     </Tilt.Layer>
