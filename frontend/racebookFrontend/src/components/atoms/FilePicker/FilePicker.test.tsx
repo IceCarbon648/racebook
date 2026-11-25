@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FilePicker from './index';
@@ -17,64 +17,50 @@ const defaultProps: Parameters<typeof FilePicker>[0] = {
     id: ID,
     label: FIELD_LABEL,
     accept: ACCEPT,
-    file: null,
     existingFileName: null,
-    onChange: () => {},
 };
 
 const renderPicker = (props: Partial<typeof defaultProps> = {}) => {
-    const onChange = vi.fn();
+    render(<FilePicker {...defaultProps} {...props} />);
 
-    render(<FilePicker {...defaultProps} onChange={onChange} {...props} />);
-
-    return { onChange, input: screen.getByLabelText(/choose file/i) };
+    return { input: screen.getByLabelText(/choose file/i) };
 };
 
 describe('FilePicker', () => {
-    it('shows the stored name, and prefers a newly chosen file over it', () => {
-        const { rerender } = render(<FilePicker {...defaultProps} />);
+    it('shows the label and falls back to "No file chosen"', () => {
+        renderPicker();
 
         expect(screen.getByText(FIELD_LABEL)).toBeInTheDocument();
         expect(screen.getByText(NOTHING_CHOSEN)).toBeInTheDocument();
+    });
 
-        rerender(<FilePicker {...defaultProps} existingFileName={EXISTING_NAME} />);
+    it('shows the stored name, and prefers a newly chosen file over it', async () => {
+        const { input } = renderPicker({ existingFileName: EXISTING_NAME });
 
         expect(screen.getByText(EXISTING_NAME)).toHaveAttribute('title', EXISTING_NAME);
 
-        rerender(
-            <FilePicker
-                {...defaultProps}
-                existingFileName={EXISTING_NAME}
-                file={makeFile(CHOSEN_NAME)}
-            />
-        );
+        await userEvent.upload(input, makeFile(CHOSEN_NAME), { applyAccept: false });
 
         expect(screen.getByText(CHOSEN_NAME)).toBeInTheDocument();
         expect(screen.queryByText(EXISTING_NAME)).not.toBeInTheDocument();
     });
 
-    it('passes its id and accept through to the input', () => {
+    it('exposes the input under its id so FormData can read it', () => {
         const { input } = renderPicker();
 
         expect(input).toHaveAttribute('id', ID);
+        expect(input).toHaveAttribute('name', ID);
         expect(input).toHaveAttribute('accept', ACCEPT);
     });
 
-    it('reports the chosen file', async () => {
-        const { input, onChange } = renderPicker();
-        const file = makeFile(CHOSEN_NAME);
+    it('falls back to the stored name when the selection is cleared', async () => {
+        const { input } = renderPicker({ existingFileName: EXISTING_NAME });
 
-        await userEvent.upload(input, file);
-
-        expect(onChange).toHaveBeenCalledWith(file);
-        expect(onChange).toHaveBeenCalledOnce();
-    });
-
-    it('reports null when the selection is cleared', () => {
-        const { input, onChange } = renderPicker({ existingFileName: EXISTING_NAME });
+        await userEvent.upload(input, makeFile(CHOSEN_NAME), { applyAccept: false });
+        expect(screen.getByText(CHOSEN_NAME)).toBeInTheDocument();
 
         fireEvent.change(input, { target: { files: [] } });
 
-        expect(onChange).toHaveBeenCalledWith(null);
+        expect(screen.getByText(EXISTING_NAME)).toBeInTheDocument();
     });
 });

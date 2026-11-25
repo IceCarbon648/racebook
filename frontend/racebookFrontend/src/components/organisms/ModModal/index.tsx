@@ -20,7 +20,6 @@ const ModModal = (props: ModModalProps) => {
 
     const {
         existingMod,
-        isEditing,
         type,
         setType,
         fieldErrors,
@@ -122,7 +121,6 @@ const ModModal = (props: ModModalProps) => {
                                         label="Mod File"
                                         accept=".tpf"
                                         existingFileName={getFileNameFromUrl(existingMod?.modFileUrl)}
-                                        optional={isEditing}
                                     />
                                     {fieldErrors.modFile && (
                                         <p className={errorClass}>{fieldErrors.modFile}</p>
@@ -135,7 +133,6 @@ const ModModal = (props: ModModalProps) => {
                                         label="Preview Image"
                                         accept=".png,.jpg,.jpeg"
                                         existingFileName={getFileNameFromUrl(existingMod?.imageUrl)}
-                                        optional={isEditing}
                                     />
                                     {fieldErrors.previewImage && (
                                         <p className={errorClass}>{fieldErrors.previewImage}</p>

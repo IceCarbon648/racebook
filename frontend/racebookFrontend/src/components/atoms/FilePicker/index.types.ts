@@ -4,5 +4,4 @@ export interface FilePickerProps {
   label: string;
   accept: string;
   existingFileName: string | null;
-  optional?: boolean;
 }
