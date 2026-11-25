@@ -4,17 +4,17 @@ import { ModCard } from '../../components';
 import { ModFilters, Pagination } from '../../components/molecules';
 import Background from '../../components/molecules/Background/Index';
 import { useMods } from '../../hooks/api/useMods';
-import { useFavouriteMod } from '../../hooks/api/useFavouriteMod';
 import { usePagination } from '../../hooks/usePagination';
+import { useFavouriteClick } from '../../hooks/useFavouriteClick';
 
 const Mods = () => {
     const navigate = useNavigate();
+    const { handleFavouriteClick } = useFavouriteClick();
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('ALL TYPES');
     const [order, setOrder] = useState<'newest' | 'oldest'>('newest');
 
     const { data: mods = [], isLoading, isError } = useMods();
-    const { toggleFavourite } = useFavouriteMod();
 
     const handleReset = () => {
         setSearch('');
@@ -99,7 +99,7 @@ const Mods = () => {
                                 creator={mod.creator}
                                 isFavourite={mod.isFavourite ?? undefined}
                                 onClick={() => handleModClick(mod.modId)}
-                                onFavourite={() => toggleFavourite(mod.modId, mod.isFavourite!)}
+                                onFavourite={() => handleFavouriteClick(mod.modId, mod.isFavourite!)}
                             />
                         ))}
                     </div>
