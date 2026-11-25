@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import type { SubmitEvent } from 'react';
 import FormPanel from '../../molecules/FormPanel';
 import Dropdown from '../../molecules/Dropdown';
 import { FilePicker } from '../../atoms';
@@ -8,69 +6,28 @@ import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../../con
 import { MAX_MOD_TITLE_LENGTH, MAX_MOD_DESCRIPTION_LENGTH } from '../../../constants/inputLimits';
 import { useCategories } from '../../../hooks/api/useCategories';
 import { getFileNameFromUrl } from '../../../helpers/getFileNameFromUrl';
-import { modUploadSchema, modEditSchema, validate } from '../../../validation';
-import { notify } from '../../../utils/notify';
-import { getResponseMessage } from '../../../utils/getResponseMessage';
+import { MODE_HEADINGS } from '../../../constants/modModalHeadings';
+import { useModModal } from '../../../hooks/useModModal';
 
-const validateModForm = (
-    formData: FormData,
-    type: string,
-    isEditing: boolean,
-    categories: string[],
-) =>
-    validate(isEditing ? modEditSchema(categories) : modUploadSchema(categories), {
-        title: formData.get('title'),
-        type,
-        description: formData.get('description'),
-        modFile: formData.get('modFile'),
-        previewImage: formData.get('previewImage'),
-    });
+const ModModal = (props: ModModalProps) => {
+    const { mode, onClose } = props;
 
-const ModModal = ({ mode, mod, onClose, onSubmit }: ModModalProps) => {
-    const MODE_HEADINGS = {
-        upload: { heading: 'Upload Mod', submit: 'UPLOAD' },
-        edit: { heading: 'Edit Mod', submit: 'SAVE CHANGES' },
-    };
     const {
         data: categories = [],
         isLoading: isLoadingCategories,
         isError: isCategoriesError,
     } = useCategories();
 
-    const isEditing = mode === 'edit';
-    const existingMod = isEditing ? mod : undefined;
-
-    const [type, setType] = useState(existingMod?.type ?? '');
-    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-    const [error, setError] = useState<string | null>(null);
-    const [isSaving, setIsSaving] = useState(false);
-
-    const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        setError(null);
-
-        const formData = new FormData(event.currentTarget);
-        formData.set('type', type);
-
-        const errors = await validateModForm(formData, type, isEditing, categories);
-
-        setFieldErrors(errors ?? {});
-        if (errors) {
-            return;
-        }
-
-        setIsSaving(true);
-
-        try {
-            await onSubmit(formData);
-            notify.success(isEditing ? 'Changes saved' : 'Mod uploaded');
-            onClose();
-        } catch (err) {
-            setError(getResponseMessage(err));
-        } finally {
-            setIsSaving(false);
-        }
-    };
+    const {
+        existingMod,
+        isEditing,
+        type,
+        setType,
+        fieldErrors,
+        error,
+        isSaving,
+        handleSubmit,
+    } = useModModal(props, categories);
 
     const inputClass = "px-3 py-2 bg-black/50 text-sm text-gray-300 border border-gray-400 rounded focus:outline-none focus:border-gray-200";
     const errorClass = "text-xs text-left text-red-400";
