@@ -8,23 +8,27 @@ const ModDetail = () => {
     const navigate = useNavigate();
     const { data: mod, isPending } = useModDetails(modId ?? '');
 
-    if (isPending) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-gray-500">Loading mod...</p>
-        </div>
-    );
+    if (isPending) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <p className="text-gray-500">Loading mod...</p>
+            </div>
+        );
+    }
 
-    if (isPending || !mod) return (
-        <div className="flex flex-col items-center justify-center gap-4 min-h-[calc(100vh-4rem)]">
-            <p className="text-gray-500">Mod not found</p>
-            <button
-                onClick={() => navigate('/mods')}
-                className="px-4 py-2 text-sm font-medium border border-gray-900 rounded hover:bg-gray-50"
-            >
-                Back to mods
-            </button>
-        </div>
-    );
+    if (isPending || !mod) {
+        return (
+            <div className="flex flex-col items-center justify-center gap-4 min-h-[calc(100vh-4rem)]">
+                <p className="text-gray-500">Mod not found</p>
+                <button
+                    onClick={() => navigate('/mods')}
+                    className="px-4 py-2 text-sm font-medium border border-gray-900 rounded hover:bg-gray-50"
+                >
+                    Back to mods
+                </button>
+            </div>
+        );
+    }
 
     const handleDownload = () => {
         window.open(mod.modFileUrl, '_blank', 'noopener,noreferrer');

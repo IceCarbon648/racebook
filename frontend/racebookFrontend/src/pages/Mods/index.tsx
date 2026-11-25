@@ -50,23 +50,29 @@ const Mods = () => {
 
     const { page, setPage, totalPages, paginated } = usePagination(filtered);
 
-    if (page > totalPages && totalPages > 0) setPage(totalPages);
+    if (page > totalPages && totalPages > 0) {
+        setPage(totalPages);
+    }
 
     const handleModClick = (modId: string) => {
         navigate(`/mods/${modId}`);
     };
 
-    if (isLoading) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-gray-500">Loading mods...</p>
-        </div>
-    );
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <p className="text-gray-500">Loading mods...</p>
+            </div>
+        );
+    }
 
-    if (isError) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-red-500">Failed to load mods</p>
-        </div>
-    );
+    if (isError) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <p className="text-red-500">Failed to load mods</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-8 px-6 py-8">

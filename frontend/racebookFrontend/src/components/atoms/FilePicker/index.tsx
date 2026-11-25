@@ -1,14 +1,5 @@
 import { useState } from 'react';
-
-interface FilePickerProps {
-    className?: string;
-    /** Doubles as the form field name. */
-    id: string;
-    label: string;
-    accept: string;
-    existingFileName: string | null;
-    optional?: boolean;
-}
+import type { FilePickerProps } from './index.types';
 
 const FilePicker = ({ className, id, label, accept, existingFileName }: FilePickerProps) => {
     const [file, setFile] = useState<File | null>(null);

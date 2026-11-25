@@ -26,12 +26,11 @@ const validateModForm = (
         previewImage: formData.get('previewImage'),
     });
 
-const MODE_COPY = {
-    upload: { heading: 'Upload Mod', submit: 'UPLOAD' },
-    edit: { heading: 'Edit Mod', submit: 'SAVE CHANGES' },
-} as const;
-
 const ModModal = ({ mode, mod, onClose, onSubmit }: ModModalProps) => {
+    const MODE_HEADINGS = {
+        upload: { heading: 'Upload Mod', submit: 'UPLOAD' },
+        edit: { heading: 'Edit Mod', submit: 'SAVE CHANGES' },
+    };
     const {
         data: categories = [],
         isLoading: isLoadingCategories,
@@ -40,7 +39,6 @@ const ModModal = ({ mode, mod, onClose, onSubmit }: ModModalProps) => {
 
     const isEditing = mode === 'edit';
     const existingMod = isEditing ? mod : undefined;
-    const copy = MODE_COPY[mode];
 
     const [type, setType] = useState(existingMod?.type ?? '');
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -57,7 +55,9 @@ const ModModal = ({ mode, mod, onClose, onSubmit }: ModModalProps) => {
         const errors = await validateModForm(formData, type, isEditing, categories);
 
         setFieldErrors(errors ?? {});
-        if (errors) return;
+        if (errors) {
+            return;
+        }
 
         setIsSaving(true);
 
@@ -86,7 +86,7 @@ const ModModal = ({ mode, mod, onClose, onSubmit }: ModModalProps) => {
                         <div className="flex justify-between pt-4">
                             <div className="flex w-1/4" />
                             <h2 className="flex w-1/2 justify-center text-2xl font-bold text-white">
-                                {copy.heading}
+                                {MODE_HEADINGS[mode].heading}
                             </h2>
                             <button
                                 type="button"
@@ -200,7 +200,7 @@ const ModModal = ({ mode, mod, onClose, onSubmit }: ModModalProps) => {
                                 disabled={isSaving || isLoadingCategories || isCategoriesError}
                                 className={`w-1/2 px-4 py-2 bg-[${PRIMARY_BUTTON_COLOUR}] hover:bg-[${PRIMARY_BUTTON_HOVER_COLOUR}] text-sm text-white rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer`}
                             >
-                                {isSaving ? 'SAVING...' : copy.submit}
+                                {isSaving ? 'SAVING...' : MODE_HEADINGS[mode].submit}
                             </button>
                         </div>
                     </form>

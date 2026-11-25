@@ -18,23 +18,31 @@ const Favourites = () => {
         navigate(`/mods/${mod.modId}`, { state: { mod } });
     };
 
-    if (isLoading) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-gray-500">Loading favourites...</p>
-        </div>
-    );
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <p className="text-gray-500">Loading favourites...</p>
+            </div>
+        );
+    }
 
-    if (isError) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-red-500">Failed to load favourites</p>
-        </div>
-    );
+    if (isError) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <Background reveal={false} />
+                <p className="text-red-500">Failed to load favourites</p>
+            </div>
+        );
+    }
 
-    if (favourites.length === 0) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-white">You have no favourites yet</p>
-        </div>
-    );
+    if (favourites.length === 0) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <Background reveal={false} />
+                <p className="text-white">You have no favourites yet</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-8 px-6 py-8">

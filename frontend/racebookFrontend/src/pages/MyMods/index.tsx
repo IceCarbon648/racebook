@@ -11,10 +11,10 @@ import { usePagination } from '../../hooks/usePagination';
 import { notify } from '../../utils/notify';
 
 const MyMods = () => {
-    const { mods, isLoading, isError } = useMyMods();
-    const { uploadMod } = useUploadMod();
-    const { editMod } = useEditMod();
-    const { deleteMod } = useDeleteMod();
+    const { data: mods = [], isLoading, isError } = useMyMods();
+    const uploadMod = useUploadMod();
+    const editMod = useEditMod();
+    const deleteMod = useDeleteMod();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'upload' | 'edit'>('upload');
     const [selectedMod, setSelectedMod] = useState<MyMod | null>(null);
@@ -39,36 +39,44 @@ const MyMods = () => {
 
     const handleModalSubmit = async (formData: FormData) => {
         if (modalMode === 'upload') {
-            await uploadMod(formData);
+            await uploadMod.mutateAsync(formData);
         } else if (selectedMod) {
-            await editMod(selectedMod.modId, formData);
+            await editMod.mutateAsync({ modId: selectedMod.modId, formData });
         }
     };
 
     const handleDeleteClick = async (modId: string) => {
-        if (!window.confirm('Are you sure you want to delete this mod?')) return;
+        if (!window.confirm('Are you sure you want to delete this mod?')) {
+            return;
+        }
 
         try {
-            await deleteMod(modId);
+            await deleteMod.mutateAsync(modId);
             notify.success('Mod deleted');
         } catch (err) {
             notify.apiError(err, 'Could not delete the mod, please try again');
         }
     };
 
-    if (page > totalPages && totalPages > 0) setPage(totalPages);
+    if (page > totalPages && totalPages > 0) {
+        setPage(totalPages);
+    }
 
-    if (isLoading) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-gray-500">Loading mods...</p>
-        </div>
-    );
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <p className="text-gray-500">Loading mods...</p>
+            </div>
+        );
+    }
 
-    if (isError) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-red-500">Failed to load mods</p>
-        </div>
-    );
+    if (isError) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <p className="text-red-500">Failed to load mods</p>
+            </div>
+        );
+    }
 
     return (
         <div className="px-6 py-8">
@@ -106,13 +114,13 @@ const MyMods = () => {
                 </>
             )}
             {isModalOpen && (
-    <ModModal
-        mode={modalMode}
-        mod={selectedMod ?? undefined}
-        onClose={handleModalClose}
-        onSubmit={handleModalSubmit}
-    />
-)}
+                <ModModal
+                    mode={modalMode}
+                    mod={selectedMod ?? undefined}
+                    onClose={handleModalClose}
+                    onSubmit={handleModalSubmit}
+                />
+            )}
         </div>
     );
 };

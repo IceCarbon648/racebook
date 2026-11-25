@@ -1,8 +1,8 @@
-import type { MyMod } from '../../../types';
+import type { MyMod } from "../../../types";
 
 export interface ModModalProps {
-    mode: 'upload' | 'edit';
-    mod?: MyMod;
-    onClose: () => void;
-    onSubmit: (formData: FormData) => Promise<void>;
+  mode: "upload" | "edit";
+  mod?: MyMod;
+  onClose: () => void;
+  onSubmit: (formData: FormData) => Promise<void>;
 }
