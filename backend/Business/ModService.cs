@@ -82,6 +82,7 @@ namespace Business
 
             Mod? mod = await _modRepository.DeleteMod(modId);
             Guard.Against.Null(mod, nameof(mod), $"Mod {modId} not found");
+
             _logger.LogDebug("Mod {ModId} deleted from database", modId);
 
             await _cloudinaryRepository.DeleteAsync(mod.ImageUrl, PreviewImagePublicIdStart);
@@ -105,34 +106,69 @@ namespace Business
 
             if (dto.ModFile is not null)
             {
-                CloudinaryFile oldModFile = new CloudinaryFile
+                _logger.LogInformation("Attempting to upload new mod file");
+
+                latestModFileUrl = await TryUploadToCloudinary(dto.ModFile, FileType.Raw);
+            }
+
+            if (latestModFileUrl is null)
+            {
+                _logger.LogWarning("Failed to upload new mod file");
+
+                return false;
+            }
+
+            if (dto.PreviewImage is not null)
+            {
+                _logger.LogInformation("Attempting to upload new image file");
+
+                latestImageUrl = await TryUploadToCloudinary(dto.PreviewImage, FileType.Image);
+            }
+
+            if (latestImageUrl is null && dto.ModFile is not null)
+            {
+                _logger.LogWarning("Failed to upload new image file");
+                _logger.LogWarning("Attempting to delete new mod file");
+
+                CloudinaryFile newModFile = new CloudinaryFile
                 {
                     Url = latestModFileUrl,
                     PublicIdStart = ModPublicIdStart
                 };
 
-                latestModFileUrl = await  TryReplaceFile(dto.ModFile, FileType.Raw, oldModFile);
+                await TryDeleteFromCloudinary(newModFile);
+
+                return false;
+            }
+            else if (latestImageUrl is null)
+            {
+                _logger.LogWarning("Failed to upload new image file");
+
+                return false;
             }
 
-            if (latestModFileUrl is null)
+            if (dto.ModFile is not null)
             {
-                return false;
+                CloudinaryFile oldModFile = new CloudinaryFile
+                {
+                    Url = modDetails.ModFileUrl,
+                    PublicIdStart = ModPublicIdStart
+                };
+
+                _logger.LogInformation("Deleting old mod file");
+                await TryDeleteFromCloudinary(oldModFile);
             }
 
             if (dto.PreviewImage is not null)
             {
                 CloudinaryFile oldImageFile = new CloudinaryFile
                 {
-                    Url = latestImageUrl,
+                    Url = modDetails.ImageUrl,
                     PublicIdStart = PreviewImagePublicIdStart
                 };
 
-                latestImageUrl = await TryReplaceFile(dto.PreviewImage, FileType.Image, oldImageFile);
-            }
-
-            if (latestImageUrl is null)
-            {
-                return false;
+                _logger.LogInformation("Deleting old image file");
+                await TryDeleteFromCloudinary(oldImageFile);
             }
 
             modDetails.Title = dto.Title;
@@ -217,33 +253,6 @@ namespace Business
             DeletionResult deletionResult = await _cloudinaryRepository.DeleteAsync(cloudinaryFile.Url, cloudinaryFile.PublicIdStart);
 
             return deletionResult.StatusCode == HttpStatusCode.OK;
-        }
-
-        private async Task<string?> TryReplaceFile(IFormFile file, FileType type, CloudinaryFile oldFile)
-        {
-            _logger.LogInformation("Attempting to upload new file");
-
-            string? fileUrl = await TryUploadToCloudinary(file, type);
-
-            if (fileUrl is null)
-            {
-                _logger.LogWarning("Failed to upload new file");
-
-                return null;
-            }
-
-            _logger.LogInformation("New file uploaded successfully");
-
-            if (await TryDeleteFromCloudinary(oldFile))
-            {
-                _logger.LogInformation("Old file deleted: {Url}", oldFile.Url);
-            }
-            else
-            {
-                _logger.LogWarning("Old file could not deleted: {Url}", oldFile.Url);
-            }
-
-            return fileUrl;
         }
     }
 }
