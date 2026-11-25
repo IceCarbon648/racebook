@@ -5,7 +5,7 @@ import { editMod as editModService } from '../../../services';
 import { queryKeys } from '../../../constants/queryKeys';
 import { createWrapper } from '../../helpers/queryWrapper';
 
-vi.mock('../../services', () => ({
+vi.mock('../../../services', () => ({
     editMod: vi.fn(),
 }));
 
@@ -29,7 +29,7 @@ describe('useEditMod', () => {
         const formData = makeFormData();
 
         await act(async () => {
-            await result.current.editMod(MOD_ID, formData);
+            await result.current.mutateAsync({ modId: MOD_ID, formData });
         });
 
         expect(editModService).toHaveBeenCalledWith(MOD_ID, formData);
@@ -40,9 +40,7 @@ describe('useEditMod', () => {
         const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
         const { result } = renderHook(() => useEditMod(), { wrapper });
 
-        await act(async () => {
-            await result.current.editMod(MOD_ID, makeFormData());
-        });
+        await result.current.mutateAsync({ modId: MOD_ID, formData: makeFormData() });
 
         expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.myMods });
         expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.mods });
@@ -55,7 +53,7 @@ describe('useEditMod', () => {
         const { result } = renderHook(() => useEditMod(), { wrapper });
 
         await act(async () => {
-            await expect(result.current.editMod(MOD_ID, makeFormData()))
+            await expect(result.current.mutateAsync({ modId: MOD_ID, formData: makeFormData() }))
                 .rejects.toThrow('Upload service unavailable');
         });
     });
