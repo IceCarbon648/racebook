@@ -1,0 +1,461 @@
+{
+  "info": {
+    "_postman_id": "bc845f88-d934-4fea-b7fe-a2703a54b350",
+    "name": "racebookApi",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53234627",
+    "_collection_link": "https://go.postman.co/collection/53234627-bc845f88-d934-4fea-b7fe-a2703a54b350?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "CreateMod",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('modTitle', `Postman Mod ${Date.now()}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responds with 201', () => {\r\n    pm.response.to.have.status(201);\r\n\r\n    const modId = pm.response.json().modId;\r\n    const location = pm.response.headers.get('Location');\r\n\r\n    pm.expect(location, 'Location header').to.be.a('string');\r\n    pm.expect(location).to.include(modId);\r\n\r\n    pm.collectionVariables.set('modId', modId);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "Title",
+              "value": "eyyyyyyyyyyyy",
+              "type": "text"
+            },
+            {
+              "key": "Type",
+              "value": "UI",
+              "type": "text"
+            },
+            {
+              "key": "Description",
+              "value": "pmDesc",
+              "type": "text"
+            },
+            {
+              "key": "ModFile",
+              "type": "file",
+              "src": [
+                "/C:/Users/VivekRajaram/Desktop/SRT_Non-Paintable_4096 (1).tpf"
+              ]
+            },
+            {
+              "key": "PreviewImage",
+              "type": "file",
+              "src": [
+                "/C:/Users/VivekRajaram/Desktop/sddefault.jpg"
+              ]
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/mods",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "mods"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DeleteMod",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responds with a 4XX error when mod does not exist', () => {\r\n    pm.expect(pm.response.code).to.be.within(400, 499);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/mods/5d38a120-26e1-4908-b2bb-576fd1c18acf",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "mods",
+            "5d38a120-26e1-4908-b2bb-576fd1c18acf"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "EditMod",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('an edit without files leaves both file URLs untouched', (done) => {\r\n    pm.sendRequest(pm.request.url.toString(), (err, res) => {\r\n        if (err) {\r\n            done(err);\r\n            return;\r\n        }\r\n\r\n        const mod = res.json();\r\n\r\n        pm.expect(mod.modFileUrl).to.eql(pm.variables.get('modFileUrlBefore'));\r\n        pm.expect(mod.previewImageUrl).to.eql(pm.variables.get('previewImageUrlBefore'));\r\n        done();\r\n    });\r\n});"
+            ]
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const url = pm.request.url.toString();\r\n\r\npm.sendRequest(url, (err, res) => {\r\n    const mod = res.json();\r\n\r\n    pm.collectionVariables.set('modFileUrlBefore', mod.modFileUrl);\r\n    pm.collectionVariables.set('previewImageUrlBefore', mod.previewImageUrl);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "Title",
+              "value": "Butter",
+              "type": "text"
+            },
+            {
+              "key": "Type",
+              "value": "PACK",
+              "type": "text"
+            },
+            {
+              "key": "Description",
+              "value": "Description",
+              "type": "text"
+            },
+            {
+              "key": "ModFile",
+              "type": "file",
+              "src": [
+                "/D:/Games/Blur(TM)/Blur-Rework-1.3.tpf"
+              ],
+              "disabled": true
+            },
+            {
+              "key": "PreviewImage",
+              "type": "file",
+              "src": [
+                "/C:/Users/Vivek/Desktop/RDT_20211004_2205387988175373903075489.jpg"
+              ],
+              "disabled": true
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/mods/47bd290b-bd17-494d-a766-3a4d056427c3",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "mods",
+            "47bd290b-bd17-494d-a766-3a4d056427c3"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GetModDetails",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responds with all mod details', () => {\r\n    const mod = pm.response.json();\r\n    const fields = [\r\n        'creator',\r\n        'title',\r\n        'type',\r\n        'description',\r\n        'uploadDate',\r\n        'editDate',\r\n        'modFileUrl',\r\n        'previewImageUrl'\r\n    ];\r\n\r\n    fields.forEach((field) => {\r\n        pm.expect(mod, field).to.have.property(field);\r\n        pm.expect(mod[field], field).to.not.be.null;\r\n    });\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/mods/47bd290b-bd17-494d-a766-3a4d056427c3",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "mods",
+            "47bd290b-bd17-494d-a766-3a4d056427c3"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GetAllMods",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/mods",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "mods"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GetMyMods",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/mods/my-mods",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "mods",
+            "my-mods"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "Email",
+              "value": "test@mail.com",
+              "type": "text"
+            },
+            {
+              "key": "Username",
+              "value": "Pat_Bonana",
+              "type": "text"
+            },
+            {
+              "key": "Password",
+              "value": "Banana_12",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/user/register",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "user",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "Email",
+              "value": "test@mail.com",
+              "type": "text"
+            },
+            {
+              "key": "Password",
+              "value": "Banana_12",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "logout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/auth/logout",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AddToFavourites",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "\"5d38a120-26e1-4908-b2bb-576fd1c18acd\"",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/favourite-mod",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "favourite-mod"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GetFavourites",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/favourite-mod",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "favourite-mod"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RemoveFromFavourties",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "\"eeb4af52-9bc6-45b6-9631-4fff19ca0548\"",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/favourite-mod",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "favourite-mod"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "modTitle",
+      "value": ""
+    },
+    {
+      "key": "modId",
+      "value": ""
+    },
+    {
+      "key": "modFileUrlBefore",
+      "value": ""
+    },
+    {
+      "key": "previewImageUrlBefore",
+      "value": ""
+    }
+  ]
+}
