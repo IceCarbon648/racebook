@@ -28,7 +28,7 @@ namespace racebookApi.Controllers
 
             Guid? modId = await _modService.UploadMod(uid, dto);
 
-            if(modId is null)
+            if (modId is null)
             {
                 return StatusCode(StatusCodes.Status502BadGateway, new { message = "Upload service is unavailable, please try again" });
             }
@@ -42,7 +42,7 @@ namespace racebookApi.Controllers
         {
             string uid = User.FindFirst(ClaimTypes.NameIdentifier)!.Value.ToString();
 
-            if(!await _modService.IsOwner(modId, uid))
+            if (!await _modService.IsOwner(modId, uid))
             {
                 return Forbid(Constants.NotOwnerMessage);
             }

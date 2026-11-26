@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
+        working-directory: frontend/racebookFrontend
     steps:
       - uses: actions/checkout@v4
 
@@ -50,7 +50,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: frontend/racebookFrontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -60,6 +60,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
 
       - name: Test
         run: npx vitest run

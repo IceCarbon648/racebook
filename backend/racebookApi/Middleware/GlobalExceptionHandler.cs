@@ -17,7 +17,13 @@ namespace racebookApi.Middleware
         Exception exception,
         CancellationToken cancellationToken)
         {
-            _logger.LogError(exception, "An unhandled exception occurred.");
+            _logger.LogError(
+                exception,
+                "Unhandled {ExceptionType} on {Method} {Path}",
+                exception.GetType().Name,
+                httpContext.Request.Method,
+                httpContext.Request.Path
+            );
 
             (int status, string title, string detail, string type) =
                 ExceptionMap.ExceptionToResponse.TryGetValue(exception.GetType(), out (int, string, string, string) value)
