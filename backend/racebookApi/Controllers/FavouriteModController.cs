@@ -22,6 +22,11 @@ namespace racebookApi.Controllers
         {
             string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
 
+            if (uid is null)
+            {
+                return Unauthorized();
+            }
+
             await _favouriteModService.AddToFavourites(uid, modId);
 
             return Ok();
@@ -33,6 +38,11 @@ namespace racebookApi.Controllers
         {
             string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
 
+            if (uid is null)
+            {
+                return Unauthorized();
+            }
+
             return Ok(await _favouriteModService.GetFavourites(uid));
         }
 
@@ -42,9 +52,14 @@ namespace racebookApi.Controllers
         {
             string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
 
+            if (uid is null)
+            {
+                return Unauthorized();
+            }
+
             await _favouriteModService.DeleteFromFavourites(uid, modId);
 
-            return Ok();
+            return NoContent();
         }
     }
 }

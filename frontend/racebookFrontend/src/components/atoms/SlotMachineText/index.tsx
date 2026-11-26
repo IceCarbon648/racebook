@@ -1,7 +1,4 @@
-interface SlotMachineTextProps {
-    text: string;
-    stagger?: number;
-}
+import type { SlotMachineTextProps } from "./index.types";
 
 const SlotMachineText = ({ text, stagger = 20 }: SlotMachineTextProps) => {
     return (

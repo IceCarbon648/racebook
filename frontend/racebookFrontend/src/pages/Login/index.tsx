@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../contexts';
+import { useAuth } from '../../hooks/useAuth';
 import Background from '../../components/molecules/Background/Index';
 import FormPanel from '../../components/molecules/FormPanel';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../constants/theme';
 import { MAX_EMAIL_LENGTH } from '../../constants/inputLimits';
 import { loginSchema, validate } from '../../validation';
-//import { getResponseMessage, getResponseStatus } from '../../utils/getResponseMessage';
 import { notify } from '../../utils/notify';
 import { getResponseStatus } from '../../utils/getResponseMessage';
 
@@ -24,7 +23,9 @@ const Login = () => {
         const errors = await validate(loginSchema, { email, password });
         setFieldErrors(errors ?? {});
 
-        if (errors) return;
+        if (errors) {
+            return;
+        }
 
         setIsLoading(true);
 

@@ -14,21 +14,11 @@ namespace Infrastructure
             _dbConnection = dbConnection;
         }
 
-        public async Task UpdateAmaxUsername(string uid, string amaxUsername)
-        {
-            string sql = @"UPDATE [User]
-                           SET AmaxUsername = @amaxUsername
-                           WHERE Uid = @uid";
-
-            await _dbConnection.ExecuteAsync(sql, new { amaxUsername, uid });
-        }
-
         public async Task<AccountInfo?> GetAccountInfoByEmail(string email)
         {
             string sql = @"SELECT
                                Uid,
                                Username,
-                               AmaxUsername,
                                PasswordHash
                            FROM [User]
                            WHERE Email = @email";

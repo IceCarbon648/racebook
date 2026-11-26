@@ -1,7 +1,7 @@
 import type { PaginationProps } from './index.types';
 
 const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) => {
-    if (totalPages <= 1){
+    if (totalPages <= 1) {
         return null;
     }
 
@@ -18,11 +18,10 @@ const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) => {
                 <button
                     key={p}
                     onClick={() => onPageChange(p)}
-                    className={`px-3 py-1.5 text-sm border rounded ${
-                        page === p
+                    className={`px-3 py-1.5 text-sm border rounded ${page === p
                             ? 'border-gray-900 bg-gray-900 text-white'
                             : 'border-gray-200 hover:bg-gray-50'
-                    }`}
+                        }`}
                 >
                     {p}
                 </button>

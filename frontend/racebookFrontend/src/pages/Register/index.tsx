@@ -36,8 +36,13 @@ const Register = () => {
 
     const clearFieldError = (field: string) => {
         setErrors((prev) => {
-            if (!prev[field]) return prev;
+
+            if (!prev[field]) {
+                return prev;
+            }
+
             const { [field]: _, ...rest } = prev;
+
             return rest;
         });
     };
@@ -58,6 +63,7 @@ const Register = () => {
                     Object.entries(validationErrors).map(([field, message]) => [field, [message]])
                 )
             );
+
             return;
         }
 

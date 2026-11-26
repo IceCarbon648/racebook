@@ -36,9 +36,8 @@ namespace racebookApi.Controllers
         {
             string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             string? username = User.FindFirst(ClaimTypes.Name)?.Value;
-            string? amaxUsername = User.FindFirst(ClaimTypes.GivenName)?.Value;
 
-            return Ok(new { uid, username, amaxUsername });
+            return Ok(new { uid, username });
         }
     }
 }

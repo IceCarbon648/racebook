@@ -1,21 +1,20 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Mod } from '../../types';
 import { ModCard } from '../../components';
 import { ModFilters, Pagination } from '../../components/molecules';
 import Background from '../../components/molecules/Background/Index';
-import { useMods } from '../../hooks/useMods';
-import { useFavouriteMod } from '../../hooks/useFavouriteMod';
+import { useMods } from '../../hooks/api/useMods';
 import { usePagination } from '../../hooks/usePagination';
+import { useFavouriteClick } from '../../hooks/useFavouriteClick';
 
 const Mods = () => {
     const navigate = useNavigate();
+    const { handleFavouriteClick } = useFavouriteClick();
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('ALL TYPES');
     const [order, setOrder] = useState<'newest' | 'oldest'>('newest');
 
-    const { mods, isLoading, isError } = useMods();
-    const { toggleFavourite } = useFavouriteMod();
+    const { data: mods = [], isLoading, isError } = useMods();
 
     const handleReset = () => {
         setSearch('');
@@ -51,23 +50,29 @@ const Mods = () => {
 
     const { page, setPage, totalPages, paginated } = usePagination(filtered);
 
-    if (page > totalPages && totalPages > 0) setPage(totalPages);
+    if (page > totalPages && totalPages > 0) {
+        setPage(totalPages);
+    }
 
-    const handleModClick = (mod: Mod) => {
-        navigate(`/mods/${mod.modId}`, { state: { mod } });
+    const handleModClick = (modId: string) => {
+        navigate(`/mods/${modId}`);
     };
 
-    if (isLoading) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-gray-500">Loading mods...</p>
-        </div>
-    );
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <p className="text-gray-500">Loading mods...</p>
+            </div>
+        );
+    }
 
-    if (isError) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-red-500">Failed to load mods</p>
-        </div>
-    );
+    if (isError) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <p className="text-red-500">Failed to load mods</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-8 px-6 py-8">
@@ -99,8 +104,8 @@ const Mods = () => {
                                 imageUrl={mod.previewImageUrl}
                                 creator={mod.creator}
                                 isFavourite={mod.isFavourite ?? undefined}
-                                onClick={() => handleModClick(mod)}
-                                onFavourite={() => toggleFavourite(mod.modId, mod.isFavourite!)}
+                                onClick={() => handleModClick(mod.modId)}
+                                onFavourite={() => handleFavouriteClick(mod.modId, mod.isFavourite!)}
                             />
                         ))}
                     </div>

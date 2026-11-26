@@ -60,15 +60,6 @@ namespace Infrastructure
             return await _dbConnection.QueryFirstOrDefaultAsync<Mod>(sql, new { modId });
         }
 
-        public async Task<string> GetModFileUrl(string modId)
-        {
-            string sql = @"SELECT FilePath
-                           FROM Mod
-                           WHERE ModId = @modId";
-
-            return await _dbConnection.ExecuteScalarAsync<string>(sql, new { modId });
-        }
-
         public async Task<Mod?> GetModById(string modId)
         {
             string sql = @"SELECT *
@@ -78,7 +69,7 @@ namespace Infrastructure
             return await _dbConnection.QueryFirstOrDefaultAsync<Mod>(sql, new { modId });
         }
 
-        public async Task<int> EditMod(Mod mod, string? title, string? type, string? description)
+        public async Task EditMod(Mod mod)
         {
             string sql = @"UPDATE Mod
                            SET 
@@ -90,11 +81,11 @@ namespace Infrastructure
                                EditDate = @editDate
                            WHERE ModId = @modId";
 
-            return await _dbConnection.ExecuteAsync(sql, new {
+            await _dbConnection.ExecuteAsync(sql, new {
                 modId = mod.ModId,
-                title,
-                type,
-                description,
+                mod.Title,
+                mod.Type,
+                mod.Description,
                 editDate = mod.EditDate,
                 modFileUrl = mod.ModFileUrl,
                 imageUrl = mod.ImageUrl,
@@ -113,18 +104,36 @@ namespace Infrastructure
                              m.EditDate,
                              m.ModFileUrl,
                              m.ImageUrl AS PreviewImageUrl,
-                         CASE 
+                           CASE 
                              WHEN @uid IS NULL THEN NULL
                              WHEN f.FavouriteId IS NOT NULL THEN CAST(1 AS BIT)
                              ELSE CAST(0 AS BIT)
-                         END AS IsFavourite
-                         FROM Mod m
-                         INNER JOIN [User] u ON m.Uid = u.Uid
-                         LEFT JOIN FavouriteMod f ON f.ModId = m.ModId AND f.Uid = @uid";
+                           END AS IsFavourite
+                           FROM Mod m
+                           INNER JOIN [User] u ON m.Uid = u.Uid
+                           LEFT JOIN FavouriteMod f ON f.ModId = m.ModId AND f.Uid = @uid";
 
             IEnumerable<GetModDto> queryResult = await _dbConnection.QueryAsync<GetModDto>(sql, new { uid });
 
             return queryResult.ToList();
+        }
+
+        public async Task<ModDetailsDto?> GetModDetails(string modId)
+        {
+            string sql = @"SELECT
+                             u.Username AS Creator,
+                             m.Title,
+                             m.Type,
+                             m.Description,
+                             m.UploadDate,
+                             m.EditDate,
+                             m.ModFileUrl,
+                             m.ImageUrl AS PreviewImageUrl
+                           FROM Mod m
+                           INNER JOIN [User] u ON u.Uid = m.Uid
+                           WHERE m.ModId = @modId;";
+
+            return await _dbConnection.QueryFirstOrDefaultAsync<ModDetailsDto>(sql, new { modId });
         }
 
         public async Task<List<Mod>> GetMyMods(string uid)

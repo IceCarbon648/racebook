@@ -1,20 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import SlotMachineText from '../../atoms/SlotMachineText';
-
-interface DropdownProps {
-    value: string;
-    options: string[];
-    label?: string;
-    className?: string;
-    onChange: (value: string) => void;
-}
+import type { DropdownProps } from './index.types';
 
 const Dropdown = ({ value, options, label, className = '', onChange }: DropdownProps) => {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (!open) return;
+        if (!open) {
+            return;
+        }
 
         const onPointerDown = (e: PointerEvent) => {
             if (!ref.current?.contains(e.target as Node)) setOpen(false);
@@ -55,6 +50,7 @@ const Dropdown = ({ value, options, label, className = '', onChange }: DropdownP
                         <li key={option} role="option" aria-selected={option === value}>
                             <button
                                 type="button"
+                                data-value={option}
                                 onClick={() => { onChange(option); setOpen(false); }}
                                 className="group/roll w-full px-3 py-2 text-left text-sm text-gray-300 cursor-pointer hover:bg-white/10"
                             >

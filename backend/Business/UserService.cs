@@ -1,5 +1,4 @@
-﻿using Ardalis.GuardClauses;
-using Business.Interfaces;
+﻿using Business.Interfaces;
 using Infrastructure.Interfaces;
 using Microsoft.Extensions.Logging;
 using Models.DTOs.Request;
@@ -31,17 +30,10 @@ namespace Business
             }
             else
             {
-                _logger.LogWarning("Registration failed — email already in use: {Email}", dto.Email);
+                _logger.LogWarning("Registration failed - email already in use: {Email}", dto.Email);
             }
 
             return registeredSuccessfully;
-        }
-
-        public async Task SetAmaxUsername(string uid, string playerName)
-        {
-            Guard.Against.NullOrWhiteSpace(playerName, nameof(playerName));
-
-            await _userRepository.UpdateAmaxUsername(uid, playerName);
         }
     }
 }

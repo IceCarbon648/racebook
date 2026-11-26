@@ -1,7 +1,7 @@
 import { ALL_CATEGORIES } from '../../../constants/categories';
 import { MAX_MOD_TITLE_LENGTH } from '../../../constants/inputLimits';
 import { PRIMARY_BUTTON_COLOUR, PRIMARY_BUTTON_HOVER_COLOUR } from '../../../constants/theme';
-import { useCategories } from '../../../hooks/useCategories';
+import { useCategories } from '../../../hooks/api/useCategories';
 import Dropdown from '../Dropdown';
 import type { ModFiltersProps } from './index.types';
 
@@ -17,7 +17,7 @@ const ModFilters = ({
     search, category, order,
     onSearchChange, onCategoryChange, onOrderChange, onReset,
 }: ModFiltersProps) => {
-    const { categories } = useCategories();
+    const { data: categories = [] } = useCategories();
 
     return (
         <div className="flex justify-center gap-8 mb-6">

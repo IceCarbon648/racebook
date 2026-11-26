@@ -1,4 +1,4 @@
-import axiosInstance from './axiosInstance';
+import axiosInstance from '../../lib/axiosInstance';
 import type { Mod } from '../../types';
 
 export const getFavourites = async (): Promise<Mod[]> => {

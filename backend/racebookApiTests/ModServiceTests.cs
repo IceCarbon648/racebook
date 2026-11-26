@@ -9,7 +9,6 @@ using Models;
 using Models.DTOs.Request;
 using Models.DTOs.Response;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace racebookApiTests;
 
@@ -20,8 +19,12 @@ public class ModServiceTests
     private IModRepository _modRepository;
     private ILogger<ModService> _logger;
     private ModService _modService;
-    const string PreviewImagesPublicIdStart = "PreviewImages";
-    const string ModPublicIdStart = "Mods";
+
+    private const string PreviewImagesPublicIdStart = "PreviewImages";
+    private const string ModPublicIdStart = "Mods";
+
+    private const string DefaultModFileUrl = "https://cloudinary.com/mod.tpf";
+    private const string DefaultImageUrl = "https://cloudinary.com/preview.png";
 
     [SetUp]
     public void SetUp()
@@ -30,17 +33,31 @@ public class ModServiceTests
         _modRepository = Substitute.For<IModRepository>();
         _logger = Substitute.For<ILogger<ModService>>();
         _modService = new ModService(_cloudinaryRepository, _modRepository, _logger);
+
+        _cloudinaryRepository
+            .DeleteAsync(Arg.Any<string>(), Arg.Any<string>())
+            .Returns(SuccessfulDeletion());
     }
 
-    [Test]
-    public async Task GivenValidInput_WhenUploadModIsCalled_ThenModIsCreated()
-    {
-        //Arrange
-        string uid = Guid.NewGuid().ToString();
-        IFormFile modFile = Substitute.For<IFormFile>();
-        IFormFile previewImage = Substitute.For<IFormFile>();
+    private static Mod ExistingMod(
+        Guid modId,
+        string modFileUrl = DefaultModFileUrl,
+        string imageUrl = DefaultImageUrl) =>
+        new Mod
+        {
+            ModId = modId,
+            Uid = Guid.NewGuid(),
+            Title = "Title",
+            Type = "Type",
+            Description = "Description",
+            UploadDate = DateTime.Now,
+            EditDate = DateTime.Now,
+            ModFileUrl = modFileUrl,
+            ImageUrl = imageUrl
+        };
 
-        ModDto dto = new ModDto
+    private static ModDto UploadDto(IFormFile modFile, IFormFile previewImage) =>
+        new ModDto
         {
             Title = "Test Mod",
             Type = "TestType",
@@ -49,24 +66,80 @@ public class ModServiceTests
             PreviewImage = previewImage
         };
 
+    private static ModEditDto EditDto(
+        string title = "Title",
+        string type = "Type",
+        string description = "Description",
+        IFormFile? modFile = null,
+        IFormFile? previewImage = null) =>
+        new ModEditDto
+        {
+            Title = title,
+            Type = type,
+            Description = description,
+            ModFile = modFile,
+            PreviewImage = previewImage
+        };
+
+    private static GetModDto SampleGetModDto(string creator, string title) =>
+        new GetModDto
+        {
+            ModId = Guid.NewGuid(),
+            Creator = creator,
+            Title = title,
+            Type = "Type",
+            Description = "Description",
+            UploadDate = DateTime.Now,
+            EditDate = DateTime.Now,
+            ModFileUrl = DefaultModFileUrl,
+            PreviewImageUrl = DefaultImageUrl
+        };
+
+    private static ModDetailsDto SampleModDetailsDto() =>
+        new ModDetailsDto
+        {
+            Creator = "User1",
+            Title = "Mod 1",
+            Type = "Type",
+            Description = "Description",
+            UploadDate = DateTime.Now,
+            EditDate = DateTime.Now,
+            ModFileUrl = DefaultModFileUrl,
+            PreviewImageUrl = DefaultImageUrl
+        };
+
+    private static RawUploadResult SuccessfulUpload(string url) =>
+        new RawUploadResult
+        {
+            StatusCode = HttpStatusCode.OK,
+            SecureUrl = new Uri(url)
+        };
+
+    private static RawUploadResult FailedUpload() =>
+        new RawUploadResult
+        {
+            StatusCode = HttpStatusCode.BadGateway,
+            Error = new Error { Message = "Cloudinary unavailable" }
+        };
+
+    private static DeletionResult SuccessfulDeletion() =>
+        new DeletionResult { StatusCode = HttpStatusCode.OK };
+
+    [Test]
+    public async Task GivenValidInput_WhenUploadModIsCalled_ThenModIsCreated()
+    {
+        //Arrange
+        string uid = Guid.NewGuid().ToString();
+        IFormFile modFile = Substitute.For<IFormFile>();
+        IFormFile previewImage = Substitute.For<IFormFile>();
+        ModDto dto = UploadDto(modFile, previewImage);
+
         string modFileUrl = "https://cloudinary.com/mod.tpf";
         string previewImageUrl = "https://cloudinary.com/preview.png";
         Guid modId = Guid.NewGuid();
 
-        RawUploadResult modFileUploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.OK,
-            SecureUrl = new Uri(modFileUrl)
-        };
-
-        RawUploadResult previewImageUploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.OK,
-            SecureUrl = new Uri(previewImageUrl)
-        };
-
-        _cloudinaryRepository.UploadAsync(modFile, FileType.Raw).Returns(modFileUploadResult);
-        _cloudinaryRepository.UploadAsync(previewImage, FileType.Image).Returns(previewImageUploadResult);
+        _cloudinaryRepository.UploadAsync(modFile, FileType.Raw).Returns(SuccessfulUpload(modFileUrl));
+        _cloudinaryRepository.UploadAsync(previewImage, FileType.Image).Returns(SuccessfulUpload(previewImageUrl));
         _modRepository.CreateMod(Arg.Any<NewMod>()).Returns(modId);
 
         //Act
@@ -90,23 +163,9 @@ public class ModServiceTests
         string uid = Guid.NewGuid().ToString();
         IFormFile modFile = Substitute.For<IFormFile>();
         IFormFile previewImage = Substitute.For<IFormFile>();
+        ModDto dto = UploadDto(modFile, previewImage);
 
-        ModDto dto = new ModDto
-        {
-            Title = "Test Mod",
-            Type = "TestType",
-            Description = "Test Description",
-            ModFile = modFile,
-            PreviewImage = previewImage
-        };
-
-        RawUploadResult failedUploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.BadGateway,
-            Error = new Error { Message = "Cloudinary unavailable" }
-        };
-
-        _cloudinaryRepository.UploadAsync(modFile, FileType.Raw).Returns(failedUploadResult);
+        _cloudinaryRepository.UploadAsync(modFile, FileType.Raw).Returns(FailedUpload());
 
         //Act
         Guid? result = await _modService.UploadMod(uid, dto);
@@ -124,32 +183,12 @@ public class ModServiceTests
         string uid = Guid.NewGuid().ToString();
         IFormFile modFile = Substitute.For<IFormFile>();
         IFormFile previewImage = Substitute.For<IFormFile>();
-
-        ModDto dto = new ModDto
-        {
-            Title = "Test Mod",
-            Type = "TestType",
-            Description = "Test Description",
-            ModFile = modFile,
-            PreviewImage = previewImage
-        };
+        ModDto dto = UploadDto(modFile, previewImage);
 
         string modFileUrl = "https://cloudinary.com/mod.tpf";
 
-        RawUploadResult modFileUploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.OK,
-            SecureUrl = new Uri(modFileUrl)
-        };
-
-        RawUploadResult failedUploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.BadGateway,
-            Error = new Error { Message = "Cloudinary unavailable" }
-        };
-
-        _cloudinaryRepository.UploadAsync(modFile, FileType.Raw).Returns(modFileUploadResult);
-        _cloudinaryRepository.UploadAsync(previewImage, FileType.Image).Returns(failedUploadResult);
+        _cloudinaryRepository.UploadAsync(modFile, FileType.Raw).Returns(SuccessfulUpload(modFileUrl));
+        _cloudinaryRepository.UploadAsync(previewImage, FileType.Image).Returns(FailedUpload());
 
         //Act
         Guid? result = await _modService.UploadMod(uid, dto);
@@ -165,19 +204,7 @@ public class ModServiceTests
     {
         //Arrange
         string modId = Guid.NewGuid().ToString();
-
-        Mod mod = new Mod
-        {
-            ModId = Guid.Parse(modId),
-            Uid = Guid.NewGuid(),
-            Title = "Test Mod",
-            Type = "TestType",
-            Description = "Test Description",
-            UploadDate = DateTime.Now,
-            EditDate = DateTime.Now,
-            ImageUrl = "https://cloudinary.com/preview.png",
-            ModFileUrl = "https://cloudinary.com/mod.tpf"
-        };
+        Mod mod = ExistingMod(Guid.Parse(modId));
 
         _modRepository.DeleteMod(modId).Returns(mod);
 
@@ -204,145 +231,47 @@ public class ModServiceTests
     }
 
     [Test]
-    public async Task GivenNewTitle_WhenEditModIsCalled_ThenTitleIsUpdated()
+    public async Task GivenNewDetails_WhenEditModIsCalled_ThenAllThreeAreCarriedOntoTheMod()
     {
         //Arrange
         string modId = Guid.NewGuid().ToString();
-        Mod modDetails = new Mod
-        {
-            ModId = Guid.Parse(modId),
-            Uid = Guid.NewGuid(),
-            Title = "Title",
-            Type = "Type",
-            Description = "Description",
-            UploadDate = DateTime.Now,
-            EditDate = DateTime.Now,
-            ImageUrl = "https://cloudinary.com/preview.png",
-            ModFileUrl = "https://cloudinary.com/mod.tpf"
-        };
+        Mod modDetails = ExistingMod(Guid.Parse(modId));
 
-        ModEditDto dto = new ModEditDto { Title = "New Title" };
+        ModEditDto dto = EditDto(
+            title: "New Title",
+            type: "New Type",
+            description: "New Description");
 
         _modRepository.GetModById(modId).Returns(modDetails);
-        _modRepository.EditMod(
-            Arg.Any<Mod>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-            .Returns(1);
 
         //Act
         bool result = await _modService.EditMod(modId, dto);
 
         //Assert
         Assert.That(result, Is.True);
-        await _modRepository.Received(1).EditMod(
-            Arg.Is<Mod>(m => m.ModId == modDetails.ModId),
-            dto.Title,
-            dto.Type,
-            dto.Description);
+        await _modRepository.Received(1).EditMod(Arg.Is<Mod>(m =>
+            m.ModId == modDetails.ModId
+            && m.Title == dto.Title
+            && m.Type == dto.Type
+            && m.Description == dto.Description));
     }
 
     [Test]
-    public async Task GivenNewType_WhenEditModIsCalled_ThenTypeIsUpdated()
+    public async Task GivenNoNewFiles_WhenEditModIsCalled_ThenNothingIsUploadedOrDeleted()
     {
         //Arrange
         string modId = Guid.NewGuid().ToString();
-        Mod modDetails = new Mod
-        {
-            ModId = Guid.Parse(modId),
-            Uid = Guid.NewGuid(),
-            Title = "Title",
-            Type = "Type",
-            Description = "Description",
-            UploadDate = DateTime.Now,
-            EditDate = DateTime.Now,
-            ImageUrl = "https://cloudinary.com/preview.png",
-            ModFileUrl = "https://cloudinary.com/mod.tpf"
-        };
+        Mod modDetails = ExistingMod(Guid.Parse(modId));
 
-        ModEditDto dto = new ModEditDto { Type = "New Type" };
+        ModEditDto dto = EditDto(title: "New Title");
 
         _modRepository.GetModById(modId).Returns(modDetails);
-        _modRepository.EditMod(
-            Arg.Any<Mod>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-            .Returns(1);
 
         //Act
         bool result = await _modService.EditMod(modId, dto);
 
         //Assert
         Assert.That(result, Is.True);
-        await _modRepository.Received(1).EditMod(
-            Arg.Is<Mod>(m => m.ModId == modDetails.ModId),
-            dto.Title,
-            dto.Type,
-            dto.Description);
-    }
-
-    [Test]
-    public async Task GivenNewDescription_WhenEditModIsCalled_ThenDescriptionIsUpdated()
-    {
-        //Arrange
-        string modId = Guid.NewGuid().ToString();
-        Mod modDetails = new Mod
-        {
-            ModId = Guid.Parse(modId),
-            Uid = Guid.NewGuid(),
-            Title = "Title",
-            Type = "Type",
-            Description = "Description",
-            UploadDate = DateTime.Now,
-            EditDate = DateTime.Now,
-            ImageUrl = "https://cloudinary.com/preview.png",
-            ModFileUrl = "https://cloudinary.com/mod.tpf"
-        };
-
-        ModEditDto dto = new ModEditDto { Description = "New Description" };
-
-        _modRepository.GetModById(modId).Returns(modDetails);
-        _modRepository.EditMod(
-            Arg.Any<Mod>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-            .Returns(1);
-
-        //Act
-        bool result = await _modService.EditMod(modId, dto);
-
-        //Assert
-        Assert.That(result, Is.True);
-        await _modRepository.Received(1).EditMod(
-            Arg.Is<Mod>(m => m.ModId == modDetails.ModId),
-            dto.Title,
-            dto.Type,
-            dto.Description);
-    }
-
-    [Test]
-    public async Task GivenNoChanges_WhenEditModIsCalled_ThenNothingIsUploadedOrDeleted()
-    {
-        //Arrange
-        string modId = Guid.NewGuid().ToString();
-        Mod modDetails = new Mod
-        {
-            ModId = Guid.Parse(modId),
-            Uid = Guid.NewGuid(),
-            Title = "Title",
-            Type = "Type",
-            Description = "Description",
-            UploadDate = DateTime.Now,
-            EditDate = DateTime.Now,
-            ImageUrl = "https://cloudinary.com/preview.png",
-            ModFileUrl = "https://cloudinary.com/mod.tpf"
-        };
-
-        ModEditDto dto = new ModEditDto { Title = "New Title" };
-
-        _modRepository.GetModById(modId).Returns(modDetails);
-        _modRepository.EditMod(
-            Arg.Any<Mod>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-            .Returns(1);
-
-        //Act
-        await _modService.EditMod(modId, dto);
-
-        //Assert
         await _cloudinaryRepository.DidNotReceive().UploadAsync(Arg.Any<IFormFile>(), Arg.Any<FileType>());
         await _cloudinaryRepository.DidNotReceive().DeleteAsync(Arg.Any<string>(), Arg.Any<string>());
     }
@@ -356,32 +285,11 @@ public class ModServiceTests
         string newImageUrl = "https://cloudinary.com/new-preview.png";
         IFormFile newImage = Substitute.For<IFormFile>();
 
-        Mod modDetails = new Mod
-        {
-            ModId = Guid.Parse(modId),
-            Uid = Guid.NewGuid(),
-            Title = "Title",
-            Type = "Type",
-            Description = "Description",
-            UploadDate = DateTime.Now,
-            EditDate = DateTime.Now,
-            ImageUrl = oldImageUrl,
-            ModFileUrl = "https://cloudinary.com/mod.tpf"
-        };
-
-        ModEditDto dto = new ModEditDto { PreviewImage = newImage };
-
-        RawUploadResult uploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.OK,
-            SecureUrl = new Uri(newImageUrl)
-        };
+        Mod modDetails = ExistingMod(Guid.Parse(modId), imageUrl: oldImageUrl);
+        ModEditDto dto = EditDto(previewImage: newImage);
 
         _modRepository.GetModById(modId).Returns(modDetails);
-        _cloudinaryRepository.UploadAsync(newImage, FileType.Image).Returns(uploadResult);
-        _modRepository.EditMod(
-            Arg.Any<Mod>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-            .Returns(1);
+        _cloudinaryRepository.UploadAsync(newImage, FileType.Image).Returns(SuccessfulUpload(newImageUrl));
 
         //Act
         bool result = await _modService.EditMod(modId, dto);
@@ -390,11 +298,7 @@ public class ModServiceTests
         Assert.That(result, Is.True);
         await _cloudinaryRepository.Received(1).UploadAsync(newImage, FileType.Image);
         await _cloudinaryRepository.Received(1).DeleteAsync(oldImageUrl, PreviewImagesPublicIdStart);
-        await _modRepository.Received(1).EditMod(
-            Arg.Is<Mod>(m => m.ImageUrl == newImageUrl),
-            dto.Title,
-            dto.Type,
-            dto.Description);
+        await _modRepository.Received(1).EditMod(Arg.Is<Mod>(m => m.ImageUrl == newImageUrl));
     }
 
     [Test]
@@ -406,32 +310,11 @@ public class ModServiceTests
         string newModFileUrl = "https://cloudinary.com/new-mod.tpf";
         IFormFile newModFile = Substitute.For<IFormFile>();
 
-        Mod modDetails = new Mod
-        {
-            ModId = Guid.Parse(modId),
-            Uid = Guid.NewGuid(),
-            Title = "Title",
-            Type = "Type",
-            Description = "Description",
-            UploadDate = DateTime.Now,
-            EditDate = DateTime.Now,
-            ImageUrl = "https://cloudinary.com/preview.png",
-            ModFileUrl = oldModFileUrl
-        };
-
-        ModEditDto dto = new ModEditDto { ModFile = newModFile };
-
-        RawUploadResult uploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.OK,
-            SecureUrl = new Uri(newModFileUrl)
-        };
+        Mod modDetails = ExistingMod(Guid.Parse(modId), modFileUrl: oldModFileUrl);
+        ModEditDto dto = EditDto(modFile: newModFile);
 
         _modRepository.GetModById(modId).Returns(modDetails);
-        _cloudinaryRepository.UploadAsync(newModFile, FileType.Raw).Returns(uploadResult);
-        _modRepository.EditMod(
-            Arg.Any<Mod>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-            .Returns(1);
+        _cloudinaryRepository.UploadAsync(newModFile, FileType.Raw).Returns(SuccessfulUpload(newModFileUrl));
 
         //Act
         bool result = await _modService.EditMod(modId, dto);
@@ -440,25 +323,31 @@ public class ModServiceTests
         Assert.That(result, Is.True);
         await _cloudinaryRepository.Received(1).UploadAsync(newModFile, FileType.Raw);
         await _cloudinaryRepository.Received(1).DeleteAsync(oldModFileUrl, ModPublicIdStart);
-        await _modRepository.Received(1).EditMod(
-            Arg.Is<Mod>(m => m.ModFileUrl == newModFileUrl),
-            dto.Title,
-            dto.Type,
-            dto.Description);
+        await _modRepository.Received(1).EditMod(Arg.Is<Mod>(m => m.ModFileUrl == newModFileUrl));
     }
 
     [Test]
-    public async Task GivenNonExistentMod_WhenEditModIsCalled_ThenArgumentNullExceptionIsThrownAndNothingIsUploaded()
+    public async Task GivenFailedModFileUpload_WhenEditModIsCalled_ThenNothingElseHappensAndFalseIsReturned()
     {
         //Arrange
         string modId = Guid.NewGuid().ToString();
-        ModEditDto dto = new ModEditDto { Title = "New Title" };
+        IFormFile newModFile = Substitute.For<IFormFile>();
+        IFormFile newImage = Substitute.For<IFormFile>();
 
-        _modRepository.GetModById(modId).Returns((Mod?)null);
+        Mod modDetails = ExistingMod(Guid.Parse(modId));
+        ModEditDto dto = EditDto(modFile: newModFile, previewImage: newImage);
 
-        //Act & Assert
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await _modService.EditMod(modId, dto));
-        await _cloudinaryRepository.DidNotReceive().UploadAsync(Arg.Any<IFormFile>(), Arg.Any<FileType>());
+        _modRepository.GetModById(modId).Returns(modDetails);
+        _cloudinaryRepository.UploadAsync(newModFile, FileType.Raw).Returns(FailedUpload());
+
+        //Act
+        bool result = await _modService.EditMod(modId, dto);
+
+        //Assert
+        Assert.That(result, Is.False);
+        await _cloudinaryRepository.DidNotReceive().UploadAsync(newImage, FileType.Image);
+        await _cloudinaryRepository.DidNotReceive().DeleteAsync(Arg.Any<string>(), Arg.Any<string>());
+        await _modRepository.DidNotReceive().EditMod(Arg.Any<Mod>());
     }
 
     [Test]
@@ -469,179 +358,61 @@ public class ModServiceTests
         string oldImageUrl = "https://cloudinary.com/old-preview.png";
         IFormFile newImage = Substitute.For<IFormFile>();
 
-        Mod modDetails = new Mod
-        {
-            ModId = Guid.Parse(modId),
-            Uid = Guid.NewGuid(),
-            Title = "Title",
-            Type = "Type",
-            Description = "Description",
-            UploadDate = DateTime.Now,
-            EditDate = DateTime.Now,
-            ImageUrl = oldImageUrl,
-            ModFileUrl = "https://cloudinary.com/mod.tpf"
-        };
-
-        ModEditDto dto = new ModEditDto { PreviewImage = newImage };
-
-        RawUploadResult failedUploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.BadGateway,
-            Error = new Error { Message = "Cloudinary unavailable" }
-        };
+        Mod modDetails = ExistingMod(Guid.Parse(modId), imageUrl: oldImageUrl);
+        ModEditDto dto = EditDto(previewImage: newImage);
 
         _modRepository.GetModById(modId).Returns(modDetails);
-        _cloudinaryRepository.UploadAsync(newImage, FileType.Image).Returns(failedUploadResult);
+        _cloudinaryRepository.UploadAsync(newImage, FileType.Image).Returns(FailedUpload());
 
         //Act
         bool result = await _modService.EditMod(modId, dto);
 
         //Assert
         Assert.That(result, Is.False);
-        await _modRepository.DidNotReceive().EditMod(
-            Arg.Any<Mod>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+        await _modRepository.DidNotReceive().EditMod(Arg.Any<Mod>());
         await _cloudinaryRepository.DidNotReceive().DeleteAsync(Arg.Any<string>(), Arg.Any<string>());
     }
 
     [Test]
-    public async Task GivenFailedModFileUpload_WhenEditModIsCalled_ThenNewPreviewImageIsDeletedAndOldFilesAreKept()
+    public async Task GivenNonExistentMod_WhenEditModIsCalled_ThenArgumentNullExceptionIsThrownAndNothingIsUploaded()
     {
         //Arrange
         string modId = Guid.NewGuid().ToString();
-        string oldImageUrl = "https://cloudinary.com/old-preview.png";
-        string oldModFileUrl = "https://cloudinary.com/old-mod.tpf";
-        string newImageUrl = "https://cloudinary.com/new-preview.png";
-        IFormFile newImage = Substitute.For<IFormFile>();
-        IFormFile newModFile = Substitute.For<IFormFile>();
+        ModEditDto dto = EditDto(title: "New Title");
 
-        Mod modDetails = new Mod
-        {
-            ModId = Guid.Parse(modId),
-            Uid = Guid.NewGuid(),
-            Title = "Title",
-            Type = "Type",
-            Description = "Description",
-            UploadDate = DateTime.Now,
-            EditDate = DateTime.Now,
-            ImageUrl = oldImageUrl,
-            ModFileUrl = oldModFileUrl
-        };
-
-        ModEditDto dto = new ModEditDto { PreviewImage = newImage, ModFile = newModFile };
-
-        RawUploadResult imageUploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.OK,
-            SecureUrl = new Uri(newImageUrl)
-        };
-
-        RawUploadResult failedUploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.BadGateway,
-            Error = new Error { Message = "Cloudinary unavailable" }
-        };
-
-        _modRepository.GetModById(modId).Returns(modDetails);
-        _cloudinaryRepository.UploadAsync(newImage, FileType.Image).Returns(imageUploadResult);
-        _cloudinaryRepository.UploadAsync(newModFile, FileType.Raw).Returns(failedUploadResult);
-
-        //Act
-        bool result = await _modService.EditMod(modId, dto);
-
-        //Assert
-        Assert.That(result, Is.False);
-        await _cloudinaryRepository.Received(1).DeleteAsync(newImageUrl, PreviewImagesPublicIdStart);
-        await _cloudinaryRepository.DidNotReceive().DeleteAsync(oldImageUrl, PreviewImagesPublicIdStart);
-        await _cloudinaryRepository.DidNotReceive().DeleteAsync(oldModFileUrl, ModPublicIdStart);
-        await _modRepository.DidNotReceive().EditMod(
-            Arg.Any<Mod>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
-    }
-
-    [Test]
-    public async Task GivenNoRowsAffected_WhenEditModIsCalled_ThenNewFilesAreDeletedAndFalseIsReturned()
-    {
-        //Arrange
-        string modId = Guid.NewGuid().ToString();
-        string oldImageUrl = "https://cloudinary.com/old-preview.png";
-        string newImageUrl = "https://cloudinary.com/new-preview.png";
-        IFormFile newImage = Substitute.For<IFormFile>();
-
-        Mod modDetails = new Mod
-        {
-            ModId = Guid.Parse(modId),
-            Uid = Guid.NewGuid(),
-            Title = "Title",
-            Type = "Type",
-            Description = "Description",
-            UploadDate = DateTime.Now,
-            EditDate = DateTime.Now,
-            ImageUrl = oldImageUrl,
-            ModFileUrl = "https://cloudinary.com/mod.tpf"
-        };
-
-        ModEditDto dto = new ModEditDto { PreviewImage = newImage };
-
-        RawUploadResult uploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.OK,
-            SecureUrl = new Uri(newImageUrl)
-        };
-
-        _modRepository.GetModById(modId).Returns(modDetails);
-        _cloudinaryRepository.UploadAsync(newImage, FileType.Image).Returns(uploadResult);
-        _modRepository.EditMod(
-            Arg.Any<Mod>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-            .Returns(0);
-
-        //Act
-        bool result = await _modService.EditMod(modId, dto);
-
-        //Assert
-        Assert.That(result, Is.False);
-        await _cloudinaryRepository.Received(1).DeleteAsync(newImageUrl, PreviewImagesPublicIdStart);
-        await _cloudinaryRepository.DidNotReceive().DeleteAsync(oldImageUrl, PreviewImagesPublicIdStart);
-    }
-
-    [Test]
-    public async Task GivenRepositoryThrows_WhenEditModIsCalled_ThenNewFilesAreDeletedAndExceptionIsRethrown()
-    {
-        //Arrange
-        string modId = Guid.NewGuid().ToString();
-        string oldImageUrl = "https://cloudinary.com/old-preview.png";
-        string newImageUrl = "https://cloudinary.com/new-preview.png";
-        IFormFile newImage = Substitute.For<IFormFile>();
-
-        Mod modDetails = new Mod
-        {
-            ModId = Guid.Parse(modId),
-            Uid = Guid.NewGuid(),
-            Title = "Title",
-            Type = "Type",
-            Description = "Description",
-            UploadDate = DateTime.Now,
-            EditDate = DateTime.Now,
-            ImageUrl = oldImageUrl,
-            ModFileUrl = "https://cloudinary.com/mod.tpf"
-        };
-
-        ModEditDto dto = new ModEditDto { PreviewImage = newImage };
-
-        RawUploadResult uploadResult = new RawUploadResult
-        {
-            StatusCode = HttpStatusCode.OK,
-            SecureUrl = new Uri(newImageUrl)
-        };
-
-        _modRepository.GetModById(modId).Returns(modDetails);
-        _cloudinaryRepository.UploadAsync(newImage, FileType.Image).Returns(uploadResult);
-        _modRepository.EditMod(
-            Arg.Any<Mod>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-            .ThrowsAsync(new InvalidOperationException("Database unavailable"));
+        _modRepository.GetModById(modId).Returns((Mod?)null);
 
         //Act & Assert
-        Assert.ThrowsAsync<InvalidOperationException>(async () => await _modService.EditMod(modId, dto));
-        await _cloudinaryRepository.Received(1).DeleteAsync(newImageUrl, PreviewImagesPublicIdStart);
-        await _cloudinaryRepository.DidNotReceive().DeleteAsync(oldImageUrl, PreviewImagesPublicIdStart);
+        Assert.ThrowsAsync<ArgumentNullException>(async () => await _modService.EditMod(modId, dto));
+        await _cloudinaryRepository.DidNotReceive().UploadAsync(Arg.Any<IFormFile>(), Arg.Any<FileType>());
+    }
+
+    [Test]
+    public async Task GivenExistingMod_WhenGetModDetailsIsCalled_ThenTheModDetailsAreReturned()
+    {
+        //Arrange
+        string modId = Guid.NewGuid().ToString();
+        ModDetailsDto modDetails = SampleModDetailsDto();
+
+        _modRepository.GetModDetails(modId).Returns(modDetails);
+
+        //Act
+        ModDetailsDto result = await _modService.GetModDetails(modId);
+
+        //Assert
+        Assert.That(result, Is.EqualTo(modDetails));
+    }
+
+    [Test]
+    public void GivenNonExistentMod_WhenGetModDetailsIsCalled_ThenArgumentNullExceptionIsThrown()
+    {
+        //Arrange
+        string modId = Guid.NewGuid().ToString();
+
+        _modRepository.GetModDetails(modId).Returns((ModDetailsDto?)null);
+
+        //Act & Assert
+        Assert.ThrowsAsync<ArgumentNullException>(async () => await _modService.GetModDetails(modId));
     }
 
     [Test]
@@ -651,30 +422,8 @@ public class ModServiceTests
         string uid = Guid.NewGuid().ToString();
         List<GetModDto> mods =
         [
-            new GetModDto
-            {
-                ModId = Guid.NewGuid(),
-                Creator = "User1",
-                Title = "Mod 1",
-                Type = "Type",
-                Description = "Description",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-                ModFileUrl = "https://cloudinary.com/mod1.tpf",
-                PreviewImageUrl = "https://cloudinary.com/preview1.png"
-            },
-            new GetModDto
-            {
-                ModId = Guid.NewGuid(),
-                Creator = "User2",
-                Title = "Mod 2",
-                Type = "Type",
-                Description = "Description",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-                ModFileUrl = "https://cloudinary.com/mod2.tpf",
-                PreviewImageUrl = "https://cloudinary.com/preview2.png"
-            }
+            SampleGetModDto("User1", "Mod 1"),
+            SampleGetModDto("User2", "Mod 2")
         ];
 
         _modRepository.GetAllMods(uid).Returns(mods);
@@ -692,6 +441,7 @@ public class ModServiceTests
     {
         //Arrange
         string uid = Guid.NewGuid().ToString();
+
         _modRepository.GetAllMods(uid).Returns([]);
 
         //Act
@@ -722,30 +472,8 @@ public class ModServiceTests
         string uid = Guid.NewGuid().ToString();
         List<Mod> mods =
         [
-            new Mod
-            {
-                ModId = Guid.NewGuid(),
-                Uid = Guid.NewGuid(),
-                Title = "My Mod 1",
-                Type = "Type",
-                Description = "Description",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-                ModFileUrl = "https://cloudinary.com/mod1.tpf",
-                ImageUrl = "https://cloudinary.com/preview1.png"
-            },
-            new Mod
-            {
-                ModId = Guid.NewGuid(),
-                Uid = Guid.NewGuid(),
-                Title = "My Mod 2",
-                Type = "Type",
-                Description = "Description",
-                UploadDate = DateTime.Now,
-                EditDate = DateTime.Now,
-                ModFileUrl = "https://cloudinary.com/mod2.tpf",
-                ImageUrl = "https://cloudinary.com/preview2.png"
-            }
+            ExistingMod(Guid.NewGuid()),
+            ExistingMod(Guid.NewGuid())
         ];
 
         _modRepository.GetMyMods(uid).Returns(mods);
@@ -763,6 +491,7 @@ public class ModServiceTests
     {
         //Arrange
         string uid = Guid.NewGuid().ToString();
+
         _modRepository.GetMyMods(uid).Returns([]);
 
         //Act

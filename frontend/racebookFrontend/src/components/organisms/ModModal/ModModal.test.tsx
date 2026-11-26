@@ -14,7 +14,7 @@ const { useCategoriesMock, notifyMock } = vi.hoisted(() => ({
     },
 }));
 
-vi.mock('../../../hooks/useCategories', () => ({
+vi.mock('../../../hooks/api/useCategories', () => ({
     useCategories: useCategoriesMock,
 }));
 
@@ -27,9 +27,6 @@ const CHOSEN_CATEGORY = CATEGORIES[0];
 
 const TITLE = 'Neon Skyline';
 const DESCRIPTION = 'A repaint of the R34 with neon underglow.';
-
-const MOD_FILE_INDEX = 0;
-const PREVIEW_IMAGE_INDEX = 1;
 
 const EXISTING_MOD = {
     modId: '22222222-2222-2222-2222-222222222222',
@@ -45,32 +42,33 @@ const SERVER_REJECTION = Object.assign(new Error('Request failed'), {
     response: { data: { message: 'Upload service is unavailable' }, status: 502 },
 });
 
-const makeFile = (name: string) => new File(['x'], name);
-
 const renderModal = (props: Partial<Parameters<typeof ModModal>[0]> = {}) => {
     const onClose = vi.fn();
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     const { wrapper } = createWrapper();
 
     const view = render(
-        <ModModal isOpen mode="upload" onClose={onClose} onSubmit={onSubmit} {...props} />,
+        <ModModal mode="upload" onClose={onClose} onSubmit={onSubmit} {...props} />,
         { wrapper }
     );
 
     return { onClose, onSubmit, ...view };
 };
 
-const fillEverything = async () => {
-    await userEvent.type(screen.getByLabelText('Title'), TITLE);
-    await userEvent.type(screen.getByLabelText('Description'), DESCRIPTION);
+const renderEditModal = () => renderModal({ mode: 'edit', mod: EXISTING_MOD });
+
+const fillTextFields = async () => {
+    const title = screen.getByLabelText('Title');
+    await userEvent.clear(title);
+    await userEvent.type(title, TITLE);
+
+    const description = screen.getByLabelText('Description');
+    await userEvent.clear(description);
+    await userEvent.type(description, DESCRIPTION);
 
     await userEvent.click(screen.getByRole('button', { name: 'Select a category' }));
     const option = screen.getAllByRole('option')[CATEGORIES.indexOf(CHOSEN_CATEGORY)];
     await userEvent.click(within(option).getByRole('button'));
-
-    const pickers = screen.getAllByLabelText(/choose file/i);
-    await userEvent.upload(pickers[MOD_FILE_INDEX], makeFile('skyline.tpf'));
-    await userEvent.upload(pickers[PREVIEW_IMAGE_INDEX], makeFile('preview.png'));
 };
 
 const submit = () =>
@@ -79,7 +77,7 @@ const submit = () =>
 beforeEach(() => {
     vi.clearAllMocks();
     useCategoriesMock.mockReturnValue({
-        categories: CATEGORIES,
+        data: CATEGORIES,
         isLoading: false,
         isError: false,
     });
@@ -87,7 +85,6 @@ beforeEach(() => {
 
 describe('ModModal', () => {
     it('renders nothing when it is closed', () => {
-        renderModal({ isOpen: false });
 
         expect(screen.queryByRole('heading')).not.toBeInTheDocument();
     });
@@ -104,7 +101,7 @@ describe('ModModal', () => {
 
     it('explains the problem and blocks submission when the categories fail to load', () => {
         useCategoriesMock.mockReturnValue({
-            categories: [],
+            data: [],
             isLoading: false,
             isError: true,
         });
@@ -128,20 +125,6 @@ describe('ModModal', () => {
         expect(screen.getByText('Preview image is required')).toBeInTheDocument();
     });
 
-    it('rejects a mod file with the wrong extension', async () => {
-        renderModal();
-
-        const pickers = screen.getAllByLabelText(/choose file/i);
-        await userEvent.upload(
-            pickers[MOD_FILE_INDEX],
-            makeFile('skyline.zip'),
-            { applyAccept: false }
-        );
-        await submit();
-
-        expect(await screen.findByText('Mod file must be a .tpf file')).toBeInTheDocument();
-    });
-
     it('allows an edit that changes no files', async () => {
         const { onSubmit } = renderModal({ mode: 'edit', mod: EXISTING_MOD });
 
@@ -151,9 +134,9 @@ describe('ModModal', () => {
     });
 
     it('sends what was entered', async () => {
-        const { onSubmit } = renderModal();
+        const { onSubmit } = renderEditModal();
 
-        await fillEverything();
+        await fillTextFields();
         await submit();
 
         const formData = onSubmit.mock.calls[0][0] as FormData;
@@ -161,25 +144,23 @@ describe('ModModal', () => {
         expect(formData.get('title')).toBe(TITLE);
         expect(formData.get('description')).toBe(DESCRIPTION);
         expect(formData.get('type')).toBe(CHOSEN_CATEGORY);
-        expect(formData.get('modFile')).toBeInstanceOf(File);
-        expect(formData.get('previewImage')).toBeInstanceOf(File);
     });
 
-    it('confirms and closes once the upload succeeds', async () => {
-        const { onClose } = renderModal();
+    it('confirms and closes once the edit succeeds', async () => {
+        const { onClose } = renderEditModal();
 
-        await fillEverything();
+        await fillTextFields();
         await submit();
 
-        expect(notifyMock.success).toHaveBeenCalledWith('Mod uploaded');
+        expect(notifyMock.success).toHaveBeenCalledWith('Changes saved');
         expect(onClose).toHaveBeenCalledOnce();
     });
 
-    it('shows the server’s reason and stays open when the upload fails', async () => {
-        const { onSubmit, onClose } = renderModal();
+    it('shows the server’s reason and stays open when the save fails', async () => {
+        const { onSubmit, onClose } = renderEditModal();
         onSubmit.mockRejectedValue(SERVER_REJECTION);
 
-        await fillEverything();
+        await fillTextFields();
         await submit();
 
         expect(await screen.findByText('Upload service is unavailable')).toBeInTheDocument();

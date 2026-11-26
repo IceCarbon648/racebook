@@ -3,6 +3,7 @@ using Business.Interfaces;
 using CloudinaryDotNet.Actions;
 using Infrastructure.Constants;
 using Infrastructure.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Models;
 using Models.DTOs.Request;
@@ -16,8 +17,9 @@ namespace Business
         private readonly ICloudinaryRepository _cloudinaryRepository;
         private readonly IModRepository _modRepository;
         private readonly ILogger<ModService> _logger;
+        private readonly record struct CloudinaryFile(string Url, string PublicIdStart);
 
-        const string PreviewImagesPublicIdStart = "PreviewImages";
+        const string PreviewImagePublicIdStart = "PreviewImages";
         const string ModPublicIdStart = "Mods";
 
         public ModService(ICloudinaryRepository cloudinaryRepository, IModRepository modRepository, ILogger<ModService> logger)
@@ -56,16 +58,17 @@ namespace Business
 
             _logger.LogDebug("Preview image uploaded to Cloudinary for user {Uid}: {Url}", uid, previewImageUploadResult.SecureUrl);
 
-            NewMod newMod = new NewMod {
-                                           Uid = uid,
-                                           Title = dto.Title,
-                                           Type = dto.Type,
-                                           Description = dto.Description,
-                                           UploadDate = DateOnly.FromDateTime(DateTime.Now).ToString(),
-                                           EditDate = DateOnly.FromDateTime(DateTime.Now).ToString(),
-                                           ModFileUrl = modFileUploadResult.SecureUrl.ToString(),
-                                           ImageUrl = previewImageUploadResult.SecureUrl.ToString()
-                                       };
+            NewMod newMod = new NewMod
+            {
+                Uid = uid,
+                Title = dto.Title,
+                Type = dto.Type,
+                Description = dto.Description,
+                UploadDate = DateOnly.FromDateTime(DateTime.Now).ToString(),
+                EditDate = DateOnly.FromDateTime(DateTime.Now).ToString(),
+                ModFileUrl = modFileUploadResult.SecureUrl.ToString(),
+                ImageUrl = previewImageUploadResult.SecureUrl.ToString()
+            };
 
             Guid modId = await _modRepository.CreateMod(newMod);
 
@@ -82,7 +85,7 @@ namespace Business
             Guard.Against.Null(mod, nameof(mod), $"Mod {modId} not found");
             _logger.LogDebug("Mod {ModId} deleted from database", modId);
 
-            await _cloudinaryRepository.DeleteAsync(mod.ImageUrl, PreviewImagesPublicIdStart);
+            await _cloudinaryRepository.DeleteAsync(mod.ImageUrl, PreviewImagePublicIdStart);
             _logger.LogDebug("Preview image deleted from Cloudinary for mod {ModId}", modId);
 
             await _cloudinaryRepository.DeleteAsync(mod.ModFileUrl, ModPublicIdStart);
@@ -98,70 +101,51 @@ namespace Business
             Mod? modDetails = await _modRepository.GetModById(modId);
             Guard.Against.Null(modDetails, nameof(modDetails), $"Mod {modId} not found");
 
-            List<(string Url, string PublicIdStart)> oldFiles = [];
-            List<(string Url, string PublicIdStart)> newFiles = [];
-
-            if (dto.PreviewImage is not null)
-            {
-                RawUploadResult result = await _cloudinaryRepository.UploadAsync(dto.PreviewImage, FileType.Image);
-
-                if (result.StatusCode != HttpStatusCode.OK)
-                {
-                    _logger.LogError("Failed to upload preview image for mod {ModId}. {StatusCode}: {ErrorMessage}", modId, result.StatusCode, result.Error?.Message);
-
-                    return false;
-                }
-
-                oldFiles.Add((modDetails.ImageUrl, PreviewImagesPublicIdStart));
-                newFiles.Add((result.SecureUrl.ToString(), PreviewImagesPublicIdStart));
-                modDetails.ImageUrl = result.SecureUrl.ToString();
-
-                _logger.LogDebug("New preview image uploaded for mod {ModId}: {Url}", modId, modDetails.ImageUrl);
-            }
+            string? latestModFileUrl = modDetails.ModFileUrl;
+            string? latestImageUrl = modDetails.ImageUrl;
 
             if (dto.ModFile is not null)
             {
-                RawUploadResult result = await _cloudinaryRepository.UploadAsync(dto.ModFile, FileType.Raw);
-
-                if (result.StatusCode != HttpStatusCode.OK)
+                CloudinaryFile oldModFile = new CloudinaryFile
                 {
-                    _logger.LogError("Failed to upload mod file for mod {ModId}. {StatusCode}: {ErrorMessage}", modId, result.StatusCode, result.Error?.Message);
-                    await DeleteFiles(newFiles);
+                    Url = latestModFileUrl,
+                    PublicIdStart = ModPublicIdStart
+                };
 
-                    return false;
-                }
-
-                oldFiles.Add((modDetails.ModFileUrl, ModPublicIdStart));
-                newFiles.Add((result.SecureUrl.ToString(), ModPublicIdStart));
-                modDetails.ModFileUrl = result.SecureUrl.ToString();
-
-                _logger.LogDebug("New mod file uploaded for mod {ModId}: {Url}", modId, modDetails.ModFileUrl);
+                latestModFileUrl = await TryReplaceFile(dto.ModFile, FileType.Raw, oldModFile);
             }
 
-            modDetails.EditDate = DateTime.Now;
-
-            int rowsAffected;
-
-            try
+            if (latestModFileUrl is null)
             {
-                rowsAffected = await _modRepository.EditMod(modDetails, dto.Title, dto.Type, dto.Description);
-            }
-            catch
-            {
-                await DeleteFiles(newFiles);
-                throw;
-            }
-
-            if (rowsAffected == 0)
-            {
-                _logger.LogWarning("Edit of mod {ModId} affected no rows, rolling back uploads", modId);
-                await DeleteFiles(newFiles);
                 return false;
             }
 
-            await DeleteFiles(oldFiles);
+            if (dto.PreviewImage is not null)
+            {
+                CloudinaryFile oldImageFile = new CloudinaryFile
+                {
+                    Url = latestImageUrl,
+                    PublicIdStart = PreviewImagePublicIdStart
+                };
 
-            _logger.LogInformation("Mod {ModId} successfully edited", modId);
+                latestImageUrl = await TryReplaceFile(dto.PreviewImage, FileType.Image, oldImageFile);
+            }
+
+            if (latestImageUrl is null)
+            {
+                return false;
+            }
+
+            modDetails.Title = dto.Title;
+            modDetails.Type = dto.Type;
+            modDetails.Description = dto.Description;
+            modDetails.EditDate = DateTime.Now;
+            modDetails.ModFileUrl = latestModFileUrl;
+            modDetails.ImageUrl = latestImageUrl;
+
+            await _modRepository.EditMod(modDetails);
+
+            _logger.LogInformation("Mod {modId} edited successfully", modId);
 
             return true;
         }
@@ -181,6 +165,17 @@ namespace Business
             }
 
             return mods;
+        }
+
+        public async Task<ModDetailsDto> GetModDetails(string modId)
+        {
+            _logger.LogInformation("Retrieving mod {modId}", modId);
+
+            ModDetailsDto? modDetails = await _modRepository.GetModDetails(modId);
+
+            Guard.Against.Null(modDetails, nameof(modDetails), $"Mod {modId} not found");
+
+            return modDetails!;
         }
 
         public async Task<List<Mod>> GetMyMods(string uid)
@@ -211,12 +206,45 @@ namespace Business
             return isOwner;
         }
 
-        private async Task DeleteFiles(IEnumerable<(string Url, string PublicIdStart)> files)
+        private async Task<string?> TryUploadToCloudinary(IFormFile file, FileType type)
         {
-            foreach ((string url, string publicIdStart) in files)
+            RawUploadResult uploadResult = await _cloudinaryRepository.UploadAsync(file, type);
+
+            return uploadResult.StatusCode == HttpStatusCode.OK ? uploadResult.SecureUrl.ToString() : null;
+        }
+
+        private async Task<bool> TryDeleteFromCloudinary(CloudinaryFile cloudinaryFile)
+        {
+            DeletionResult deletionResult = await _cloudinaryRepository.DeleteAsync(cloudinaryFile.Url, cloudinaryFile.PublicIdStart);
+
+            return deletionResult.StatusCode == HttpStatusCode.OK;
+        }
+
+        private async Task<string?> TryReplaceFile(IFormFile file, FileType type, CloudinaryFile oldFile)
+        {
+            _logger.LogInformation("Attempting to upload new file");
+
+            string? fileUrl = await TryUploadToCloudinary(file, type);
+
+            if (fileUrl is null)
             {
-                await _cloudinaryRepository.DeleteAsync(url, publicIdStart);
+                _logger.LogWarning("Failed to upload new file");
+
+                return null;
             }
+
+            _logger.LogInformation("New file uploaded successfully");
+
+            if (await TryDeleteFromCloudinary(oldFile))
+            {
+                _logger.LogInformation("Old file deleted: {Url}", oldFile.Url);
+            }
+            else
+            {
+                _logger.LogWarning("Old file could not deleted: {Url}", oldFile.Url);
+            }
+
+            return fileUrl;
         }
     }
 }

@@ -64,4 +64,5 @@ nunit-*.xml
 /frontend/racebookFrontend/.vs
 /frontend/racebookFrontend/.vscode
 /frontend/racebookFrontend/node_modules
+/frontend/AutomationTests/node_modules
 /frontend/racebookFrontend/obj

@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../contexts';
+import { useAuth } from '../../hooks/useAuth';
 import Background from '../../components/molecules/Background/Index';
 
 const Landing = () => {
     const { isAuthenticated } = useAuth();
 
     return (
-
         <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] gap-6 text-center px-4">
             <Background reveal={true} />
             <h1 className="text-5xl font-bold text-white drop-shadow-[0_0_4px_rgba(0,0,0,1)]">Welcome to Racebook</h1>

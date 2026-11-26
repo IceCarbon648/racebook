@@ -1,4 +1,4 @@
-import axiosInstance from './axiosInstance';
+import axiosInstance from '../../lib/axiosInstance';
 import type { AuthResponse, RegisterRequest } from '../../types';
 
 export const register = async (data: RegisterRequest): Promise<void> => {

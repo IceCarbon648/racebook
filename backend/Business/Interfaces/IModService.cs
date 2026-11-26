@@ -10,6 +10,7 @@ namespace Business.Interfaces
         Task DeleteMod(string modId);
         Task<bool> EditMod(string modId, ModEditDto dto);
         Task<List<GetModDto>> GetAllMods(string? uid);
+        Task<ModDetailsDto> GetModDetails(string modId);
         Task<List<Mod>> GetMyMods(string uid);
         Task<bool> IsOwner(string modId, string uid);
     }

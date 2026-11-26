@@ -24,14 +24,13 @@ namespace racebookApi.Controllers
         [ServiceFilter(typeof(ValidationFilter<ModDto>))]
         public async Task<IActionResult> UploadMod([FromForm] ModDto dto)
         {
-            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier)!.Value.ToString();
 
             Guid? modId = await _modService.UploadMod(uid, dto);
 
-            if (modId is null)
+            if(modId is null)
             {
-                return StatusCode(StatusCodes.Status502BadGateway,
-                    new { message = "Upload service is unavailable, please try again" });
+                return StatusCode(StatusCodes.Status502BadGateway, new { message = "Upload service is unavailable, please try again" });
             }
 
             return Created($"/api/mod/{modId}", new { modId });
@@ -41,9 +40,9 @@ namespace racebookApi.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteMod([FromRoute] string modId)
         {
-            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier)!.Value.ToString();
 
-            if (!await _modService.IsOwner(modId, uid))
+            if(!await _modService.IsOwner(modId, uid))
             {
                 return Forbid(Constants.NotOwnerMessage);
             }
@@ -58,7 +57,7 @@ namespace racebookApi.Controllers
         [ServiceFilter(typeof(ValidationFilter<ModEditDto>))]
         public async Task<IActionResult> EditMod([FromRoute] string modId, [FromForm] ModEditDto dto)
         {
-            string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
+            string uid = User.FindFirst(ClaimTypes.NameIdentifier)!.Value.ToString();
 
             if (!await _modService.IsOwner(modId, uid))
             {
@@ -78,13 +77,25 @@ namespace racebookApi.Controllers
             return Ok(await _modService.GetAllMods(uid));
         }
 
+        [HttpGet("{modId}")]
+        public async Task<IActionResult> GetModDetails([FromRoute] string modId)
+        {
+            return Ok(await _modService.GetModDetails(modId));
+        }
+
+
         [HttpGet("my-mods")]
         [Authorize]
         public async Task<IActionResult> GetMyMods()
         {
             string? uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value.ToString();
 
-            return Ok(await _modService.GetMyMods(uid!));
+            if (uid is null)
+            {
+                return Unauthorized();
+            }
+
+            return Ok(await _modService.GetMyMods(uid));
         }
     }
 }

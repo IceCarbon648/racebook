@@ -31,7 +31,6 @@ namespace racebookApi.Controllers
             Response.Cookies.Append("access_token", jwt, new CookieOptions
             {
                 HttpOnly = true,
-                SameSite = SameSiteMode.Lax,
                 Expires = DateTimeOffset.UtcNow.AddMinutes(30)
             });
 

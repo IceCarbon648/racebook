@@ -1,0 +1,8 @@
+{
+  "racebook": "http://localhost:3000",
+  "login": "http://localhost:3000/login",
+  "mods": "http://localhost:3000/mods",
+  "myMods": "http://localhost:3000/my-mods",
+  "loginEndpoint": "http://localhost:8080/api/auth/login",
+  "modsEndpoint": "http://localhost:8080/api/mods"
+}

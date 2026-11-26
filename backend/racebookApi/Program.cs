@@ -1,4 +1,3 @@
-using AspNet.Security.OAuth.Discord;
 using Business.Helpers;
 using Helpers.Interfaces;
 using Business.Startup;
@@ -25,19 +24,12 @@ Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-string discordClientId = Environment.GetEnvironmentVariable("discordClientId")!;
-string discordClientSecret = Environment.GetEnvironmentVariable("discordClientSecret")!;
 string cloudinaryName = Environment.GetEnvironmentVariable("cloudinaryName")!;
 string cloudinaryKey = Environment.GetEnvironmentVariable("cloudinaryKey")!;
 string cloudinarySecret = Environment.GetEnvironmentVariable("cloudinarySecret")!;
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-
-builder.Services.AddHttpClient("amax-api", client =>
-{
-    client.BaseAddress = new Uri("https://amax-emu.com/api/");
-});
 
 builder.Services.AddCors(options =>
 {
@@ -75,7 +67,6 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = DiscordAuthenticationDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(jwtOptions =>
 {
@@ -91,13 +82,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true
     };
 })
-.AddCookie()
-.AddDiscord(options =>
-{
-    options.ClientId = discordClientId;
-    options.ClientSecret = discordClientSecret;
-    options.SaveTokens = true;
-});
+.AddCookie();
 
 builder.Services.AddAuthorization(options =>
 {

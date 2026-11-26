@@ -1,7 +1,6 @@
 export interface User {
     uid: string;
     username: string;
-    amaxUsername?: string;
 }
 
 export interface Mod {
@@ -15,6 +14,17 @@ export interface Mod {
     modFileUrl: string;
     previewImageUrl: string;
     isFavourite?: boolean;
+}
+
+export interface ModDetails{
+    creator: string;
+    title: string;
+    type: string;
+    description: string;
+    uploadDate: string;
+    editDate: string;
+    modFileUrl: string;
+    previewImageUrl: string;
 }
 
 export interface MyMod {
@@ -43,5 +53,4 @@ export interface RegisterRequest {
 export interface AuthResponse {
     uid: string;
     username: string;
-    amaxUsername?: string;
 }

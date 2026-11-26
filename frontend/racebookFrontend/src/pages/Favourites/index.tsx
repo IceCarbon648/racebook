@@ -3,38 +3,46 @@ import { ModCard } from '../../components';
 import type { Mod } from '../../types';
 import Background from '../../components/molecules/Background/Index';
 import { Pagination } from '../../components/molecules';
-import { useFavouriteMod } from '../../hooks/useFavouriteMod';
-import { useFavourites } from '../../hooks/useFavourites';
+import { useFavourites } from '../../hooks/api/useFavourites';
 import { usePagination } from '../../hooks/usePagination';
+import { useFavouriteClick } from '../../hooks/useFavouriteClick';
 
 const Favourites = () => {
     const navigate = useNavigate();
+    const { handleFavouriteClick } = useFavouriteClick();
 
-    const { favourites, isLoading, isError } = useFavourites();
-    const { toggleFavourite } = useFavouriteMod();
+    const { data: favourites = [], isLoading, isError } = useFavourites();
     const { page, setPage, totalPages, paginated } = usePagination(favourites);
 
     const handleModClick = (mod: Mod) => {
         navigate(`/mods/${mod.modId}`, { state: { mod } });
     };
 
-    if (isLoading) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-gray-500">Loading favourites...</p>
-        </div>
-    );
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <p className="text-gray-500">Loading favourites...</p>
+            </div>
+        );
+    }
 
-    if (isError) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-red-500">Failed to load favourites</p>
-        </div>
-    );
+    if (isError) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <Background reveal={false} />
+                <p className="text-red-500">Failed to load favourites</p>
+            </div>
+        );
+    }
 
-    if (favourites.length === 0) return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-            <p className="text-white">You have no favourites yet</p>
-        </div>
-    );
+    if (favourites.length === 0) {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+                <Background reveal={false} />
+                <p className="text-white">You have no favourites yet</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-8 px-6 py-8">
@@ -52,7 +60,7 @@ const Favourites = () => {
                             creator={mod.creator}
                             isFavourite={true}
                             onClick={() => handleModClick(mod)}
-                            onFavourite={() => toggleFavourite(mod.modId, true)}
+                            onFavourite={() => handleFavouriteClick(mod.modId, true)}
                         />
                     ))}
                 </div>
