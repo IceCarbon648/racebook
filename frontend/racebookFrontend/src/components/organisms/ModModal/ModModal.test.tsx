@@ -28,9 +28,6 @@ const CHOSEN_CATEGORY = CATEGORIES[0];
 const TITLE = 'Neon Skyline';
 const DESCRIPTION = 'A repaint of the R34 with neon underglow.';
 
-const MOD_FILE_INDEX = 0;
-const PREVIEW_IMAGE_INDEX = 1;
-
 const EXISTING_MOD = {
     modId: '22222222-2222-2222-2222-222222222222',
     title: 'Midnight Expressway',
@@ -44,8 +41,6 @@ const SERVER_REJECTION = Object.assign(new Error('Request failed'), {
     isAxiosError: true,
     response: { data: { message: 'Upload service is unavailable' }, status: 502 },
 });
-
-const makeFile = (name: string) => new File(['x'], name);
 
 const renderModal = (props: Partial<Parameters<typeof ModModal>[0]> = {}) => {
     const onClose = vi.fn();

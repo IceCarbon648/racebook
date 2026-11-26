@@ -1,0 +1,7 @@
+{
+  "title": "Cypress Test Mod",
+  "type": "ENVIRONMENT",
+  "description": "Created by an automated test",
+  "modFile": "cypress/fixtures/TestMod.tpf",
+  "previewImage": "cypress/fixtures/preview.png"
+}

@@ -13,7 +13,9 @@ const ModCard = ({
 }: ModCardProps) => {
     const [hovered, setHovered] = useState(false);
     return (
-        <div className="relative h-64 w-64 text-left"
+        <div
+            className="relative h-64 w-64 text-left"
+            data-test="mod-card"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >

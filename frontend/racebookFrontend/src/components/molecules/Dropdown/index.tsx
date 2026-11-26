@@ -50,6 +50,7 @@ const Dropdown = ({ value, options, label, className = '', onChange }: DropdownP
                         <li key={option} role="option" aria-selected={option === value}>
                             <button
                                 type="button"
+                                data-value={option}
                                 onClick={() => { onChange(option); setOpen(false); }}
                                 className="group/roll w-full px-3 py-2 text-left text-sm text-gray-300 cursor-pointer hover:bg-white/10"
                             >

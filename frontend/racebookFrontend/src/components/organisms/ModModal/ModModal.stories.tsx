@@ -33,14 +33,13 @@ const meta = {
     title: 'Organisms/ModModal',
     component: ModModal,
     parameters: {
-        layout: 'fullscreen',
+        layout: 'fullscreen'
     },
     decorators: [withCategories],
     args: {
-        isOpen: true,
-        onClose: () => {},
-        onSubmit: async () => {},
-    },
+        onClose: () => { },
+        onSubmit: async () => { }
+    }
 } satisfies Meta<typeof ModModal>;
 
 export default meta;
