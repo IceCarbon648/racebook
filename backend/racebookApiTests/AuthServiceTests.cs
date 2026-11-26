@@ -70,7 +70,6 @@ public class AuthServiceTests
         {
             Uid = Guid.NewGuid(),
             Username = "TestUser",
-            AmaxUsername = null,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("CorrectPassword123!")
         };
 
@@ -99,7 +98,6 @@ public class AuthServiceTests
         {
             Uid = Guid.NewGuid(),
             Username = "TestUser",
-            AmaxUsername = null,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
         };
 
@@ -130,7 +128,6 @@ public class AuthServiceTests
         {
             Uid = uid,
             Username = "TestUser",
-            AmaxUsername = null,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
         };
 
@@ -164,7 +161,6 @@ public class AuthServiceTests
         {
             Uid = Guid.NewGuid(),
             Username = "TestUser",
-            AmaxUsername = null,
             PasswordHash = passwordHash
         };
 
