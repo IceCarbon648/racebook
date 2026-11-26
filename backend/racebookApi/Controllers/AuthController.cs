@@ -6,27 +6,27 @@ using Validation.Filter;
 
 namespace racebookApi.Controllers
 {
-	[ApiController]
-	[Route("api/auth")]
-	public class AuthController : ControllerBase
-	{
-		private readonly IAuthService _authService;
+    [ApiController]
+    [Route("api/auth")]
+    public class AuthController : ControllerBase
+    {
+        private readonly IAuthService _authService;
 
-		public AuthController(IAuthService authService)
-		{
-			_authService = authService;
-		}
+        public AuthController(IAuthService authService)
+        {
+            _authService = authService;
+        }
 
-		[HttpPost("login")]
+        [HttpPost("login")]
         [ServiceFilter(typeof(ValidationFilter<LoginDto>))]
         public async Task<IActionResult> Login([FromForm] LoginDto dto)
-		{
-			string? jwt = await _authService.LoginAsync(dto);
+        {
+            string? jwt = await _authService.LoginAsync(dto);
 
-			if (string.IsNullOrEmpty(jwt))
-			{
-				return Unauthorized();
-			}
+            if (string.IsNullOrEmpty(jwt))
+            {
+                return Unauthorized();
+            }
 
             Response.Cookies.Append("access_token", jwt, new CookieOptions
             {
@@ -35,12 +35,12 @@ namespace racebookApi.Controllers
             });
 
             return Ok(new { message = "Login successful" });
-		}
+        }
 
-		[HttpPost("logout")]
-		[Authorize]
-		public async Task<IActionResult> Logout()
-		{
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
             Response.Cookies.Delete("access_token");
 
             return Ok(new { message = "Logout successful" });

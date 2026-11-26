@@ -48,7 +48,8 @@ builder.Services.AddFluentValidation();
 builder.Services.AddScoped(typeof(ValidationFilter<>));
 ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Continue;
 
-builder.Services.AddSingleton<MagicBytesValidator.Services.IValidator, Validator>(sp => {
+builder.Services.AddSingleton<MagicBytesValidator.Services.IValidator, Validator>(sp =>
+{
     Validator validator = new Validator();
     validator.Mapping.Register([new TpfFileType(), new PngFileType(), new JpgFileType()]);
     return validator;
